@@ -126,8 +126,7 @@ type
     procedure CMFontChanged(var Message: TMessage); message CM_FONTCHANGED;
     procedure CMCancelMode(var Message: TCMCancelMode); message CM_CANCELMODE;
     procedure CMEnter(var Message: TMessage); message CM_ENTER;
-    procedure CNCtlColor(var Message: TMessage); message
-      {$IFNDEF VER80} CN_CTLCOLOREDIT {$ELSE} CN_CTLCOLOR {$ENDIF};
+    procedure CNCtlColor(var Message: TMessage); message {$IFNDEF VER80} CN_CTLCOLOREDIT {$ELSE} CN_CTLCOLOR {$ENDIF};
     procedure WMSize(var Message: TWMSize); message WM_SIZE;
     procedure WMKillFocus(var Message: TWMKillFocus); message WM_KILLFOCUS;
     procedure WMSetFocus(var Message: TMessage); message WM_SETFOCUS;
@@ -176,18 +175,16 @@ type
     function GetReadOnly: Boolean; virtual;
     procedure KeyDown(var Key: Word; Shift: TShiftState); override;
     procedure KeyPress(var Key: Char); override;
-    procedure MouseDown(Button: TMouseButton; Shift: TShiftState;
-      X, Y: Integer); override;
+    procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); override;
     procedure ButtonClick; dynamic;
+
     property Alignment: TAlignment read FAlignment write SetAlignment default taLeftJustify;
     property AlwaysEnable: Boolean read FAlwaysEnable write FAlwaysEnable default False;
     property Button: TEditButton read FButton;
-    property ClickKey: TShortCut read FClickKey write FClickKey
-      default scAltDown;
+    property ClickKey: TShortCut read FClickKey write FClickKey default scAltDown;
     property Glyph: TBitmap read GetGlyph write SetGlyph stored IsCustomGlyph;
     property GlyphKind: TGlyphKind read FGlyphKind write SetGlyphKind default gkCustom;
-    property ButtonWidth: Integer read GetButtonWidth write SetButtonWidth
-      stored BtnWidthStored;
+    property ButtonWidth: Integer read GetButtonWidth write SetButtonWidth stored BtnWidthStored;
     property NumGlyphs: TNumGlyphs read GetNumGlyphs write SetNumGlyphs;
     property ButtonHint: string read GetButtonHint write SetButtonHint;
     property DirectInput: Boolean read GetDirectInput write SetDirectInput default True;
@@ -198,9 +195,11 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
+
     procedure DoClick;
     procedure SelectAll;
   end;
+
 
 { TComboEdit }
 
@@ -210,7 +209,6 @@ type
   published
 //Polaris
     property Align;
-
     property Alignment;
     property AutoSelect;
     property BorderStyle;
@@ -290,12 +288,11 @@ type
 
 {$IFDEF VER80}
 const
-  MaxFileLength = SizeOf(TFileName) - 1;
+  MAX_FILE_LENGTH = SizeOf(TFileName) - 1;
 {$ENDIF}
 
 type
-  TExecOpenDialogEvent = procedure(Sender: TObject; var AName: string;
-    var Action: Boolean) of object;
+  TExecOpenDialogEvent = procedure(Sender: TObject; var AName: string; var Action: Boolean) of object;
 
   TFileDirEdit = class(TCustomComboEdit)
   private
@@ -323,7 +320,7 @@ type
     procedure DisableSysErrors;
     procedure EnableSysErrors;
     property GlyphKind default gkDefault;
-    property MaxLength {$IFDEF VER80} default MaxFileLength {$ENDIF};
+    property MaxLength {$IFDEF VER80} default MAX_FILE_LENGTH {$ENDIF};
   public
     constructor Create(AOwner: TComponent); override;
 {$IFNDEF VER80}
@@ -342,8 +339,7 @@ type
 
 { TFilenameEdit }
 
-  TFileDialogKind = (dkOpen, dkSave {$IFDEF RX_D3}, dkOpenPicture,
-    dkSavePicture {$ENDIF});
+  TFileDialogKind = (dkOpen, dkSave {$IFDEF RX_D3}, dkOpenPicture, dkSavePicture {$ENDIF});
 
   TFilenameEdit = class(TFileDirEdit)
   private
@@ -382,26 +378,22 @@ type
 {$ENDIF}
   public
     constructor Create(AOwner: TComponent); override;
+
     property Dialog: TOpenDialog read FDialog;
     property DialogFiles: TStrings read GetDialogFiles;
   published
 //Polaris
     property Align;
-
-    property DialogKind: TFileDialogKind read FDialogKind write SetDialogKind
-      default dkOpen;
+    property DialogKind: TFileDialogKind read FDialogKind write SetDialogKind default dkOpen;
     property DefaultExt: TFileExt read GetDefaultExt write SetDefaultExt;
-    property FileEditStyle: TFileEditStyle read GetFileEditStyle write SetFileEditStyle
-      default fsEdit;
+    property FileEditStyle: TFileEditStyle read GetFileEditStyle write SetFileEditStyle default fsEdit;
     property FileName: string read GetFileName write SetFileName stored False;
     property Filter: string read GetFilter write SetFilter stored IsCustomFilter;
     property FilterIndex: Integer read GetFilterIndex write SetFilterIndex default 1;
     property InitialDir: string read GetInitialDir write SetInitialDir;
     property HistoryList: TStrings read GetHistoryList write SetHistoryList;
-    property DialogOptions: TOpenOptions read GetOptions write SetOptions
-      default [ofHideReadOnly];
-    property DialogTitle: string read GetDialogTitle write SetDialogTitle
-      stored IsCustomTitle;
+    property DialogOptions: TOpenOptions read GetOptions write SetOptions default [ofHideReadOnly];
+    property DialogTitle: string read GetDialogTitle write SetDialogTitle stored IsCustomTitle;
     property AutoSelect;
     property ButtonHint;
     property BorderStyle;
@@ -498,10 +490,8 @@ type
   published
 //Polaris
     property Align;
-
 {$IFNDEF VER80}
-    property DialogKind: TDirDialogKind read FDialogKind write FDialogKind
-      default dkVCL;
+    property DialogKind: TDirDialogKind read FDialogKind write FDialogKind default dkVCL;
     property DialogText: string read FDialogText write FDialogText;
 {$ENDIF}
     property DialogOptions: TSelectDirOpts read FOptions write FOptions default [];
@@ -583,14 +573,13 @@ type
 
 const
 {$IFDEF DEFAULT_POPUP_CALENDAR}
-  dcsDefault = csPopup;
+  DCS_DEFAULT = csPopup;
 {$ELSE}
-  dcsDefault = csDialog;
+  DCS_DEFAULT = csDialog;
 {$ENDIF DEFAULT_POPUP_CALENDAR}
 
 type
-  TExecDateDialog = procedure(Sender: TObject; var ADate: TDateTime;
-    var Action: Boolean) of object;
+  TExecDateDialog = procedure(Sender: TObject; var ADate: TDateTime; var Action: Boolean) of object;
 
   TCustomDateEdit = class(TCustomComboEdit)
   private
@@ -671,21 +660,18 @@ type
     procedure UpdateFormat;
     procedure UpdatePopup;
     procedure ButtonClick; override;
+
     property BlanksChar: Char read FBlanksChar write SetBlanksChar default ' ';
     property CalendarHints: TStrings read FCalendarHints write SetCalendarHints;
     property CheckOnExit: Boolean read FCheckOnExit write FCheckOnExit default False;
-    property DefaultToday: Boolean read FDefaultToday write FDefaultToday
-      default False;
-    property DialogTitle: string read GetDialogTitle write SetDialogTitle
-      stored IsCustomTitle;
+    property DefaultToday: Boolean read FDefaultToday write FDefaultToday default False;
+    property DialogTitle: string read GetDialogTitle write SetDialogTitle stored IsCustomTitle;
     property EditMask stored False;
     property ErrorRaise: Boolean read FErrorRaise write FErrorRaise default False;
     property Formatting: Boolean read FFormatting;
     property GlyphKind default gkDefault;
-    property PopupColor: TColor read GetPopupColor write SetPopupColor
-      default clBtnFace;
-    property CalendarStyle: TCalendarStyle read GetCalendarStyle
-      write SetCalendarStyle default dcsDefault;
+    property PopupColor: TColor read GetPopupColor write SetPopupColor default clBtnFace;
+    property CalendarStyle: TCalendarStyle read GetCalendarStyle write SetCalendarStyle default DCS_DEFAULT;
     property StartOfWeek: TDayOfWeekName read FStartOfWeek write SetStartOfWeek default Mon;
     property Weekends: TDaysOfWeek read FWeekends write SetWeekends default [Sun];
     property WeekendColor: TColor read FWeekendColor write SetWeekendColor default clRed;
@@ -704,6 +690,7 @@ type
 // Polaris
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
+
     procedure CheckValidDate;
     function GetDateMask: string;
     procedure UpdateMask; virtual;
@@ -721,6 +708,7 @@ type
 // Polaris
   public
     constructor Create(AOwner: TComponent); override;
+
     property EditMask;
   published
 // Polaris
@@ -814,9 +802,12 @@ type
 
   EComboEditError = class(Exception);
 
+
 { Utility routines }
 
+
 procedure DateFormatChanged;
+
 
 function EditorTextMargins(Editor: TCustomComboEdit): TPoint; {$IFDEF RX_D9}inline;{$ENDIF}
 
@@ -824,17 +815,35 @@ function PaintComboEdit(Editor: TCustomComboEdit; const AText: string;
   AAlignment: TAlignment; StandardPaint: Boolean;
   var ACanvas: TControlCanvas; var Message: TWMPaint): Boolean;
 
+
 implementation
 
-uses ShellAPI, Consts, {$IFDEF RX_D3} ExtDlgs, {$ENDIF} RxResConst, RxVCLUtils,
-  RxFileUtil, RxPickDate, RxMaxMin,
-  {$IFDEF RX_D6} Variants, RTLConsts,{$ENDIF} RxStrUtils; // Polaris
+
+uses
+{$IFDEF RX_D3}
+  ExtDlgs,
+{$ENDIF}
+{$IFDEF RX_D6}
+  Variants,
+  RTLConsts,
+{$ENDIF}
+  ShellAPI,
+  Consts,
+  RxResConst,
+  RxVCLUtils,
+  RxFileUtil,
+  RxPickDate,
+  RxMaxMin,
+  RxStrUtils; // Polaris
+
 
 {$R *.RES}
 
+
 const
-  sFileBmp = 'FEDITBMP'; { Filename and directory editor button glyph }
-  sDateBmp = 'DEDITBMP'; { Date editor button glyph }
+  S_FILE_BMP = 'FEDITBMP'; { Filename and directory editor button glyph }
+  S_DATE_BMP = 'DEDITBMP'; { Date editor button glyph }
+
 
 { Utility routines }
 
@@ -845,42 +854,52 @@ var
   I: Integer;
   SysMetrics, Metrics: TTextMetric;
 begin
-  with Editor do begin
+  with Editor do
+    begin
 {$IFNDEF VER80}
-    if NewStyleControls then begin
-      if BorderStyle = Forms.bsNone then I := 0
-      else if Ctl3D then I := 1
-      else I := 2;
-      Result.X := SendMessage(Handle, EM_GETMARGINS, 0, 0) and $0000FFFF + I;
-      Result.Y := I;
-    end
-    else begin
+      if NewStyleControls then
+        begin
+          if BorderStyle = Forms.bsNone then
+            I := 0
+          else
+          if Ctl3D then
+            I := 1
+          else
+            I := 2;
+          Result.X := SendMessage(Handle, EM_GETMARGINS, 0, 0) and $0000FFFF + I;
+          Result.Y := I;
+        end
+      else
+        begin
 {$ENDIF}
-      if BorderStyle = Forms.bsNone then I := 0
-      else begin
-        DC := GetDC(0);
-        GetTextMetrics(DC, SysMetrics);
-        SaveFont := SelectObject(DC, Font.Handle);
-        GetTextMetrics(DC, Metrics);
-        SelectObject(DC, SaveFont);
-        ReleaseDC(0, DC);
-        I := SysMetrics.tmHeight;
-        if I > Metrics.tmHeight then I := Metrics.tmHeight;
-        I := I div 4;
-      end;
-      Result.X := I;
-      Result.Y := I;
+          if BorderStyle = Forms.bsNone then
+            I := 0
+          else
+            begin
+              DC := GetDC(0);
+              GetTextMetrics(DC, SysMetrics);
+              SaveFont := SelectObject(DC, Font.Handle);
+              GetTextMetrics(DC, Metrics);
+              SelectObject(DC, SaveFont);
+              ReleaseDC(0, DC);
+              I := SysMetrics.tmHeight;
+              if I > Metrics.tmHeight then I := Metrics.tmHeight;
+              I := I div 4;
+            end;
+          Result.X := I;
+          Result.Y := I;
 {$IFNDEF VER80}
+        end;
+{$ENDIF}
     end;
-{$ENDIF}
-  end;
 end;
 
 function PaintComboEdit(Editor: TCustomComboEdit; const AText: string;
   AAlignment: TAlignment; StandardPaint: Boolean;
   var ACanvas: TControlCanvas; var Message: TWMPaint): Boolean;
 var
-  AWidth, ALeft: Integer;
+  AWidth,
+  ALeft: Integer;
   _Margins: TPoint;
   R: TRect;
   DC: HDC;
@@ -889,95 +908,105 @@ var
 {$IFDEF RX_D4}
   ExStyle: DWORD;
 const
-  AlignStyle: array[Boolean, TAlignment] of DWORD =
-   ((WS_EX_LEFT, WS_EX_RIGHT, WS_EX_LEFT),
-    (WS_EX_RIGHT, WS_EX_LEFT, WS_EX_LEFT));
+  ALIGN_STYLE: array[Boolean, TAlignment] of DWORD =
+    (
+      (
+        WS_EX_LEFT,
+        WS_EX_RIGHT,
+        WS_EX_LEFT
+      ),
+      (
+        WS_EX_RIGHT,
+        WS_EX_LEFT,
+        WS_EX_LEFT
+      )
+    );
 {$ENDIF}
 begin
   Result := True;
   with Editor do
-  begin
-    {$IFDEF RX_D4}
-    if UseRightToLeftAlignment then ChangeBiDiModeAlignment(AAlignment);
-    {$ENDIF}
-    if StandardPaint {$IFNDEF VER80} and not (csPaintCopy in ControlState) {$ENDIF} then
     begin
       {$IFDEF RX_D4}
-      if SysLocale.MiddleEast and HandleAllocated and (IsRightToLeft) then
-      begin { This keeps the right aligned text, right aligned }
-        ExStyle := DWORD(GetWindowLong(Handle, GWL_EXSTYLE)) and (not WS_EX_RIGHT) and
-          (not WS_EX_RTLREADING) and (not WS_EX_LEFTSCROLLBAR);
-        if UseRightToLeftReading then
-          ExStyle := ExStyle or WS_EX_RTLREADING;
-        if UseRightToLeftScrollbar then
-          ExStyle := ExStyle or WS_EX_LEFTSCROLLBAR;
-        ExStyle := ExStyle or
-          AlignStyle[UseRightToLeftAlignment, AAlignment];
-        if DWORD(GetWindowLong(Handle, GWL_EXSTYLE)) <> ExStyle then
-          SetWindowLong(Handle, GWL_EXSTYLE, ExStyle);
-      end;
-      {$ENDIF RX_D4}
-      Result := False;
-      { return false if we need to use standard paint handler }
-      Exit;
-    end;
-    { Since edit controls do not handle justification unless multi-line (and
-      then only poorly) we will draw right and center justify manually unless
-      the edit has the focus. }
-    if ACanvas = nil then
-    begin
-      ACanvas := TControlCanvas.Create;
-      ACanvas.Control := Editor;
-    end;
-    DC := Message.DC;
-    if DC = 0 then DC := BeginPaint(Handle, PS);
-    ACanvas.Handle := DC;
-    try
-      ACanvas.Font := Font;
-      if not Enabled and NewStyleControls and not
-        (csDesigning in ComponentState) and
-        (ColorToRGB(Color) <> ColorToRGB(clGrayText)) then
-        ACanvas.Font.Color := clGrayText;
-      with ACanvas do begin
-        R := ClientRect;
-        if {$IFNDEF VER80} not (NewStyleControls and Ctl3D) and {$ENDIF}
-          (BorderStyle = bsSingle) then
+      if UseRightToLeftAlignment then ChangeBiDiModeAlignment(AAlignment);
+      {$ENDIF}
+      if StandardPaint {$IFNDEF VER80} and not (csPaintCopy in ControlState) {$ENDIF} then
         begin
-          Brush.Color := clWindowFrame;
-          FrameRect(R);
-          InflateRect(R, -1, -1);
+          {$IFDEF RX_D4}
+          if SysLocale.MiddleEast and HandleAllocated and (IsRightToLeft) then
+            begin { This keeps the right aligned text, right aligned }
+              ExStyle := DWORD(GetWindowLong(Handle, GWL_EXSTYLE)) and (not WS_EX_RIGHT) and
+                (not WS_EX_RTLREADING) and (not WS_EX_LEFTSCROLLBAR);
+              if UseRightToLeftReading then
+                ExStyle := ExStyle or WS_EX_RTLREADING;
+              if UseRightToLeftScrollbar then
+                ExStyle := ExStyle or WS_EX_LEFTSCROLLBAR;
+              ExStyle := ExStyle or
+                ALIGN_STYLE[UseRightToLeftAlignment, AAlignment];
+              if DWORD(GetWindowLong(Handle, GWL_EXSTYLE)) <> ExStyle then
+                SetWindowLong(Handle, GWL_EXSTYLE, ExStyle);
+            end;
+          {$ENDIF RX_D4}
+          Result := False;
+          { return false if we need to use standard paint handler }
+          Exit;
         end;
-        Brush.Color := Color;
-        S := AText;
-        AWidth := TextWidth(S);
-        _Margins := EditorTextMargins(Editor);
-        {$IFDEF RX_D10}
-        if PopupVisible then ALeft := Editor.Margins.Left
-        {$ELSE}
-        if PopupVisible then ALeft := _Margins.X
-        {$ENDIF}
-        else
+      { Since edit controls do not handle justification unless multi-line (and
+        then only poorly) we will draw right and center justify manually unless
+        the edit has the focus. }
+      if ACanvas = nil then
         begin
-          if ButtonWidth > 0 then Inc(AWidth);
-          case AAlignment of
-            taLeftJustify:
-              ALeft := _Margins.X;
-            taRightJustify:
-              ALeft := ClientWidth - ButtonWidth - AWidth - _Margins.X{Polaris - 2};
+          ACanvas := TControlCanvas.Create;
+          ACanvas.Control := Editor;
+        end;
+      DC := Message.DC;
+      if DC = 0 then DC := BeginPaint(Handle, PS);
+      ACanvas.Handle := DC;
+      try
+        ACanvas.Font := Font;
+        if not Enabled and NewStyleControls and not
+          (csDesigning in ComponentState) and
+          (ColorToRGB(Color) <> ColorToRGB(clGrayText)) then
+          ACanvas.Font.Color := clGrayText;
+        with ACanvas do begin
+          R := ClientRect;
+          if {$IFNDEF VER80} not (NewStyleControls and Ctl3D) and {$ENDIF}
+            (BorderStyle = bsSingle) then
+            begin
+              Brush.Color := clWindowFrame;
+              FrameRect(R);
+              InflateRect(R, -1, -1);
+            end;
+          Brush.Color := Color;
+          S := AText;
+          AWidth := TextWidth(S);
+          _Margins := EditorTextMargins(Editor);
+          {$IFDEF RX_D10}
+          if PopupVisible then ALeft := Editor.Margins.Left
+          {$ELSE}
+          if PopupVisible then ALeft := _Margins.X
+          {$ENDIF}
           else
-              ALeft := (ClientWidth - ButtonWidth - AWidth) div 2;
-          end;
+            begin
+              if ButtonWidth > 0 then Inc(AWidth);
+              case AAlignment of
+                taLeftJustify:
+                  ALeft := _Margins.X;
+                taRightJustify:
+                  ALeft := ClientWidth - ButtonWidth - AWidth - _Margins.X{Polaris - 2};
+              else
+                  ALeft := (ClientWidth - ButtonWidth - AWidth) div 2;
+              end;
+            end;
+          {$IFDEF RX_D4}
+          if SysLocale.MiddleEast then UpdateTextFlags;
+          {$ENDIF}
+          TextRect(R, ALeft, _Margins.Y, S);
         end;
-        {$IFDEF RX_D4}
-        if SysLocale.MiddleEast then UpdateTextFlags;
-        {$ENDIF}
-        TextRect(R, ALeft, _Margins.Y, S);
+      finally
+        ACanvas.Handle := 0;
+        if Message.DC = 0 then EndPaint(Handle, PS);
       end;
-    finally
-      ACanvas.Handle := 0;
-      if Message.DC = 0 then EndPaint(Handle, PS);
     end;
-  end;
 end;
 
 { TEditButton }
@@ -1040,20 +1069,19 @@ end;
 
 {$ENDIF}
 
-procedure TEditButton.MouseDown(Button: TMouseButton; Shift: TShiftState;
-  X, Y: Integer);
+procedure TEditButton.MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
   if (Button = mbLeft) then
     with TCustomComboEdit(Owner) do
-    begin
-      FNoAction := (FPopup <> nil) and FPopupVisible;
-      if not FPopupVisible then
       begin
-        if TabStop and CanFocus and (GetFocus <> Handle) then SetFocus;
-      end
-//      else PopupCloseUp(FPopup, True);
-      else PopupCloseUp(FPopup, FStandart);
-    end;
+        FNoAction := (FPopup <> nil) and FPopupVisible;
+        if not FPopupVisible then
+          begin
+            if TabStop and CanFocus and (GetFocus <> Handle) then SetFocus;
+          end
+  //      else PopupCloseUp(FPopup, True);
+        else PopupCloseUp(FPopup, FStandart);
+      end;
   inherited MouseDown(Button, Shift, X, Y);
 end;
 
@@ -1085,13 +1113,13 @@ procedure TPopupWindow.CreateParams(var Params: TCreateParams);
 begin
   inherited CreateParams(Params);
   with Params do
-  begin
-    Style := WS_POPUP or WS_BORDER or WS_CLIPCHILDREN;
+    begin
+      Style := WS_POPUP or WS_BORDER or WS_CLIPCHILDREN;
 {$IFNDEF VER80}
-    ExStyle := WS_EX_TOOLWINDOW;
+      ExStyle := WS_EX_TOOLWINDOW;
 {$ENDIF}
-    WindowClass.Style := WindowClass.Style or CS_SAVEBITS;
-  end;
+      WindowClass.Style := WindowClass.Style or CS_SAVEBITS;
+    end;
 end;
 
 {$IFDEF VER80}
@@ -1221,41 +1249,43 @@ var
   Y: Integer;
 begin
   if (FPopup <> nil) and not (ReadOnly or FPopupVisible) then
-  begin
-    P := Parent.ClientToScreen(Point(Left, Top));
-    Y := P.Y + Height;
-    if Y + FPopup.Height > Screen.Height then
-      Y := P.Y - FPopup.Height;
-    case FPopupAlign of
-      epaRight:
-        begin
-          Dec(P.X, FPopup.Width - Width);
-          if P.X < 0 then Inc(P.X, FPopup.Width - Width);
-        end;
-      epaLeft:
-        begin
-          if P.X + FPopup.Width > Screen.Width then
-            Dec(P.X, FPopup.Width - Width);
-        end;
-    end;
-    if P.X < 0 then P.X := 0
-    else if P.X + FPopup.Width > Screen.Width then
-      P.X := Screen.Width - FPopup.Width;
-{$IFNDEF VER80}
-    if Text <> '' then SetPopupValue(Text)
-    else SetPopupValue(Null);
-{$ELSE}
-    SetPopupValue(Text);
-{$ENDIF}
-    if CanFocus then SetFocus;
-    ShowPopup(Point(P.X, Y));
-    FPopupVisible := True;
-    if DisableEdit then
     begin
-      inherited ReadOnly := True;
-      HideCaret(Handle);
+      P := Parent.ClientToScreen(Point(Left, Top));
+      Y := P.Y + Height;
+      if Y + FPopup.Height > Screen.Height then
+        Y := P.Y - FPopup.Height;
+      case FPopupAlign of
+        epaRight: begin
+                    Dec(P.X, FPopup.Width - Width);
+                    if P.X < 0 then Inc(P.X, FPopup.Width - Width);
+                  end;
+        epaLeft:  begin
+                    if P.X + FPopup.Width > Screen.Width then
+                      Dec(P.X, FPopup.Width - Width);
+                  end;
+      end;
+      if P.X < 0 then
+         P.X := 0
+      else
+        if P.X + FPopup.Width > Screen.Width then
+          P.X := Screen.Width - FPopup.Width;
+  {$IFNDEF VER80}
+      if Text <> '' then
+        SetPopupValue(Text)
+      else
+        SetPopupValue(Null);
+  {$ELSE}
+      SetPopupValue(Text);
+  {$ENDIF}
+      if CanFocus then SetFocus;
+      ShowPopup(Point(P.X, Y));
+      FPopupVisible := True;
+      if DisableEdit then
+        begin
+          inherited ReadOnly := True;
+          HideCaret(Handle);
+        end;
     end;
-  end;
 end;
 
 procedure TCustomComboEdit.PopupCloseUp(Sender: TObject; Accept: Boolean);
@@ -1877,7 +1907,7 @@ begin
   inherited Create(AOwner);
   OEMConvert := True;
 {$IFDEF VER80}
-  MaxLength := MaxFileLength;
+  MaxLength := MAX_FILE_LENGTH;
 {$ENDIF}
   ControlState := ControlState + [csCreating];
   try
@@ -1893,7 +1923,7 @@ begin
   if FileBitmap = nil then
   begin
     FileBitmap := TBitmap.Create;
-    FileBitmap.Handle := LoadBitmap(hInstance, sFileBmp);
+    FileBitmap.Handle := LoadBitmap(hInstance, S_FILE_BMP);
   end;
   Result := FileBitmap;
 end;
@@ -2100,11 +2130,12 @@ end;
 procedure TFilenameEdit.SetFileName(const Value: string);
 begin
   if (Value = '') or ValidFileName(ClipFilename(Value)) then
-  begin
-    inherited Text := ExtFilename(Value);
-    ClearFileList;
-  end
-  else raise EComboEditError.CreateFmt(ResStr(SInvalidFilename), [Value]);
+    begin
+      inherited Text := ExtFilename(Value);
+      ClearFileList;
+    end
+  else
+    raise EComboEditError.CreateFmt(ResStr(SInvalidKnownFilename), [Value]);
 end;
 
 {$IFNDEF VER80}
@@ -2129,11 +2160,13 @@ end;
 procedure TFilenameEdit.ReceptFileDir(const AFileName: string);
 begin
   if FMultipleDirs then
-  begin
-    if FDialog.Files.Count = 0 then SetFileName(AFileName);
-    FDialog.Files.Add(AFileName);
-  end
-  else SetFileName(AFileName);
+    begin
+      if FDialog.Files.Count = 0 then
+        SetFileName(AFileName);
+      FDialog.Files.Add(AFileName);
+    end
+  else
+    SetFileName(AFileName);
 end;
 
 function TFilenameEdit.GetDialogFiles: TStrings;
@@ -2184,10 +2217,10 @@ end;
 procedure TFilenameEdit.SetDialogKind(Value: TFileDialogKind);
 begin
   if FDialogKind <> Value then
-  begin
-    FDialogKind := Value;
-    CreateEditDialog;
-  end;
+    begin
+      FDialogKind := Value;
+      CreateEditDialog;
+    end;
 end;
 
 procedure TFilenameEdit.SetDefaultExt(Value: TFileExt);
@@ -2223,17 +2256,19 @@ end;
 procedure TFilenameEdit.SetOptions(Value: TOpenOptions);
 begin
   if Value <> FDialog.Options then
-  begin
-    FDialog.Options := Value;
-    FMultipleDirs := ofAllowMultiSelect in FDialog.Options;
-    if not FMultipleDirs then ClearFileList;
-  end;
+    begin
+      FDialog.Options := Value;
+      FMultipleDirs := ofAllowMultiSelect in FDialog.Options;
+      if not FMultipleDirs then
+        ClearFileList;
+    end;
 end;
 
 procedure TFilenameEdit.SetDialogTitle(const Value: string);
 begin
   FDialog.Title := Value;
 end;
+
 
 { TDirectoryEdit }
 
@@ -2254,11 +2289,14 @@ begin
   DoBeforeDialog(Temp, Action);
   if not Action then Exit;
   if (Temp = '') then
-  begin
-    if (InitialDir <> '') then Temp := InitialDir
-    else Temp := {$IFDEF RX_D6}PathDelim{$ELSE}'\'{$ENDIF};
-  end;
-  if not DirExists(Temp) then Temp := {$IFDEF RX_D6}PathDelim{$ELSE}'\'{$ENDIF};
+    begin
+      if (InitialDir <> '') then
+        Temp := InitialDir
+      else
+        Temp := {$IFDEF RX_D6}PathDelim{$ELSE}'\'{$ENDIF};
+    end;
+  if not DirExists(Temp) then
+    Temp := {$IFDEF RX_D6}PathDelim{$ELSE}'\'{$ENDIF};
   DisableSysErrors;
   try
 {$IFNDEF VER80}
@@ -2497,7 +2535,7 @@ begin
   if DateBitmap = nil then
   begin
     DateBitmap := TBitmap.Create;
-    DateBitmap.Handle := LoadBitmap(hInstance, sDateBmp);
+    DateBitmap.Handle := LoadBitmap(hInstance, S_DATE_BMP);
   end;
   Result := DateBitmap;
 end;

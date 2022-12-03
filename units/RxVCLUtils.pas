@@ -2259,7 +2259,7 @@ end;
 function AnsiUpperFirstChar(const S: string): string;
 {$IFNDEF RX_D12}
 var
-  Temp: string[1];
+  Temp: string;
 {$ENDIF}
 begin
   Result := AnsiLowerCase(S);

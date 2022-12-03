@@ -215,68 +215,79 @@ function RomanToInt(const S: string): LongInt;
 { RomanToInt converts the given string to an integer value. If the string
   doesn't contain a valid roman numeric value, the 0 value is returned. }
 
+
 const
-  CRLF = #13#10;
+  S_CRLF = #13#10;
   DigitChars = ['0'..'9'];
   {$IFNDEF CBUILDER}
-  Brackets = ['(', ')', '[', ']', '{', '}'];
-  StdWordDelims = [#0..' ', ',', '.', ';', '/', '\', ':', '''', '"', '`'] + Brackets;
+  S_BRACKETS = ['(', ')', '[', ']', '{', '}'];
+  StdWordDelims = [#0..' ', ',', '.', ';', '/', '\', ':', '''', '"', '`'] + S_BRACKETS;
   {$ENDIF}
+
 
 implementation
 
+
 uses
-  {$IFNDEF VER80}Windows{$ELSE}WinTypes, WinProcs{$ENDIF};
+{$IFNDEF VER80}
+  Windows
+{$ELSE}
+  WinTypes,
+  WinProcs
+{$ENDIF};
+
+
 
 {$IFNDEF RX_D12}
-
 function CharInSet(C: Char; const CharSet: TSysCharSet): Boolean;
 begin
   Result := C in CharSet;
 end;
 {$ENDIF}
 
-{$IFDEF MSWINDOWS}
 
+{$IFDEF MSWINDOWS}
 function StrToOem(const Str: string): AnsiString;
 begin
   SetLength(Result, Length(Str));
   if Length(Result) > 0 then
-    {$IFNDEF VER80}
+{$IFNDEF VER80}
     CharToOemBuff(PChar(Str), PAnsiChar(Result), Length(Result));
-  {$ELSE}
+{$ELSE}
     AnsiToOemBuff(@AnsiStr[1], @Result[1], Length(Result));
-  {$ENDIF}
+{$ENDIF}
 end;
 
 function OemToAnsiStr(const OemStr: AnsiString): string;
 begin
   SetLength(Result, Length(OemStr));
   if Length(Result) > 0 then
-    {$IFNDEF VER80}
+{$IFNDEF VER80}
     OemToCharBuff(PAnsiChar(OemStr), PChar(Result), Length(Result));
-  {$ELSE}
+{$ELSE}
     OemToAnsiBuff(@OemStr[1], @Result[1], Length(Result));
-  {$ENDIF}
+{$ENDIF}
 end;
 {$ENDIF}
 
+
 function IsEmptyStr(const S: string; const EmptyChars: TCharSet): Boolean;
 var
-  I, SLen: Integer;
+  I: Integer;
+  SLen: Integer;
 begin
   SLen := Length(S);
   I := 1;
   while I <= SLen do
-  begin
-    if not CharInSet(S[I], EmptyChars) then
     begin
-      Result := False;
-      Exit;
-    end
-    else
-      Inc(I);
-  end;
+      if not CharInSet(S[I], EmptyChars) then
+        begin
+          Result := False;
+          Exit;
+        end
+      else
+        Inc(I);
+    end;
   Result := True;
 end;
 
@@ -290,10 +301,10 @@ begin
   repeat
     I := Pos(Srch, Source);
     if I > 0 then
-    begin
-      Result := Result + Copy(Source, 1, I - 1) + Replace;
-      Source := Copy(Source, I + Length(Srch), MaxInt);
-    end
+      begin
+        Result := Result + Copy(Source, 1, I - 1) + Replace;
+        Source := Copy(Source, I + Length(Srch), MaxInt);
+      end
     else
       Result := Result + Source;
   until I <= 0;
@@ -310,9 +321,10 @@ var
 begin
   Result := S;
   for I := Length(Result) downto 1 do
-  begin
-    if Result[I] = Chr then Delete(Result, I, 1);
-  end;
+    begin
+      if Result[I] = Chr then
+        Delete(Result, I, 1);
+    end;
 end;
 
 function DelBSpace(const S: string): string;
@@ -347,10 +359,10 @@ var
 begin
   Result := S;
   for I := Length(Result) downto 2 do
-  begin
-    if (Result[I] = ' ') and (Result[I - 1] = ' ') then
-      Delete(Result, I, 1);
-  end;
+    begin
+      if (Result[I] = ' ') and (Result[I - 1] = ' ') then
+        Delete(Result, I, 1);
+    end;
 end;
 
 function Tab2Space(const S: string; Numb: Byte): string;
@@ -360,16 +372,16 @@ begin
   I := 1;
   Result := S;
   while I <= Length(Result) do
-  begin
-    if Result[I] = Chr(9) then
     begin
-      Delete(Result, I, 1);
-      Insert(MakeStr(' ', Numb), Result, I);
-      Inc(I, Numb);
-    end
-    else
-      Inc(I);
-  end;
+      if Result[I] = Chr(9) then
+        begin
+          Delete(Result, I, 1);
+          Insert(MakeStr(' ', Numb), Result, I);
+          Inc(I, Numb);
+        end
+      else
+        Inc(I);
+    end;
 end;
 
 function MakeStr(C: Char; N: Integer): string;
@@ -377,17 +389,18 @@ begin
   if N < 1 then
     Result := ''
   else
-  begin
-    {$IFDEF VER80}
-    if N > 255 then N := 255; {correct length only}
-    {$ENDIF}
-    {$IFNDEF UNICODE}
-    SetLength(Result, N);
-    FillChar(Result[1], Length(Result), C);
-    {$ELSE}
-    Result := StringOfChar(C, N);
-    {$ENDIF}
-  end;
+    begin
+      {$IFDEF VER80}
+      if N > 255 then
+        N := 255; {correct length only}
+      {$ENDIF}
+      {$IFNDEF UNICODE}
+      SetLength(Result, N);
+      FillChar(Result[1], Length(Result), C);
+      {$ELSE}
+      Result := StringOfChar(C, N);
+      {$ENDIF}
+    end;
 end;
 
 function MS(C: Char; N: Integer): string;
@@ -1001,94 +1014,99 @@ function IsWild(InputStr, Wilds: string; IgnoreCase: Boolean): Boolean;
   end;
 
 var
-  CWild, CInputWord: Integer; { counter for positions }
-  I, LenHelpWilds: Integer;
-  MaxInputWord, MaxWilds: Integer; { Length of InputStr and Wilds }
+  CWild: Integer;
+  CInputWord: Integer;
+  I: Integer;
+  LenHelpWilds: Integer;
+  MaxInputWord: Integer;
+  MaxWilds: Integer;
   HelpWilds: string;
 begin
-  if Wilds = InputStr then
-  begin
-    Result := True;
+  Result := Wilds = InputStr;
+  if Result then
     Exit;
-  end;
   repeat { delete '**', because '**' = '*' }
     I := Pos('**', Wilds);
     if I > 0 then
       Wilds := Copy(Wilds, 1, I - 1) + '*' + Copy(Wilds, I + 2, MaxInt);
   until I = 0;
   if Wilds = '*' then
-  begin { for fast end, if Wilds only '*' }
-    Result := True;
-    Exit;
-  end;
+    begin { for fast end, if Wilds only '*' }
+      Result := True;
+      Exit;
+    end;
   MaxInputWord := Length(InputStr);
   MaxWilds := Length(Wilds);
   if IgnoreCase then
-  begin { upcase all letters }
-    InputStr := AnsiUpperCase(InputStr);
-    Wilds := AnsiUpperCase(Wilds);
-  end;
+    begin { upcase all letters }
+      InputStr := AnsiUpperCase(InputStr);
+      Wilds := AnsiUpperCase(Wilds);
+    end;
   if (MaxWilds = 0) or (MaxInputWord = 0) then
-  begin
-    Result := False;
-    Exit;
-  end;
+    begin
+      Result := False;
+      Exit;
+    end;
   CInputWord := 1;
   CWild := 1;
   Result := True;
   repeat
     if InputStr[CInputWord] = Wilds[CWild] then
-    begin { equal letters }
-      { goto next letter }
-      Inc(CWild);
-      Inc(CInputWord);
-      Continue;
-    end;
+      begin { equal letters }
+        { goto next letter }
+        Inc(CWild);
+        Inc(CInputWord);
+        Continue;
+      end;
     if Wilds[CWild] = '?' then
-    begin { equal to '?' }
-      { goto next letter }
-      Inc(CWild);
-      Inc(CInputWord);
-      Continue;
-    end;
+      begin { equal to '?' }
+        { goto next letter }
+        Inc(CWild);
+        Inc(CInputWord);
+        Continue;
+      end;
     if Wilds[CWild] = '*' then
-    begin { handling of '*' }
-      HelpWilds := Copy(Wilds, CWild + 1, MaxWilds);
-      I := SearchNext(HelpWilds);
-      LenHelpWilds := Length(HelpWilds);
-      if I = 0 then
-      begin
-        { no '*' in the rest, compare the ends }
-        if HelpWilds = '' then Exit; { '*' is the last letter }
-        { check the rest for equal Length and no '?' }
-        for I := 0 to LenHelpWilds - 1 do
-        begin
-          if (HelpWilds[LenHelpWilds - I] <> InputStr[MaxInputWord - I]) and
-            (HelpWilds[LenHelpWilds - I] <> '?') then
+      begin { handling of '*' }
+        HelpWilds := Copy(Wilds, CWild + 1, MaxWilds);
+        I := SearchNext(HelpWilds);
+        LenHelpWilds := Length(HelpWilds);
+        if I = 0 then
+          begin
+            { no '*' in the rest, compare the ends }
+            if HelpWilds = '' then Exit; { '*' is the last letter }
+            { check the rest for equal Length and no '?' }
+            for I := 0 to LenHelpWilds - 1 do
+              begin
+                if (HelpWilds[LenHelpWilds - I] <> InputStr[MaxInputWord - I]) and
+                  (HelpWilds[LenHelpWilds - I] <> '?') then
+                  begin
+                    Result := False;
+                    Exit;
+                  end;
+              end;
+            Exit;
+          end;
+        { handle all to the next '*' }
+        Inc(CWild, 1 + LenHelpWilds);
+        I := FindPart(HelpWilds, Copy(InputStr, CInputWord, MaxInt));
+        if I = 0 then
           begin
             Result := False;
             Exit;
           end;
-        end;
-        Exit;
+        CInputWord := I + LenHelpWilds;
+        Continue;
       end;
-      { handle all to the next '*' }
-      Inc(CWild, 1 + LenHelpWilds);
-      I := FindPart(HelpWilds, Copy(InputStr, CInputWord, MaxInt));
-      if I = 0 then
-      begin
-        Result := False;
-        Exit;
-      end;
-      CInputWord := I + LenHelpWilds;
-      Continue;
-    end;
     Result := False;
     Exit;
   until (CInputWord > MaxInputWord) or (CWild > MaxWilds);
   { no completed evaluation }
-  if CInputWord <= MaxInputWord then Result := False;
-  if (CWild <= MaxWilds) and (Wilds[MaxWilds] <> '*') then Result := False;
+(*
+  if CInputWord <= MaxInputWord then
+    Result := False;
+  if (CWild <= MaxWilds) and (Wilds[MaxWilds] <> '*') then
+    Result := False;
+*)
 end;
 
 function XorString(const Key, Src: AnsiString): AnsiString;

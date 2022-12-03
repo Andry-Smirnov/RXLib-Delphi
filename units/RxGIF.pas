@@ -16,15 +16,30 @@ interface
 {$WARN SYMBOL_PLATFORM OFF}  // Polaris
 {$ENDIF}
 
-uses {$IFDEF VER80} WinTypes, WinProcs, {$ELSE} Windows, {$ENDIF}
-  {$IFDEF RX_D6}Types, {$ENDIF} {$IFDEF RX_D16}System.UITypes,{$ENDIF}
-  SysUtils, Classes, Graphics, RxGraph;
+uses
+{$IFDEF VER80}
+  WinTypes,
+  WinProcs,
+{$ELSE}
+  Windows,
+{$ENDIF}
+{$IFDEF RX_D6}
+  Types,
+{$ENDIF}
+{$IFDEF RX_D16}
+  System.UITypes,
+{$ENDIF}
+  SysUtils,
+  Classes,
+  Graphics,
+  RxGraph;
+
 
 const
   RT_GIF = 'GIF'; { GIF Resource Type }
 
-type
 
+type
 {$IFNDEF RX_D3}
 
   TProgressStage = (psStarting, psRunning, psEnding);

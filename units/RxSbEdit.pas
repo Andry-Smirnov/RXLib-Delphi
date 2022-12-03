@@ -872,11 +872,11 @@ type
   end;
 const
   {$IFDEF CBUILDER}
-  sSender: string[7] = '*Sender';
+  sSender: string = '*Sender';
   {$ELSE}
-  sSender: string[6] = 'Sender';
+  sSender: string = 'Sender';
   {$ENDIF}
-  sObject: string[7] = 'TObject';
+  sObject: string = 'TObject';
 var
   Btn: TSpeedItem;
   I, Num: Integer;

@@ -38,15 +38,17 @@ type
       Shift: TShiftState);
     procedure HelpBtnClick(Sender: TObject);
   private
-    SingleLine: string[15];
-    MultipleLines: string[15];
+    SingleLine: string;//[15];
+    MultipleLines: string;//[15];
   end;
 
 implementation
 
 {$R *.DFM}
 
-uses SysUtils, LibHelp;
+uses
+  SysUtils,
+  LibHelp;
 
 { TStrListEditDlg }
 

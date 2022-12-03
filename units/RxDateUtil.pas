@@ -402,6 +402,8 @@ begin
 end;
 {$ENDIF}
 
+
+{$HINTS OFF}
 function GetDateOrder(const DateFormat: string): TDateOrder;
 var
   I: Integer;
@@ -409,22 +411,24 @@ begin
   Result := DefaultDateOrder;
   I := 1;
   while I <= Length(DateFormat) do
-  begin
-    case Chr(Ord(DateFormat[I]) and $DF) of
-      {$IFDEF RX_D3}
-      'E': Result := doYMD;
-      {$ENDIF}
-      'Y': Result := doYMD;
-      'M': Result := doMDY;
-      'D': Result := doDMY;
-    else
-      Inc(I);
-      Continue;
+    begin
+      case Chr(Ord(DateFormat[I]) and $DF) of
+        {$IFDEF RX_D3}
+        'E': Result := doYMD;
+        {$ENDIF}
+        'Y': Result := doYMD;
+        'M': Result := doMDY;
+        'D': Result := doDMY;
+      else
+        Inc(I);
+        Continue;
+      end;
+      Exit;
     end;
-    Exit;
-  end;
   Result := DefaultDateOrder; { default }
 end;
+{$HINTS ON}
+
 
 function ExpandYear(Year: Integer): Integer;
 var

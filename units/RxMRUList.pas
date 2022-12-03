@@ -306,41 +306,42 @@ var
   I: Integer;
   L: Cardinal;
   S: string;
-  C: string[2];
+  C: string;
   ShortCut: TShortCut;
   Item: TMenuItem;
 begin
   ClearRecentMenu;
   if Assigned(FRecentMenu) then
-  begin
-    if (FList.Count > 0) and (FRecentMenu.Count > 0) then
-      AddMenuItem(NewLine);
-    for I := 0 to FList.Count - 1 do
     begin
-      if (FSeparateSize > 0) and (I > 0) and (I mod FSeparateSize = 0) then
+      if (FList.Count > 0) and (FRecentMenu.Count > 0) then
         AddMenuItem(NewLine);
-      S := FList[I];
-      ShortCut := scNone;
-      GetItemData(S, ShortCut, LongInt(FList.Objects[I]));
-      Item := NewItem(GetShortHint(S), ShortCut, False, True,
-        MenuItemClick, 0, '');
-      Item.Hint := GetLongHint(S);
-      if FShowAccelChar then
-      begin
-        L := Cardinal(I) + FStartAccel;
-        if L < 10 then
-          C := AnsiChar('&') + AnsiChar(Ord('0') + L)
-        else if L <= (Ord('Z') + 10) then
-          C := AnsiChar('&') + AnsiChar(L + Ord('A') - 10)
-        else
-          C := ' ';
-        Item.Caption := string(C) + AccelDelimChars[FAccelDelimiter] + Item.Caption;
-      end;
-      Item.Tag := I;
-      AddMenuItem(Item);
+      for I := 0 to FList.Count - 1 do
+        begin
+          if (FSeparateSize > 0) and (I > 0) and (I mod FSeparateSize = 0) then
+            AddMenuItem(NewLine);
+          S := FList[I];
+          ShortCut := scNone;
+          GetItemData(S, ShortCut, LongInt(FList.Objects[I]));
+          Item := NewItem(GetShortHint(S), ShortCut, False, True,
+            MenuItemClick, 0, '');
+          Item.Hint := GetLongHint(S);
+          if FShowAccelChar then
+            begin
+              L := Cardinal(I) + FStartAccel;
+              if L < 10 then
+                C := AnsiChar('&') + AnsiChar(Ord('0') + L)
+              else if L <= (Ord('Z') + 10) then
+                C := AnsiChar('&') + AnsiChar(L + Ord('A') - 10)
+              else
+                C := ' ';
+              Item.Caption := string(C) + AccelDelimChars[FAccelDelimiter] + Item.Caption;
+            end;
+          Item.Tag := I;
+          AddMenuItem(Item);
+        end;
+      if AutoEnable then
+        FRecentMenu.Enabled := FRecentMenu.Count > 0;
     end;
-    if AutoEnable then FRecentMenu.Enabled := FRecentMenu.Count > 0;
-  end;
 end;
 
 procedure TMRUManager.ClearRecentMenu;
