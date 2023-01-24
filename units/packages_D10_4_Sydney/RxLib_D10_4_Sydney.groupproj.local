@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+  <Transactions>
+    <Transaction>2023.01.24 14:40:56.979,C:\Program Files (x86)\Embarcadero\Studio\21.0\components\RXLib\units\packages_D10_4_Sydney\RxLib_D10_4_Sydney.groupproj=C:\Users\user\Documents\Embarcadero\Studio\Projects\ProjectGroup1.groupproj</Transaction>
+  </Transactions>
+  <Default.Personality>
+    <Projects ActiveProject="C:\Program Files (x86)\Embarcadero\Studio\21.0\components\RXLib\units\packages_D10_4_Sydney\RtmRxDB270.dproj"/>
+  </Default.Personality>
+</BorlandProject>
