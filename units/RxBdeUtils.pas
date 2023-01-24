@@ -1387,6 +1387,7 @@ function DataSetRecNo(DataSet: TDataSet): Longint;
 var
   FCurProp: CURProps;
   FRecProp: RECProps;
+  FCurRec: TRecBuf;
 begin
   Result := -1;
   if (DataSet <> nil) and DataSet.Active and (DataSet.State in [dsBrowse,
@@ -1402,16 +1403,22 @@ begin
       Exit;
     if ({$IFDEF RX_D18}System.AnsiStrings.{$ENDIF}StrComp(FCurProp.szTableType, szParadox) = 0) or
       (FCurProp.iSeqNums = 1) then
-    begin
-      DataSet.GetCurrentRecord(nil);
-      if DbiGetSeqNo(TBDEDataSet(DataSet).Handle, Result) <> DBIERR_NONE then
-        Result := -1;
-    end
-    else if {$IFDEF RX_D18}System.AnsiStrings.{$ENDIF}StrComp(FCurProp.szTableType, szDBase) = 0 then begin
-      DataSet.GetCurrentRecord(nil);
-      if DbiGetRecord(TBDEDataSet(DataSet).Handle, dbiNOLOCK, nil, @FRecProp) = DBIERR_NONE
-        then Result := FRecProp.iPhyRecNum;
-    end;
+      begin
+        //ANDRY!!! 01.2023
+        //DataSet.GetCurrentRecord(nil);
+        DataSet.GetCurrentRecord(FCurRec);
+        if DbiGetSeqNo(TBDEDataSet(DataSet).Handle, Result) <> DBIERR_NONE then
+          Result := -1;
+      end
+    else
+      if {$IFDEF RX_D18}System.AnsiStrings.{$ENDIF}StrComp(FCurProp.szTableType, szDBase) = 0 then
+        begin
+          //ANDRY!!! 01.2023
+          //DataSet.GetCurrentRecord(nil);
+          DataSet.GetCurrentRecord(FCurRec);
+          if DbiGetRecord(TBDEDataSet(DataSet).Handle, dbiNOLOCK, nil, @FRecProp) = DBIERR_NONE then
+            Result := FRecProp.iPhyRecNum;
+        end;
   end;
 end;
 

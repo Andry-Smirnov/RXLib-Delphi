@@ -1,8 +1,8 @@
 object CheckItemsEditor: TCheckItemsEditor
   Left = 214
   Top = 140
-  Width = 349
-  Height = 320
+  ClientHeight = 281
+  ClientWidth = 333
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -40,25 +40,17 @@ object CheckItemsEditor: TCheckItemsEditor
   PixelsPerInch = 96
   TextHeight = 13
   object Panel2: TPanel
-    Left = 257
+    Left = 249
     Top = 0
     Width = 84
-    Height = 286
+    Height = 281
     Align = alRight
     BevelOuter = bvNone
     Ctl3D = False
     ParentCtl3D = False
     TabOrder = 1
-    object AddListBtn: TRxSpeedButton
-      Left = 2
-      Top = 87
-      Width = 75
-      Height = 24
-      DropDownMenu = PopupStrings
-      Caption = '&As TStrings'
-      ParentShowHint = True
-      OnClick = AddListBtnClick
-    end
+    ExplicitLeft = 257
+    ExplicitHeight = 286
     object DeleteBtn: TButton
       Left = 2
       Top = 60
@@ -146,61 +138,33 @@ object CheckItemsEditor: TCheckItemsEditor
   object Panel1: TPanel
     Left = 0
     Top = 0
-    Width = 257
-    Height = 286
+    Width = 249
+    Height = 281
     Align = alClient
     BevelOuter = bvNone
     BorderWidth = 6
     Ctl3D = False
     ParentCtl3D = False
     TabOrder = 0
+    ExplicitWidth = 257
+    ExplicitHeight = 286
     object Splitter1: TSplitter
       Left = 6
-      Top = 226
-      Width = 245
+      Top = 221
+      Width = 237
       Height = 3
       Cursor = crVSplit
       Align = alBottom
       AutoSnap = False
       Beveled = True
       MinSize = 1
-    end
-    object CheckList: TRxCheckListBox
-      Left = 6
-      Top = 6
-      Width = 245
-      Height = 220
-      AllowGrayed = True
-      Align = alClient
-      Ctl3D = True
-      DragMode = dmAutomatic
-      ItemHeight = 13
-      ParentCtl3D = False
-      PopupMenu = Popup
-      TabOrder = 0
-      OnClick = CheckListClick
-      OnDragDrop = CheckListDragDrop
-      OnDragOver = CheckListDragOver
-      OnKeyDown = CheckListKeyDown
-      InternalVersion = 202
-      Strings = (
-        'QQQ'
-        0
-        True
-        'WWW'
-        0
-        True
-        'EEE'
-        0
-        True
-        'ZZZZ'
-        0
-        True)
+      ExplicitTop = 226
+      ExplicitWidth = 245
     end
     object PanelHint: TPanel
       Left = 6
-      Top = 229
-      Width = 245
+      Top = 224
+      Width = 237
       Height = 51
       Hint = 'Hint for the item selected above.'
       Align = alBottom
@@ -209,11 +173,13 @@ object CheckItemsEditor: TCheckItemsEditor
       Caption = '[ No hint ]'
       ParentShowHint = False
       ShowHint = True
-      TabOrder = 1
+      TabOrder = 0
+      ExplicitTop = 229
+      ExplicitWidth = 245
       object HintMemo: TMemo
         Left = 1
         Top = 1
-        Width = 243
+        Width = 235
         Height = 49
         Align = alClient
         BorderStyle = bsNone
@@ -227,14 +193,6 @@ object CheckItemsEditor: TCheckItemsEditor
         WordWrap = False
       end
     end
-  end
-  object FormPlacement: TFormPlacement
-    IniFileName = 'DELPHI.INI'
-    IniSection = 'RX.CheckListEditor'
-    MinMaxInfo.MinTrackHeight = 280
-    MinMaxInfo.MinTrackWidth = 200
-    Left = 60
-    Top = 28
   end
   object Popup: TPopupMenu
     OnPopup = PopupPopup

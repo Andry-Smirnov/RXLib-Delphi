@@ -27,26 +27,54 @@ unit RxBDEReg;
 
 interface
 
-uses Classes, SysUtils, DB, DBTables,
-  {$IFDEF RX_D6}DesignIntf, DesignEditors{$ELSE}DsgnIntf{$ENDIF}; // Polaris
+uses
+  Classes, SysUtils, DB, DBTables,
+{$IFDEF RX_D6}
+  DesignIntf,
+  DesignEditors
+{$ELSE}
+  DsgnIntf
+{$ENDIF}; // Polaris
+
 
 { Register data aware custom controls }
-
 procedure Register;
+
 
 implementation
 
+
 {$R *.dcr}
 
-uses TypInfo, RxDBLists, RXResConst, RxDBQBE, RxDBFilter, RxDBIndex, RxDBPrgrss,
+
+uses
+  TypInfo, RxDBLists, RXResConst, RxDBQBE, RxDBFilter, RxDBIndex, RxDBPrgrss,
   RxLogin, RxDBSecur, RXQuery, RxVCLUtils, RxDBExcpt, RxDsgn,
-  {$IFDEF DCS}RxSelDSFrm, {$ENDIF}{$IFDEF RX_MIDAS}RxRemLog, {$ENDIF}
-  {$IFDEF RX_D3}RxQBndDlg, {$ELSE}
-  {$IFDEF VER80}RxQBndDlg, {$ELSE}QBindDlg, {$ENDIF}{$ENDIF}
-  Consts, LibHelp, RxMemTable;
+{$IFDEF DCS}
+  RxSelDSFrm,
+{$ENDIF}
+{$IFDEF RX_MIDAS}
+  RxRemLog,
+{$ENDIF}
+{$IFDEF RX_D3}
+  RxQBndDlg,
+{$ELSE}
+ {$IFDEF VER80}
+  RxQBndDlg,
+ {$ELSE}
+  QBindDlg,
+ {$ENDIF}
+{$ENDIF}
+{$IFDEF RX_D15}
+  VCL.Consts,
+{$ELSE}
+  Consts,
+{$ENDIF}
+  LibHelp,
+  RxMemTable;
+
 
 {$IFNDEF VER80}
-
 { TSessionNameProperty }
 
 type
@@ -74,20 +102,22 @@ procedure TDatabaseNameProperty.GetValueList(List: TStrings);
 {$IFNDEF VER80}
 var
   S: TSession;
-  {$ENDIF}
+{$ENDIF}
 begin
-  {$IFNDEF VER80}
+{$IFNDEF VER80}
   if (GetComponent(0) is TDBDataSet) then
     (GetComponent(0) as TDBDataSet).DBSession.GetDatabaseNames(List)
-  else if (GetComponent(0) is TSQLScript) then
-  begin
-    S := Sessions.FindSession((GetComponent(0) as TSQLScript).SessionName);
-    if S = nil then S := Session;
-    S.GetDatabaseNames(List);
-  end;
-  {$ELSE}
+  else
+    if (GetComponent(0) is TSQLScript) then
+      begin
+        S := Sessions.FindSession((GetComponent(0) as TSQLScript).SessionName);
+        if S = nil then
+          S := Session;
+        S.GetDatabaseNames(List);
+      end;
+{$ELSE}
   Session.GetDatabaseNames(List);
-  {$ENDIF}
+{$ENDIF}
 end;
 
 { TTableNameProperty }
@@ -101,25 +131,24 @@ type
 
 procedure TTableNameProperty.GetValueList(List: TStrings);
 begin
-  {$IFNDEF VER80}
+{$IFNDEF VER80}
   (GetComponent(0) as TCustomTableItems).DBSession.GetTableNames((GetComponent(0)
     as TCustomTableItems).DatabaseName, '', True, False, List);
-  {$ELSE}
+{$ELSE}
   Session.GetTableNames((GetComponent(0) as TCustomTableItems).DatabaseName,
     '', True, False, List);
-  {$ENDIF}
+{$ENDIF}
 end;
 
 {$IFNDEF RX_D4}
 
 {$IFNDEF VER90}
-{$IFNDEF VER93}
-
+ {$IFNDEF VER93}
 function EditQueryParams(DataSet: TDataSet; List: TParams): Boolean;
 begin
   Result := QBndDlg.EditQueryParams(DataSet, List, hcDQuery);
 end;
-{$ENDIF}
+ {$ENDIF}
 {$ENDIF}
 
 { TRxParamsProperty }
@@ -138,11 +167,11 @@ var
 begin
   Params := TParams(Pointer(GetOrdValue));
   if Params.Count > 0 then
-    {$IFNDEF VER80}
+{$IFNDEF VER80}
     Result := Format('(%s)', [GetPropInfo.Name])
-      {$ELSE}
+{$ELSE}
     Result := Format('(%s)', [GetPropInfo^.Name])
-      {$ENDIF}
+{$ENDIF}
   else
     Result := ResStr(srNone);
 end;
@@ -173,32 +202,33 @@ begin
     List := TParams.Create;
     try
       List.Assign(Params);
-      if EditQueryParams(Query, List){$IFNDEF VER80} and not
-      List.IsEqual(Params){$ENDIF} then
-      begin
-        {$IFNDEF VER80}
-        Modified;
-        {$ELSE}
-        if Designer <> nil then Designer.Modified;
-        {$ENDIF}
-        Query.Close;
-        for I := 0 to PropCount - 1 do
+      if EditQueryParams(Query, List){$IFNDEF VER80} and not List.IsEqual(Params){$ENDIF} then
         begin
-          Params := TParams(GetOrdProp(GetComponent(I),
-            TypInfo.GetPropInfo(GetComponent(I).ClassInfo,
-            {$IFNDEF VER80}
-            GetPropInfo.Name)));
+          {$IFNDEF VER80}
+          Modified;
           {$ELSE}
-            GetPropInfo^.Name)));
+          if Designer <> nil then
+            Designer.Modified;
           {$ENDIF}
-          Params.AssignValues(List);
+          Query.Close;
+          for I := 0 to PropCount - 1 do
+            begin
+              Params := TParams(GetOrdProp(GetComponent(I),
+                TypInfo.GetPropInfo(GetComponent(I).ClassInfo,
+                {$IFNDEF VER80}
+                GetPropInfo.Name)));
+              {$ELSE}
+                GetPropInfo^.Name)));
+              {$ENDIF}
+              Params.AssignValues(List);
+            end;
         end;
-      end;
     finally
       List.Free;
     end;
   finally
-    if QueryCreated then Query.Free;
+    if QueryCreated then
+      Query.Free;
   end;
 end;
 
@@ -218,15 +248,13 @@ var
 begin
   Security := GetComponent(0) as TDBSecurity;
   if Security.Database <> nil then
-  begin
-    {$IFNDEF VER80}
-    Security.Database.Session.GetTableNames(Security.Database.DatabaseName,
-      '*.*', True, False, List);
-    {$ELSE}
-    Session.GetTableNames(Security.Database.DatabaseName, '*.*',
-      True, False, List);
-    {$ENDIF}
-  end;
+    begin
+      {$IFNDEF VER80}
+      Security.Database.Session.GetTableNames(Security.Database.DatabaseName, '*.*', True, False, List);
+      {$ELSE}
+      Session.GetTableNames(Security.Database.DatabaseName, '*.*', True, False, List);
+      {$ENDIF}
+    end;
 end;
 
 { TLoginNameFieldProperty }
@@ -244,16 +272,16 @@ var
 begin
   Security := GetComponent(0) as TDBSecurity;
   if (Security.Database <> nil) and (Security.UsersTableName <> '') then
-  begin
-    Table := TTable.Create(Security);
-    try
-      Table.DatabaseName := Security.Database.DatabaseName;
-      Table.TableName := Security.UsersTableName;
-      Table.GetFieldNames(List);
-    finally
-      Table.Free;
+    begin
+      Table := TTable.Create(Security);
+      try
+        Table.DatabaseName := Security.Database.DatabaseName;
+        Table.TableName := Security.UsersTableName;
+        Table.GetFieldNames(List);
+      finally
+        Table.Free;
+      end;
     end;
-  end;
 end;
 
 {$IFDEF DCS}
@@ -281,71 +309,63 @@ procedure Register;
 const
   srRXDBAware = 'RX DBAware';
 begin
-  {$IFDEF RX_D4}
+{$IFDEF RX_D4}
   { Database Components are excluded from the STD SKU }
-  if GDAL = LongWord(-16) then Exit;
-  {$ENDIF}
+  if GDAL = LongWord(-16) then
+    Exit;
+{$ENDIF}
 
 { Data aware components and controls }
   RegisterComponents(srRXDBAware, [TRxQuery, TSQLScript, TRxDBGridSorter,
     TMemoryTable, TQBEQuery, TRxDBFilter, TDBIndexCombo, TDBProgress,
       TDBSecurity]);
-  {$IFDEF RX_MIDAS}
+{$IFDEF RX_MIDAS}
 { MIDAS components }
   RegisterComponents(srRXDBAware, [TRxRemoteLogin]);
   RegisterNonActiveX([TRxRemoteLogin], axrComponentOnly);
-  {$ENDIF}
+{$ENDIF}
+
 { Database lists }
   RegisterComponents(srRXDBAware, [TBDEItems, TDatabaseItems,
     TTableItems]);
-  {$IFNDEF CBUILDER}
-  {$IFDEF USE_OLD_DBLISTS}
+{$IFNDEF CBUILDER}
+ {$IFDEF USE_OLD_DBLISTS}
   RegisterComponents(srRXDBAware, [TDatabaseList, TLangDrivList,
     TTableList, TStoredProcList, TFieldList, TIndexList]);
-  {$ENDIF USE_OLD_DBLISTS}
-  {$ENDIF CBUILDER}
+ {$ENDIF USE_OLD_DBLISTS}
+{$ENDIF CBUILDER}
 
-  {$IFDEF RX_D3}
+{$IFDEF RX_D3}
   RegisterNonActiveX([TRxQuery, TSQLScript, TMemoryTable, TQBEQuery,
     TRxDBFilter, TDBIndexCombo, TDBProgress, TDBSecurity, TBDEItems,
       TDatabaseItems, TTableItems], axrComponentOnly);
-  {$ENDIF RX_D3}
+{$ENDIF RX_D3}
 
 { Property and component editors for data aware controls }
 
-  RegisterPropertyEditor(TypeInfo(TFileName), TCustomTableItems, 'TableName',
-    TTableNameProperty);
-  RegisterPropertyEditor(TypeInfo(TFileName), TDBSecurity,
-    'UsersTableName', TUserTableNameProperty);
-  RegisterPropertyEditor(TypeInfo(string), TDBSecurity,
-    'LoginNameField', TLoginNameFieldProperty);
+  RegisterPropertyEditor(TypeInfo(TFileName), TCustomTableItems, 'TableName', TTableNameProperty);
+  RegisterPropertyEditor(TypeInfo(TFileName), TDBSecurity, 'UsersTableName', TUserTableNameProperty);
+  RegisterPropertyEditor(TypeInfo(string), TDBSecurity, 'LoginNameField', TLoginNameFieldProperty);
 
-  {$IFDEF DCS}
+{$IFDEF DCS}
   RegisterComponentEditor(TMemoryTable, TMemoryTableEditor);
-  {$ENDIF}
+{$ENDIF}
 
-  {$IFNDEF RX_D4}
-  RegisterPropertyEditor(TypeInfo(TParams), TQBEQuery, 'Params',
-    TRxParamsProperty);
-  RegisterPropertyEditor(TypeInfo(TParams), TRxQuery, 'Macros',
-    TRxParamsProperty);
-  RegisterPropertyEditor(TypeInfo(TParams), TSQLScript, 'Params',
-    TRxParamsProperty);
-  {$ENDIF}
+{$IFNDEF RX_D4}
+  RegisterPropertyEditor(TypeInfo(TParams), TQBEQuery, 'Params', TRxParamsProperty);
+  RegisterPropertyEditor(TypeInfo(TParams), TRxQuery, 'Macros', TRxParamsProperty);
+  RegisterPropertyEditor(TypeInfo(TParams), TSQLScript, 'Params', TRxParamsProperty);
+{$ENDIF}
 
-  RegisterPropertyEditor(TypeInfo(string), TSQLScript, 'DatabaseName',
-    TDatabaseNameProperty);
-  {$IFNDEF VER80}
-  RegisterPropertyEditor(TypeInfo(string), TCustomBDEItems, 'SessionName',
-    TSessionNameProperty);
-  RegisterPropertyEditor(TypeInfo(string), TSQLScript, 'SessionName',
-    TSessionNameProperty);
-  RegisterPropertyEditor(TypeInfo(string), TDBProgress, 'SessionName',
-    TSessionNameProperty);
-  {$ELSE}
+  RegisterPropertyEditor(TypeInfo(string), TSQLScript, 'DatabaseName', TDatabaseNameProperty);
+
+{$IFNDEF VER80}
+  RegisterPropertyEditor(TypeInfo(string), TCustomBDEItems, 'SessionName', TSessionNameProperty);
+  RegisterPropertyEditor(TypeInfo(string), TSQLScript, 'SessionName', TSessionNameProperty);
+  RegisterPropertyEditor(TypeInfo(string), TDBProgress, 'SessionName', TSessionNameProperty);
+{$ELSE}
   DbErrorIntercept;
-  {$ENDIF}
-
+{$ENDIF}
 end;
 
 end.

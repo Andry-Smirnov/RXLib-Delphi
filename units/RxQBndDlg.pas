@@ -15,9 +15,22 @@ interface
 {$I RX.INC}
 
 uses
-  SysUtils, {$IFNDEF VER80}Windows, {$ELSE}WinTypes, WinProcs, {$ENDIF}
-  Messages, Classes, Graphics, Controls, Forms, Dialogs, StdCtrls, DB
-  {$IFNDEF RX_D4}, DBTables{$ENDIF};
+  SysUtils,
+{$IFNDEF VER80}
+  Windows,
+{$ELSE}
+  WinTypes,
+  WinProcs,
+{$ENDIF}
+  Messages, Classes, DB,
+{$IFDEF RX_D15}
+  VCL.Graphics, VCL.Controls, VCL.Forms, VCL.Dialogs, VCL.StdCtrls
+{$ELSE}
+  Graphics, Controls, Forms, Dialogs, StdCtrls
+{$ENDIF}
+{$IFNDEF RX_D4}
+  , DBTables, Vcl.Controls
+{$ENDIF};
 
 type
   TQueryParamsDialog = class(TForm)

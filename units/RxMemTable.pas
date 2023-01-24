@@ -260,21 +260,22 @@ var
 begin
   Result := inherited GetFieldData(Field, Buffer);
   if not Result then
-  begin
-    RecBuf := nil;
-    case State of
-      dsBrowse: if not IsEmpty then RecBuf := Pointer(ActiveBuffer);
-      dsEdit, dsInsert: RecBuf := Pointer(ActiveBuffer);
-      dsCalcFields: RecBuf := Pointer(CalcBuffer);
-    end;
-    if RecBuf = nil then Exit;
-    with Field do
-      if (FieldNo > 0) then
-      begin
-        Check(DbiGetField(Handle, FieldNo, RecBuf, nil, IsBlank));
-        Result := not IsBlank;
+    begin
+      RecBuf := nil;
+      case State of
+        dsBrowse: if not IsEmpty then RecBuf := Pointer(ActiveBuffer);
+        dsEdit,
+        dsInsert: RecBuf := Pointer(ActiveBuffer);
+        dsCalcFields: RecBuf := Pointer(CalcBuffer);
       end;
-  end;
+      if RecBuf = nil then Exit;
+      with Field do
+        if (FieldNo > 0) then
+        begin
+          Check(DbiGetField(Handle, FieldNo, RecBuf, nil, IsBlank));
+          Result := not IsBlank;
+        end;
+    end;
 end;
 
 procedure TMemoryTable.InternalDelete;

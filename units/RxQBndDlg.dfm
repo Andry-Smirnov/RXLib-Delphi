@@ -72,7 +72,6 @@ object QueryParamsDialog: TQueryParamsDialog
       Width = 121
       Height = 21
       Style = csDropDownList
-      ItemHeight = 13
       Sorted = True
       TabOrder = 1
       OnChange = TypeListChange
