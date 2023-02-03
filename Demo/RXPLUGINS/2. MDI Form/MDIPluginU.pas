@@ -38,7 +38,7 @@ unit MDIPluginU;
 function RegisterPlugin : TuilMDIPluginSample; stdcall;
 
 implementation
-
+
 
 {$R *.DFM}
 
