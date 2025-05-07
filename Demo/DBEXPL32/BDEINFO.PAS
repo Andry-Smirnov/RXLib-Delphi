@@ -2,7 +2,7 @@
 {                                                       }
 {     Delphi VCL Extensions (RX) demo program           }
 {                                                       }
-{     Copyright (c) 1997, 1998 Master-Bank              }
+{     Copyright (c) 1997 Master-Bank                    }
 {                                                       }
 {*******************************************************}
 
@@ -12,8 +12,8 @@ unit BdeInfo;
 
 interface
 
-uses Classes, {$IFNDEF VER80} Windows, BDE, Registry, {$ELSE} IniFiles,
-  DbiTypes, DbiProcs, DbiErrs, {$ENDIF} SysUtils, DB, DBTables;
+uses Classes, {$IFDEF WIN32} Windows, BDE, Registry, {$ELSE} IniFiles,
+  DbiTypes, DbiProcs, DbiErrs, {$ENDIF WIN32} SysUtils, DB, DBTables;
 
 { TBdeInfo }
 
@@ -66,7 +66,7 @@ function FieldSubtypeName(ASubtype: Word): string;
 
 implementation
 
-uses RxVCLUtils;
+uses VCLUtils;
 
 { TBdeInfo }
 
@@ -91,7 +91,7 @@ end;
 procedure TBdeInfo.UpdateRegInfo;
 var
   I: Integer;
-{$IFNDEF VER80}
+{$IFDEF WIN32}
   Reg: TRegistry;
 begin
   Reg := TRegistry.Create;
@@ -122,7 +122,7 @@ begin
     finally
       Free;
     end;
-{$ENDIF}
+{$ENDIF WIN32}
   I := Pos(';', FDirectory);
   if I > 0 then FDirectory := Copy(FDirectory, 1, I - 1);
   I := Pos(';', FCfgPath);
@@ -217,13 +217,16 @@ end;
 
 function FieldTypeName(AType: Word): string;
 const
-  Types: array [fldUNKNOWN..MAXLOGFLDTYPES - 1] of PChar =
+{$IFDEF RX_D3}
+  MaxTypes = fldCURSOR;
+{$ELSE}
+  MaxTypes = fldLOCKINFO;
+{$ENDIF}
+  Types: array [fldUNKNOWN..MaxTypes] of PChar =
     ('Unknown', 'String', 'Date', 'Blob', 'Boolean', 'Int16', 'Int32',
      'Float64', 'Decimal', 'Bytes', 'Time', 'DateTime', 'UInt16', 'UInt32',
      'Float80', 'VarBytes', 'LockInfo'
-     {$IFDEF RX_D3}, 'Oracle Cursor' {$ENDIF}
-     {$IFDEF RX_D4}, 'Int64', 'UInt64', 'Structure', 'Array', 'ADTRef',
-     'NestedTable' {$ENDIF}{$IFDEF RX_D7}, 'TimeStamp'{$ENDIF});
+     {$IFDEF RX_D3}, 'Oracle Cursor' {$ENDIF});
 begin
   if AType < Low(Types) then AType := Low(Types)
   else if AType > High(Types) then AType := Low(Types);
@@ -232,16 +235,10 @@ end;
 
 function FieldSubtypeName(ASubtype: Word): string;
 const
-{$IFDEF RX_D4}
-  MaxSubtype = fldstADTDATE;
-{$ELSE}
   MaxSubtype = fldstAUTOINC;
-{$ENDIF}
-  Subtypes: array [Pred(fldstMONEY)..MaxSubtype] of PChar =
+  Subtypes: array [fldstMONEY - 1..MaxSubtype] of PChar =
     ('Password', 'Money', 'Memo', 'Binary', 'Formatted Memo', 'OLE',
-     'Graphic', 'dBase OLE', 'User Typed', 'Auto Increment'
-     {$IFDEF RX_D4}, 'Access OLE', 'Char', 'Unicode', 'CLOB', 'BLOB',
-     'ADT (nested table)', 'BFILE', 'OCIDate' {$ENDIF});
+     'Graphic', 'dBase OLE', 'User Typed', 'Auto Increment');
 begin
   Result := '';
   if ASubtype = fldstPASSWORD then ASubtype := Low(Subtypes)

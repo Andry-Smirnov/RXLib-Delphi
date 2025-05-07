@@ -14,14 +14,15 @@
   {$DEFINE USE_VQB}
 {$ENDIF}
 
-{.$DEFINE USE_QR2}  { use QuickReport 2.x or higher }
+{.$DEFINE USE_QR2}  { use QuickReport 2.x }
 {$IFDEF RX_D3}
   {$IFNDEF CBUILDER}
     {$DEFINE USE_QR2}
-{$IFDEF RX_D4}
-    {$DEFINE USE_QR3}
-{$ENDIF}
   {$ENDIF}
+{$ENDIF}
+
+{$IFDEF RX_D4}
+  {$UNDEF USE_QR2}
 {$ENDIF}
 
 unit ChildWin;
@@ -29,9 +30,9 @@ unit ChildWin;
 interface
 
 uses WinTypes, WinProcs, Messages, Classes, Graphics, Forms, Controls, DB,
-  RxDBLists, Tabs, ExtCtrls, RXSplit, DBTables, Grids, DBGrids, RXDBCtrl,
-  RXQuery, StdCtrls, Buttons, RxPlacemnt, RxDBIndex, RxDBSecur, Menus, Dialogs,
-  RXShell, RxDBPrgrss, RxPicClip, ComCtrls, RxAnimate, RXCtrls
+  DBLists, Tabs, ExtCtrls, RXSplit, DBTables, Grids, DBGrids, RXDBCtrl,
+  RXQuery, StdCtrls, Buttons, Placemnt, DBIndex, DBSecur, Menus, Dialogs,
+  RXShell, DBPrgrss, PicClip, ComCtrls, Animate, RXCtrls
   {$IFDEF USE_QR2}, QuickRpt, QRPrntr, QRExtra, QRPrev, Printers,
   QRCtrls {$ENDIF USE_QR2};
 
@@ -131,7 +132,6 @@ type
     IndexList1PRIMARY: TBooleanField;
     FieldList1FIELDNUM: TWordField;
     QueryParamItem: TMenuItem;
-    DataSource3: TDataSource;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure DataSource1DataChange(Sender: TObject; Field: TField);
     procedure TabSet1Change(Sender: TObject; NewTab: Integer;
@@ -182,8 +182,6 @@ type
       DisplayText: Boolean);
     procedure DBQryProgress(Sender: TObject; var Abort: Boolean);
     procedure BeforeClose(DataSet: TDataSet);
-    procedure DataSource3StateChange(Sender: TObject);
-    procedure Notebook1PageChanged(Sender: TObject);
   private
     { Private declarations }
     FSQLHistoryIndex: Integer;
@@ -195,6 +193,9 @@ type
     FShowDeleted: Boolean;
     FCurDeleted: Boolean;
     FTryOpenTable: Boolean; { for TUTIL32.DLL }
+{$IFDEF USE_QR2}
+    procedure PreviewReport(Sender: TObject);
+{$ENDIF}
     function GetDatabaseName: string;
     function GetActiveDataSource: TDataSource;
     procedure SetDatabaseName(const Value: string);
@@ -241,10 +242,10 @@ implementation
 {$B-}
 {$R *.DFM}
 
-uses SysUtils, Clipbrd, DBConsts, TUtil, RxVCLUtils, RxObjStr, Options, RxStrUtils,
-  {$IFDEF USE_VQB} Qbe, {$ENDIF} Bde, SqlMon, RxFileUtil, RxAppUtils, EditStr,
-  EditPict, ViewBlob, RxDbUtils, RxBdeUtils, Main, FiltDlg, DestTab, SrcTab,
-  RxQBndDlg, BdeInfo;
+uses SysUtils, Clipbrd, DBConsts, TUtil, VCLUtils, ObjStr, Options, StrUtils,
+  {$IFDEF USE_VQB} Qbe, {$ENDIF} Bde, SqlMon, FileUtil, AppUtils, EditStr,
+  EditPict, ViewBlob, DbUtils, BdeUtils, Main, FiltDlg, DestTab, SrcTab,
+  QBndDlg, BdeInfo;
 
 const
   SQuerySuccess = 'Query successfully executed.';
@@ -266,10 +267,52 @@ const
   SVqbNotLoaded = 'Could not load Visual Query Builder. Make sure that all required libraries are available';
 {$ENDIF}
 {$IFDEF USE_QR2}
+  SPreview = 'Preview report';
   SClosePreview = 'You must close preview window before closing database.';
 {$ENDIF}
 
 {$WARNINGS OFF}
+
+{ TQueryThread }
+
+type
+  TQueryThread = class(TThread)
+  private
+    FQuery: TrxQuery;
+    FExcept: Exception;
+    procedure DoExcept;
+  protected
+    procedure Execute; override;
+  public
+    constructor Create(Query: TrxQuery);
+  end;
+
+constructor TQueryThread.Create(Query: TrxQuery);
+begin
+  inherited Create(False);
+  FQuery := Query;
+  FreeOnTerminate := True;
+end;
+
+procedure TQueryThread.DoExcept;
+begin
+  if not (FExcept is EAbort) then
+    if Assigned(Application.OnException) then
+      Application.OnException(FQuery, FExcept)
+    else Application.ShowException(FExcept);
+end;
+
+procedure TQueryThread.Execute;
+begin
+  try
+    FQuery.OpenOrExec(True);
+  except
+    on E: Exception do begin
+      FExcept := E;
+      Synchronize(DoExcept);
+    end;
+  end;
+end;
 
 {$IFDEF USE_QR2}
 
@@ -336,12 +379,14 @@ begin
   if not HadColHead then Report.Bands.HasColumnHeader := True;
   if not HadDetail then Report.Bands.HasDetail := True;
   AHeight := Round(Report.Bands.DetailBand.Height / 1.5);
-  TQuickRep(Report).DataSet := Self.DataSet;
+  Report.DataSet := Self.DataSet;
   if DataSet <> nil then begin
     for I := 0 to DataSet.FieldCount - 1 do begin
       AField := DataSet.Fields[I];
-      if AField.Visible and not (AField.DataType in ftNonTextTypes +
-        [ftUnknown]) then AddField(AField);
+      if AField.Visible and not (AField.DataType in
+        [ftUnknown, ftBytes, ftVarBytes, ftBlob, ftMemo, ftGraphic,
+        ftFmtMemo, ftParadoxOle, ftDBaseOle, ftTypedBinary]) then
+        AddField(AField);
     end;
   end;
   if not HadDetail then
@@ -394,10 +439,7 @@ end;
 
 function TMDIChild.GetActiveDataSource: TDataSource;
 begin
-  if Notebook1.PageIndex = 0 then
-    Result := DataSource2
-  else { SQL }
-    Result := DataSource3;
+  Result := DataSource2;
 end;
 
 procedure TMDIChild.UpdateDataFieldFormats;
@@ -597,6 +639,16 @@ begin
     end;
   end;
 end;
+
+procedure TMDIChild.PreviewReport(Sender: TObject);
+begin
+  if not (Sender is TQRPrinter) then Exit;
+  with TQRStandardPreview.CreatePreview(Application, TQRPrinter(Sender)) do
+  begin
+    Caption := SPreview;
+    Show;
+  end;
+end;
 {$ENDIF USE_QR2}
 
 procedure TMDIChild.PrintCurrentTable;
@@ -613,9 +665,10 @@ begin
     if F <> nil then F.Close;
     with TQRDataSetBuilder.Create(Self) do
     try
-      DataSet := Self.DataSource.DataSet;
+      DataSet := DataSource.DataSet;
       Active := True;
       Title := 'Report';
+      Report.OnPreview := PreviewReport;
       Report.Preview;
     finally
       Free;
@@ -724,8 +777,7 @@ begin
     end;
     FieldList1.Open;
     IndexList1.Open;
-    if (DataSource2.DataSet = RefIntList) then
-      RefIntList.Open;
+    if DataSource2.DataSet = RefIntList then RefIntList.Open;
   except
     CloseCurrent;
     raise;
@@ -746,7 +798,7 @@ begin
       if Table1.TableName <> Val then Table1.TableName := Val;
       if Val <> '' then
       try
-        RxBdeUtils.ReindexTable(Table1);
+        BdeUtils.ReindexTable(Table1);
       finally
         InternalOpenCurrent(Val);
       end;
@@ -823,11 +875,6 @@ begin
   if AutoActivate then SetToCurrentTable;
 end;
 
-procedure TMDIChild.Notebook1PageChanged(Sender: TObject);
-begin
-  TDBExplorerMainForm(Application.MainForm).UpdateMenus;
-end;
-
 procedure TMDIChild.TabSet1Change(Sender: TObject; NewTab: Integer;
   var AllowChange: Boolean);
 var
@@ -836,7 +883,6 @@ var
 begin
   KeepPage := Notebook1.PageIndex;
   KeepDS := DataSource2.DataSet;
-  AllowChange := True;
   try
     case NewTab of
       0: begin
@@ -866,8 +912,8 @@ begin
          end;
       4: begin
            Notebook1.PageIndex := 1;
-           if DataSource3.DataSet <> Query1 then
-             DataSource3.DataSet := Query1;
+           if not FQueryRunning then DataSource2.DataSet := Query1
+           else DataSource2.DataSet := nil;
          end;
     end;
   except
@@ -937,17 +983,14 @@ begin
       RunSQL.Enabled := False;
       FAbortQuery := False;
       FQueryRunning := True;
-      with TRxQueryThread.Create(Query1, rqOpenOrExec, False, True) do begin
-        OnTerminate := QueryThreadDone;
-        DataSource3.DataSet := nil;
-        CancelItem.Enabled := False;
-        QueryAnimation.GlyphNum := 0;
-        QueryAnimation.Hint := Format(SQueryHint, [DatabaseName]);
-        QueryAnimation.Visible := True;
-        QueryAnimation.Active := True;
-        AbortQueryMenu.AutoPopup := AsyncQrySupported(QueryDB);
-        Resume;
-      end;
+      with TQueryThread.Create(Query1) do OnTerminate := QueryThreadDone;
+      DataSource2.DataSet := nil;
+      CancelItem.Enabled := False;
+      QueryAnimation.GlyphNum := 0;
+      QueryAnimation.Hint := Format(SQueryHint, [DatabaseName]);
+      QueryAnimation.Visible := True;
+      QueryAnimation.Active := True;
+      AbortQueryMenu.AutoPopup := AsyncQrySupported(QueryDB);
     end
     else Query1.OpenOrExec(True);
   finally
@@ -974,10 +1017,10 @@ begin
   FAbortQuery := False;
   CancelItem.Enabled := False;
   SQLMemoChange(nil);
-  if DataSource3.DataSet = nil then
-    DataSource3.DataSet := Query1;
+  if DataSource2.DataSet = nil then DataSource2.DataSet := Query1;
   if Query1.OpenStatus in [qsExecuted, qsOpened] then MessageBeep(0);
-  if ShowExecTime then StopWatch
+  if ShowExecTime then
+    StopWatch
   else if (Query1.OpenStatus = qsExecuted) or
     ((Query1.OpenStatus = qsOpened) and ((Notebook1.PageIndex <> 1) or
     (Application.MainForm.ActiveMDIChild <> Self))) then
@@ -1119,7 +1162,7 @@ begin
       StrListEdit(GetActiveDataSource.DataSet, F.FieldName)
     else if (F.DataType in [ftGraphic]) then
       PictureEdit(GetActiveDataSource.DataSet, F.FieldName)
-    else if (F.DataType in ftBlobTypes) then
+    else if (F.DataType in [ftBlob..ftTypedBinary]) then
       BlobView(GetActiveDataSource.DataSet, F.FieldName);
     (Sender as TrxDBGrid).Update;
   end;
@@ -1318,13 +1361,9 @@ begin
   with rxDBGrid2 do begin
     ReadOnly := not CanEdit;
   end;
-end;
-
-procedure TMDIChild.DataSource3StateChange(Sender: TObject);
-begin
-  with rxDBGrid3 do
-    ReadOnly := not ((DataSource3.DataSet <> nil) and
-      DataSource3.DataSet.CanModify);
+  with rxDBGrid3 do begin
+    ReadOnly := not CanEdit;
+  end;
 end;
 
 procedure TMDIChild.FormCloseQuery(Sender: TObject; var CanClose: Boolean);

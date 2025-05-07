@@ -10,10 +10,11 @@ object ToolsForm: TToolsForm
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
-  Font.Name = 'Tahoma'
+  Font.Name = 'MS Sans Serif'
   Font.Style = []
   FormStyle = fsMDIChild
   OldCreateOrder = True
+  Position = poDefaultPosOnly
   Visible = True
   OnClose = FormClose
   OnCreate = FormCreate
@@ -29,7 +30,7 @@ object ToolsForm: TToolsForm
     TabFont.Charset = DEFAULT_CHARSET
     TabFont.Color = clBtnText
     TabFont.Height = -11
-    TabFont.Name = 'Tahoma'
+    TabFont.Name = 'MS Sans Serif'
     TabFont.Style = []
     TabOrder = 0
     object TTabPage
@@ -45,15 +46,16 @@ object ToolsForm: TToolsForm
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clBlue
         Font.Height = -11
-        Font.Name = 'Tahoma'
+        Font.Name = 'MS Sans Serif'
         Font.Style = []
         ParentFont = False
         TabOrder = 0
         object Label1: TLabel
           Left = 8
           Top = 16
-          Width = 462
-          Height = 39
+          Width = 469
+          Height = 53
+          AutoSize = False
           Caption = 
             'Panel with SpeedButtons. Speedbar Designer provides a method to ' +
             'create and edit your speedbar. TSpeedbar has a methods to bring ' +
@@ -62,7 +64,7 @@ object ToolsForm: TToolsForm
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = [fsUnderline]
           ParentFont = False
           WordWrap = True
@@ -70,8 +72,9 @@ object ToolsForm: TToolsForm
         object Label2: TLabel
           Left = 8
           Top = 72
-          Width = 369
-          Height = 26
+          Width = 377
+          Height = 37
+          AutoSize = False
           Caption = 
             'Speedbar can be placed at top, bottom, left, right of the form b' +
             'y dragging it to the new place. Main form of this appplication h' +
@@ -79,7 +82,7 @@ object ToolsForm: TToolsForm
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ParentFont = False
           WordWrap = True
@@ -93,7 +96,7 @@ object ToolsForm: TToolsForm
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ParentFont = False
           TabOrder = 0
@@ -109,46 +112,49 @@ object ToolsForm: TToolsForm
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clBlue
         Font.Height = -11
-        Font.Name = 'Tahoma'
+        Font.Name = 'MS Sans Serif'
         Font.Style = []
         ParentFont = False
         TabOrder = 1
         object Label8: TLabel
           Left = 8
           Top = 16
-          Width = 164
+          Width = 189
           Height = 13
+          AutoSize = False
           Caption = 'Displays the contents of Clipboard'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = [fsUnderline]
           ParentFont = False
         end
         object Label9: TLabel
           Left = 280
           Top = 60
-          Width = 96
+          Width = 121
           Height = 13
+          AutoSize = False
           Caption = 'Put in the clipboard:'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ParentFont = False
         end
         object Label13: TLabel
           Left = 280
           Top = 104
-          Width = 40
+          Width = 61
           Height = 13
+          AutoSize = False
           Caption = 'View as:'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ParentFont = False
         end
@@ -191,7 +197,7 @@ object ToolsForm: TToolsForm
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ParentCtl3D = False
           ParentFont = False
@@ -207,7 +213,7 @@ object ToolsForm: TToolsForm
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ItemHeight = 13
           ParentFont = False
@@ -228,7 +234,7 @@ object ToolsForm: TToolsForm
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ItemHeight = 13
           ParentFont = False
@@ -250,7 +256,7 @@ object ToolsForm: TToolsForm
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clBlue
         Font.Height = -11
-        Font.Name = 'Tahoma'
+        Font.Name = 'MS Sans Serif'
         Font.Style = []
         ParentFont = False
         TabOrder = 0
@@ -327,8 +333,9 @@ object ToolsForm: TToolsForm
         object Label22: TLabel
           Left = 9
           Top = 73
-          Width = 195
-          Height = 65
+          Width = 196
+          Height = 80
+          AutoSize = False
           Caption = 
             'All forms of this application use these components. It makes the' +
             'm "persistent" in size, position and window state. All published' +
@@ -336,7 +343,7 @@ object ToolsForm: TToolsForm
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ParentFont = False
           WordWrap = True
@@ -381,7 +388,7 @@ object ToolsForm: TToolsForm
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clBlue
         Font.Height = -11
-        Font.Name = 'Tahoma'
+        Font.Name = 'MS Sans Serif'
         Font.Style = []
         ParentFont = False
         TabOrder = 1
@@ -458,15 +465,16 @@ object ToolsForm: TToolsForm
         object Label17: TLabel
           Left = 52
           Top = 20
-          Width = 180
-          Height = 52
+          Width = 189
+          Height = 57
+          AutoSize = False
           Caption = 
             'Provides a dialog with two list boxes. Each item can be placed i' +
             'nto the "Source" or "Destination" Box. Supports Drag and Drop.'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = [fsUnderline]
           ParentFont = False
           WordWrap = True
@@ -474,13 +482,14 @@ object ToolsForm: TToolsForm
         object Label21: TLabel
           Left = 8
           Top = 80
-          Width = 104
+          Width = 117
           Height = 13
+          AutoSize = False
           Caption = 'Your favourite colors:'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ParentFont = False
         end
@@ -492,7 +501,7 @@ object ToolsForm: TToolsForm
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ItemHeight = 13
           ParentFont = False
@@ -507,7 +516,7 @@ object ToolsForm: TToolsForm
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ParentFont = False
           TabOrder = 1
@@ -524,7 +533,7 @@ object ToolsForm: TToolsForm
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clBlue
         Font.Height = -11
-        Font.Name = 'Tahoma'
+        Font.Name = 'MS Sans Serif'
         Font.Style = []
         ParentColor = False
         ParentFont = False
@@ -563,13 +572,14 @@ object ToolsForm: TToolsForm
         object Label4: TLabel
           Left = 48
           Top = 20
-          Width = 153
-          Height = 26
+          Width = 165
+          Height = 37
+          AutoSize = False
           Caption = 'You can use RxCalculator to do simple calculations.'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ParentFont = False
           WordWrap = True
@@ -584,7 +594,7 @@ object ToolsForm: TToolsForm
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           Glyph.Data = {
             36010000424D360100000000000076000000280000001C0000000C0000000100
@@ -620,59 +630,63 @@ object ToolsForm: TToolsForm
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clBlue
         Font.Height = -11
-        Font.Name = 'Tahoma'
+        Font.Name = 'MS Sans Serif'
         Font.Style = []
         ParentFont = False
         TabOrder = 0
         object Label27: TLabel
           Left = 8
           Top = 16
-          Width = 62
+          Width = 89
           Height = 13
+          AutoSize = False
           Caption = 'Bitmap Array'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = [fsUnderline]
           ParentFont = False
         end
         object Label30: TLabel
           Left = 16
           Top = 172
-          Width = 37
+          Width = 57
           Height = 13
+          AutoSize = False
           Caption = 'Picture:'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ParentFont = False
         end
         object Label31: TLabel
           Left = 16
           Top = 212
-          Width = 57
+          Width = 65
           Height = 13
+          AutoSize = False
           Caption = 'Item Index:'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ParentFont = False
         end
         object Label32: TLabel
           Left = 144
           Top = 212
-          Width = 26
+          Width = 33
           Height = 13
+          AutoSize = False
           Caption = 'Item:'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ParentFont = False
         end
@@ -693,13 +707,14 @@ object ToolsForm: TToolsForm
         object Label3: TLabel
           Left = 8
           Top = 32
-          Width = 216
-          Height = 13
+          Width = 225
+          Height = 37
+          AutoSize = False
           Caption = 'Parts of big image can be accessed by index.'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ParentFont = False
           WordWrap = True
@@ -717,11 +732,11 @@ object ToolsForm: TToolsForm
           Top = 188
           Width = 129
           Height = 17
-          Caption = ' Visible'
+          Caption = 'Visible'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ParentFont = False
           TabOrder = 0
@@ -735,7 +750,7 @@ object ToolsForm: TToolsForm
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           MaxValue = 23
           MinValue = 0
@@ -754,15 +769,15 @@ object ToolsForm: TToolsForm
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clBlue
         Font.Height = -11
-        Font.Name = 'Tahoma'
+        Font.Name = 'MS Sans Serif'
         Font.Style = []
         ParentFont = False
         TabOrder = 1
         object SecretPanel1: TSecretPanel
-          Left = 2
-          Top = 15
-          Width = 237
-          Height = 260
+          Left = 4
+          Top = 16
+          Width = 233
+          Height = 253
           Cycled = True
           Glyph.Data = {
             360C0000424D360C000000000000360000002800000020000000200000000100
@@ -864,22 +879,33 @@ object ToolsForm: TToolsForm
             BFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBF
             BFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBFBF}
           GlyphLayout = glGlyphTop
-          Interval = 10
+          Interval = 40
           Lines.Strings = (
+            ''
+            ''
+            ''
+            ''
+            ''
+            ''
+            ''
+            ''
+            ''
+            ''
+            ''
             'Delphi VCL Extensions'
             '(RX) Library'
             ''
-            'Fedor V.Koshevnikov'
-            'Igor V.Pavluk'
-            'Serge V.Korolev'
+            'Fedor Koshevnikov'
+            'Igor Pavluk'
+            'Serge Korolev'
             ''
             'Moscow'
             ''
-            #169' 1995, 1998'
+            #169' 1995,1997'
             ''
-            'Click twice here to stop')
+            'Click twice here to stop'
+            '')
           TextStyle = bvLowered
-          Align = alClient
           BevelOuter = bvNone
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clMaroon
@@ -892,13 +918,14 @@ object ToolsForm: TToolsForm
           object Label34: TLabel
             Left = 12
             Top = 212
-            Width = 37
+            Width = 49
             Height = 13
+            AutoSize = False
             Caption = 'Picture:'
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'Tahoma'
+            Font.Name = 'MS Sans Serif'
             Font.Style = []
             ParentFont = False
           end
@@ -911,7 +938,7 @@ object ToolsForm: TToolsForm
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'Tahoma'
+            Font.Name = 'MS Sans Serif'
             Font.Style = []
             ParentFont = False
             TabOrder = 0
@@ -926,36 +953,17 @@ object ToolsForm: TToolsForm
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'Tahoma'
+            Font.Name = 'MS Sans Serif'
             Font.Style = []
             ItemHeight = 13
             ParentFont = False
-            TabOrder = 2
+            TabOrder = 1
             OnChange = ComboBox5Change
             Items.Strings = (
               'Left'
               'Right'
               'Top'
               'Bottom')
-          end
-          object RadioGroup1: TRadioGroup
-            Left = 12
-            Top = 138
-            Width = 153
-            Height = 69
-            Caption = ' Direction '
-            Font.Charset = DEFAULT_CHARSET
-            Font.Color = clWindowText
-            Font.Height = -11
-            Font.Name = 'Tahoma'
-            Font.Style = []
-            ItemIndex = 0
-            Items.Strings = (
-              'Vertical'
-              'Horizontal')
-            ParentFont = False
-            TabOrder = 1
-            OnClick = RadioGroup1Click
           end
         end
       end
@@ -1178,26 +1186,6 @@ object ToolsForm: TToolsForm
       7077777777777777777777777777777777777777777777177777777777777777
       7777}
     Left = 384
-    Top = 4
-  end
-  object DualListDialog1: TDualListDialog
-    Sorted = False
-    Title = 'Your favourite colors'
-    Label1Caption = '&Available Colors'
-    Label2Caption = '&Favourite Colors'
-    HelpContext = 0
-    List1.Strings = (
-      'Orange'
-      'Yellow'
-      'Blue'
-      'Violet'
-      'White'
-      'Black')
-    List2.Strings = (
-      'Pale blue'
-      'Red'
-      'Green')
-    Left = 467
     Top = 4
   end
   object rxCalculator1: TRxCalculator

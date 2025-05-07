@@ -2,8 +2,8 @@ program RxDemo;
 
 uses
   Forms,
-  RxExcptDlg,
-  RxDBExcpt,
+  ExcptDlg,
+  DbExcpt,
   Main in 'MAIN.PAS' {MainForm},
   Dbaware in 'DBAWARE.PAS' {DBAwareForm},
   Tools in 'TOOLS.PAS' {ToolsForm},
@@ -11,14 +11,16 @@ uses
   About in 'ABOUT.PAS' {AboutForm},
   PageDemo in 'PAGEDEMO.PAS' {ClientAssistant};
 
+{$IFDEF WIN32}
+{$R *.R32}
+{$ELSE}
 {$R *.RES}
+{$ENDIF}
 
-{$I RX.INC}
 begin
+{$IFDEF WIN32}
   Application.Initialize;
-  {$IFDEF RX_D11}
-  Application.MainFormOnTaskbar := True;
-  {$ENDIF}
+{$ENDIF}
   Application.Title := 'RX Demo';
   RxErrorIntercept;
   DBErrorIntercept;

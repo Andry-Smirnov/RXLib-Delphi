@@ -2,11 +2,12 @@
 {                                                       }
 {         Delphi VCL Extensions (RX)                    }
 {                                                       }
-{         Copyright (c) 1995, 1996 AO ROSNO             }
-{         Copyright (c) 1997, 1998 Master-Bank          }
+{         Copyright (c) 2001,2002 SGB Software          }
+{         Copyright (c) 1997, 1998 Fedor Koshevnikov,   }
+{                        Igor Pavluk and Serge Korolev  }
 {                                                       }
-{ Patched by Polaris Software                           }
 {*******************************************************}
+
 
 unit RxCombos;
 
@@ -14,14 +15,11 @@ unit RxCombos;
 { Activate this define to use RxCombos in the GXExplorer Open Source project }
 
 {$I RX.INC}
-
 {$W-,T-}
 
 interface
 
-uses
-  {$IFNDEF VER80}Windows, {$ELSE}WinTypes, WinProcs, {$ENDIF}
-  {$IFDEF RX_D6}Types,{$ENDIF} {$IFDEF RX_D16}System.UITypes, {$ENDIF}
+uses {$IFDEF WIN32} Windows, {$ELSE} WinTypes, WinProcs, {$ENDIF}
   Messages, Classes, Controls, Graphics, StdCtrls, Forms, Menus;
 
 type
@@ -36,9 +34,9 @@ type
     FItemHeightChanging: Boolean;
     procedure SetComboStyle(Value: TOwnerDrawComboStyle);
     procedure CMFontChanged(var Message: TMessage); message CM_FONTCHANGED;
-    {$IFDEF RX_D3}
+{$IFDEF RX_D3}
     procedure CMRecreateWnd(var Message: TMessage); message CM_RECREATEWND;
-    {$ENDIF}
+{$ENDIF}
   protected
     procedure CreateParams(var Params: TCreateParams); override;
     procedure CreateWnd; override;
@@ -52,42 +50,28 @@ type
 
 { TColorComboBox }
 
-  {$IFDEF RX_D3}
-  TColorComboOption = (coIncludeDefault, coIncludeNone, coIncludeOther);
+{$IFDEF RX_D3}
+  TColorComboOption = (coIncludeDefault, coIncludeNone);
   TColorComboOptions = set of TColorComboOption;
-  {$ENDIF}
+{$ENDIF}
 
   TColorComboBox = class(TOwnerDrawComboBox)
   private
-//Polaris
-    FInternalDropDown: Boolean;
-    FCustomColor: TColor;
-    FCustomColorList: string;
-//Polaris
-
     FColorValue: TColor;
     FDisplayNames: Boolean;
     FColorNames: TStrings;
-    {$IFDEF RX_D3}
+{$IFDEF RX_D3}
     FOptions: TColorComboOptions;
-    {$ENDIF}
+{$ENDIF}
     FOnChange: TNotifyEvent;
-    FNumColors: Integer; // Polaris
     function GetColorValue: TColor;
     procedure SetColorValue(NewValue: TColor);
-    function GetAllColors: Boolean; // Polaris
-    procedure SetAllColors(Value: Boolean); // Polaris
     procedure SetDisplayNames(Value: Boolean);
     procedure SetColorNames(Value: TStrings);
-    {$IFDEF RX_D3}
+{$IFDEF RX_D3}
     procedure SetOptions(Value: TColorComboOptions);
-    {$ENDIF}
+{$ENDIF}
     procedure ColorNamesChanged(Sender: TObject);
-    function CheckColorNames: Boolean; // Polaris
-
-//Polaris
-    procedure CNCommand(var Message: TWMCommand); message CN_Command;
-    procedure SetCustomColor(Value: TColor);
   protected
     procedure CreateWnd; override;
     procedure DrawItem(Index: Integer; Rect: TRect; State: TOwnerDrawState); override;
@@ -95,45 +79,39 @@ type
     procedure Change; override;
     procedure PopulateList; virtual;
     procedure DoChange; dynamic;
-
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     property Text;
-//Polaris
-    property CustomColor: TColor read FCustomColor write SetCustomColor;
   published
-    property AllColors: Boolean read GetAllColors write SetAllColors // Polaris
-      default False; // Polaris
     property ColorValue: TColor read GetColorValue write SetColorValue
       default clBlack;
-    property ColorNames: TStrings read FColorNames write SetColorNames
-      stored CheckColorNames; // Polaris
+    property ColorNames: TStrings read FColorNames write SetColorNames;
     property DisplayNames: Boolean read FDisplayNames write SetDisplayNames
       default True;
-    {$IFDEF RX_D3}
+{$IFDEF RX_D3}
     property Options: TColorComboOptions read FOptions write SetOptions
       default [];
-    {$ENDIF}
+{$ENDIF}
     property Color;
     property Ctl3D;
     property DragMode;
     property DragCursor;
     property Enabled;
     property Font;
-    {$IFDEF RX_D4}
+{$IFDEF RX_D4}
     property Anchors;
     property BiDiMode;
     property Constraints;
     property DragKind;
     property ParentBiDiMode;
-    {$ENDIF}
-    {$IFNDEF VER80}
-    {$IFNDEF VER90}
+{$ENDIF}
+{$IFDEF WIN32}
+  {$IFNDEF VER90}
     property ImeMode;
     property ImeName;
-    {$ENDIF}
-    {$ENDIF}
+  {$ENDIF}
+{$ENDIF}
     property ParentColor;
     property ParentCtl3D;
     property ParentFont;
@@ -156,16 +134,16 @@ type
     property OnKeyDown;
     property OnKeyPress;
     property OnKeyUp;
-    {$IFNDEF VER80}
+{$IFDEF WIN32}
     property OnStartDrag;
-    {$ENDIF}
-    {$IFDEF RX_D5}
+{$ENDIF}
+{$IFDEF RX_D5}
     property OnContextPopup;
-    {$ENDIF}
-    {$IFDEF RX_D4}
+{$ENDIF}
+{$IFDEF RX_D4}
     property OnEndDock;
     property OnStartDock;
-    {$ENDIF}
+{$ENDIF}
   end;
 
 { TFontComboBox }
@@ -218,19 +196,19 @@ type
     property DragCursor;
     property Enabled;
     property Font;
-    {$IFDEF RX_D4}
+{$IFDEF RX_D4}
     property Anchors;
     property BiDiMode;
     property Constraints;
     property DragKind;
     property ParentBiDiMode;
-    {$ENDIF}
-    {$IFNDEF VER80}
-    {$IFNDEF VER90}
+{$ENDIF}
+{$IFDEF WIN32}
+  {$IFNDEF VER90}
     property ImeMode;
     property ImeName;
-    {$ENDIF}
-    {$ENDIF}
+  {$ENDIF}
+{$ENDIF}
     property ParentColor;
     property ParentCtl3D;
     property ParentFont;
@@ -253,55 +231,55 @@ type
     property OnKeyDown;
     property OnKeyPress;
     property OnKeyUp;
-    {$IFNDEF VER80}
+{$IFDEF WIN32}
     property OnStartDrag;
-    {$ENDIF}
-    {$IFDEF RX_D5}
+{$ENDIF}
+{$IFDEF RX_D5}
     property OnContextPopup;
-    {$ENDIF}
-    {$IFDEF RX_D4}
+{$ENDIF}
+{$IFDEF RX_D4}
     property OnEndDock;
     property OnStartDock;
-    {$ENDIF}
+{$ENDIF}
   end;
 
-  {$IFDEF GXE}
+{$IFDEF GXE}
 procedure Register;
 {$ENDIF}
 
 implementation
 
-{$R *.RES}
+{$IFDEF WIN32}
+ {$R *.R32}
+{$ELSE}
+ {$R *.R16}
+{$ENDIF}
 
-uses SysUtils, Consts, Printers{$IFNDEF GXE}, RxVCLUtils{$ENDIF},
-  Dialogs, RxResConst; // Polaris
+uses SysUtils, Consts, Printers {$IFNDEF GXE}, VCLUtils {$ENDIF};
 
 {$IFDEF GXE}
-
 procedure Register;
-const
-  srRXControls = 'RX Controls';
 begin
   RegisterComponents('Additional', [TFontComboBox, TColorComboBox]);
 end;
 {$ENDIF GXE}
 
-{$IFDEF VER80}
+{$IFNDEF WIN32}
 type
-  DWORD = LongInt;
-  {$ENDIF}
+  DWORD = Longint;
+{$ENDIF}
 
 { Utility routines }
 
 function CreateBitmap(ResName: PChar): TBitmap;
 begin
-  {$IFDEF GXE}
+{$IFDEF GXE}
   Result := TBitmap.Create;
   Result.Handle := LoadBitmap(HInstance, ResName);
-  {$ELSE}
+{$ELSE}
   Result := MakeModuleBitmap(HInstance, ResName);
   if Result = nil then ResourceNotFound(ResName);
-  {$ENDIF GXE}
+{$ENDIF GXE}
 end;
 
 function GetItemHeight(Font: TFont): Integer;
@@ -332,8 +310,7 @@ end;
 
 procedure TOwnerDrawComboBox.SetComboStyle(Value: TOwnerDrawComboStyle);
 begin
-  if FStyle <> Value then
-  begin
+  if FStyle <> Value then begin
     FStyle := Value;
     inherited Style := Value;
   end;
@@ -362,7 +339,7 @@ end;
 procedure TOwnerDrawComboBox.CreateParams(var Params: TCreateParams);
 const
   ComboBoxStyles: array[TOwnerDrawComboStyle] of DWORD =
-  (CBS_DROPDOWN, CBS_SIMPLE, CBS_DROPDOWNLIST);
+    (CBS_DROPDOWN, CBS_SIMPLE, CBS_DROPDOWNLIST);
 begin
   inherited CreateParams(Params);
   with Params do
@@ -384,7 +361,6 @@ begin
 end;
 
 {$IFDEF RX_D3}
-
 procedure TOwnerDrawComboBox.CMRecreateWnd(var Message: TMessage);
 begin
   if not FItemHeightChanging then
@@ -395,46 +371,19 @@ end;
 { TColorComboBox }
 
 const
-  // Polaris begin
-  BaseColorsNum = 16;
-  ColorsInList = BaseColorsNum + {$IFNDEF VER80}30 {28}{$ELSE}26 {24}{$ENDIF};
-  ColorValues: array[0..ColorsInList - 1] of TColor = (
+  ColorsInList = {$IFDEF RX_D3} 18 {$ELSE} 16 {$ENDIF};
+  ColorValues: array [0..ColorsInList - 1] of TColor = (
     clBlack, clMaroon, clGreen, clOlive, clNavy, clPurple, clTeal, clGray,
-    clSilver, clRed, clLime, clYellow, clBlue, clFuchsia, clAqua, clWhite,
-    clScrollBar, clBackground, clActiveCaption, clInactiveCaption, clMenu,
-    clWindow, clWindowFrame, clMenuText, clWindowText, clCaptionText, clActiveBorder,
-    clInactiveBorder, clAppWorkSpace, clHighlight, clHighlightText, clBtnFace, clBtnShadow,
-    clGrayText, clBtnText, clInactiveCaptionText, clBtnHighlight, {$IFNDEF VER80}cl3DDkShadow, cl3DLight,
-    clInfoText, clInfoBk, {$ENDIF}clCream, clMoneyGreen, clSkyBlue{$IFDEF RX_D3}, clNone, clDefault{$ENDIF});
-
-  ColorNamesEx: array[0..ColorsInList - 1] of Integer = (
-    SColorBlack, SColorMaroon, SColorGreen, SColorOlive, SColorNavy, SColorPurple, SColorTeal, SColorGray,
-    SColorSilver, SColorRed, SColorLime, SColorYellow, SColorBlue, SColorFuchsia, SColorAqua, SColorWhite,
-    SColorScrollBar, SColorBackground, SColorActiveCaption, SColorInactiveCaption, SColorMenu,
-    SColorWindow, SColorWindowFrame, SColorMenuText, SColorWindowText, SColorCaptionText, SColorActiveBorder,
-    SColorInactiveBorder, SColorAppWorkSpace, SColorHighlight, SColorHighlightText, SColorBtnFace, SColorBtnShadow,
-    SColorGrayText, SColorBtnText, SColorInactiveCaptionText, SColorBtnHighlight, {$IFNDEF VER80}SColor3DDkShadow, SColor3DLight,
-    SColorInfoText, SColorInfoBk, {$ENDIF}SColorCream, SColorMoneyGreen, SColorSkyBlue{$IFDEF RX_D3}, SColorNone, SColorDefault{$ENDIF});
-  // Polaris end
+    clSilver, clRed, clLime, clYellow, clBlue, clFuchsia, clAqua, clWhite
+    {$IFDEF RX_D3}, clNone, clDefault {$ENDIF});
 
 constructor TColorComboBox.Create(AOwner: TComponent);
-var
-  i: Integer;
 begin
   inherited Create(AOwner);
-  FNumColors := BaseColorsNum; // Polaris
-  FColorValue := clBlack; { make default color selected }
+  FColorValue := clBlack;  { make default color selected }
   FColorNames := TStringList.Create;
-  FCustomColor := 0;
-  FCustomColorList := '';
-  FInternalDropDown := False; //Polaris
-  // Polaris
-  for i := 0 to ColorsInList - 1 do
-    FColorNames.Add(RxLoadStr(ColorNamesEx[i]));
-
   TStringList(FColorNames).OnChange := ColorNamesChanged;
   FDisplayNames := True;
-
 end;
 
 destructor TColorComboBox.Destroy;
@@ -460,33 +409,22 @@ begin
   Items.BeginUpdate;
   try
     Clear;
-//    for I := 0 to Pred(FNumColors{ColorsInList}) do begin  // Polaris
-    for I := 0 to Pred(ColorsInList) do
-    begin // Polaris
-      {$IFDEF RX_D3}
+    for I := 0 to Pred(ColorsInList) do begin
+{$IFDEF RX_D3}
       if ((ColorValues[I] = clDefault) and not (coIncludeDefault in Options)) or
         ((ColorValues[I] = clNone) and not (coIncludeNone in Options)) then
         Continue;
-
-      if (I >= FNumColors) and
-        (ColorValues[I] <> clDefault) and
-        (ColorValues[I] <> clNone) then Continue;
-
-      {$ENDIF}
+{$ENDIF}
       if (I <= Pred(FColorNames.Count)) and (FColorNames[I] <> '') then
         ColorName := FColorNames[I]
-          {$IFDEF RX_D3}
-      else if ColorValues[I] = clDefault then
-        ColorName := SDefault
-          {$ENDIF}
+{$IFDEF RX_D3}
+      else if ColorValues[I] = clDefault then ColorName := SDefault
+{$ENDIF}
       else
         { delete two first characters which prefix "cl" educated }
         ColorName := Copy(ColorToString(ColorValues[I]), 3, MaxInt);
       Items.AddObject(ColorName, TObject(ColorValues[I]));
     end;
-//Polaris
-    if coIncludeOther in Options then Items.AddObject(RxLoadStr(SColorCustom), TObject(FCustomColor));
-//Polaris
   finally
     Items.EndUpdate;
   end;
@@ -494,8 +432,7 @@ end;
 
 procedure TColorComboBox.ColorNamesChanged(Sender: TObject);
 begin
-  if HandleAllocated then
-  begin
+  if HandleAllocated then begin
     FColorValue := ColorValue;
     RecreateWnd;
   end;
@@ -505,133 +442,34 @@ procedure TColorComboBox.SetColorNames(Value: TStrings);
 begin
   FColorNames.Assign(Value);
 end;
-// Polaris begin
-
-function TColorComboBox.CheckColorNames: Boolean;
-var
-  i: Integer;
-begin
-  Result := ColorsInList <> FColorNames.Count;
-  if not Result then
-    for i := 0 to ColorsInList - 1 do
-      if FColorNames[i] <> RxLoadStr(ColorNamesEx[i]) then
-      begin
-        Result := True;
-        Exit;
-      end;
-end;
-
-function TColorComboBox.GetAllColors: Boolean;
-begin
-  Result := FNumColors >= ColorsInList - 2;
-end;
-
-procedure TColorComboBox.SetAllColors(Value: Boolean);
-begin
-  if AllColors <> Value then
-  begin
-    if not Value then
-      FNumColors := BaseColorsNum
-    else
-      FNumColors := ColorsInList - 2;
-    PopulateList;
-    SetColorValue(FColorValue);
-  end;
-end;
-
-procedure TColorComboBox.SetCustomColor(Value: TColor);
-begin
-  if FCustomColor <> Value then
-  begin
-    FCustomColor := Value;
-    Items.Objects[(FNumColors + Byte(coIncludeDefault in FOptions) +
-      Byte(coIncludeNone in FOptions))] := TObject(Value);
-    SetColorValue(Value);
-  end;
-end;
-
-procedure TColorComboBox.CNCommand(var Message: TWMCommand);
-var
-  IValue: Integer;
-  B: Boolean;
-
-begin
-  IValue := ItemIndex;
-  case Message.NotifyCode of
-    CBN_SELENDOK {CBN_SELCHANGE}:
-      if FInternalDropDown then
-      begin
-        B := FInternalDropDown;
-        FInternalDropDown := False;
-        if (ItemIndex = (FNumColors + Byte(coIncludeDefault in FOptions) +
-          Byte(coIncludeNone in FOptions))) and B then
-          with TColorDialog.Create(nil) do
-          try
-            Color := TColor(Items.Objects[ItemIndex]);
-            CustomColors.Text := FCustomColorList;
-            if Execute then
-            begin
-              FCustomColorList := CustomColors.Text;
-              IValue := Items.Count - 1;
-              SetCustomColor(Color);
-            end;
-          finally
-            Free;
-          end;
-      end;
-  end;
-  inherited;
-  case Message.NotifyCode of
-    CBN_SELENDCANCEL, CBN_KILLFOCUS, CBN_CLOSEUP:
-      FInternalDropDown := False;
-    CBN_DROPDOWN:
-      FInternalDropDown := True;
-    CBN_SELENDOK:
-      if IValue = (FNumColors + Byte(coIncludeDefault in FOptions) +
-        Byte(coIncludeNone in FOptions))
-      then
-      begin
-        FInternalDropDown := False;
-      end;
-  end;
-end;
-
-// Polaris end
-
-{$IFDEF RX_D3}
-procedure TColorComboBox.SetOptions(Value: TColorComboOptions);
-begin
-  if FOptions <> Value then
-  begin
-    FOptions := Value;
-    PopulateList;
-    SetColorValue(FColorValue);
-//Polaris    if HandleAllocated then RecreateWnd;
-  end;
-end;
-{$ENDIF}
 
 procedure TColorComboBox.SetDisplayNames(Value: Boolean);
 begin
-  if DisplayNames <> Value then
-  begin
+  if DisplayNames <> Value then begin
     FDisplayNames := Value;
     Invalidate;
   end;
 end;
+
+{$IFDEF RX_D3}
+procedure TColorComboBox.SetOptions(Value: TColorComboOptions);
+begin
+  if FOptions <> Value then begin
+    FOptions := Value;
+    if HandleAllocated then RecreateWnd;
+  end;
+end;
+{$ENDIF}
 
 function TColorComboBox.GetColorValue: TColor;
 var
   I: Integer;
 begin
   Result := FColorValue;
-  if (Style <> csDropDownList) and (ItemIndex < 0) then
-  begin
+  if (Style <> csDropDownList) and (ItemIndex < 0) then begin
     I := Items.IndexOf(inherited Text);
-    if I >= 0 then
-      Result := TColor(Items.Objects[I])
-    else
-    begin
+    if I >= 0 then Result := TColor(Items.Objects[I])
+    else begin
       Val(inherited Text, Result, I);
       if I <> 0 then Result := FColorValue;
     end;
@@ -644,30 +482,20 @@ var
   CurrentColor: TColor;
   S: string;
 begin
-  if (ItemIndex < 0) or (NewValue <> FColorValue) then
-  begin
+  if (ItemIndex < 0) or (NewValue <> FColorValue) then begin
     FColorValue := NewValue;
     { change selected item }
-    for Item := 0 to Pred(Items.Count) do
-    begin
+    for Item := 0 to Pred(Items.Count) do begin
       CurrentColor := TColor(Items.Objects[Item]);
-      if CurrentColor = NewValue then
-      begin
+      if CurrentColor = NewValue then begin
         if ItemIndex <> Item then ItemIndex := Item;
         DoChange;
         Exit;
       end;
     end;
     if Style = csDropDownList then
-      if coIncludeOther in FOptions then
-      begin
-        Items.Objects[Pred(Items.Count)] := TObject(NewValue);
-        ItemIndex := Pred(Items.Count);
-      end
-      else
-        ItemIndex := -1
-    else
-    begin
+      ItemIndex := -1
+    else begin
       S := ColorToString(NewValue);
       if Pos('cl', S) = 1 then System.Delete(S, 1, 2);
       inherited Text := S;
@@ -681,12 +509,12 @@ procedure TColorComboBox.DrawItem(Index: Integer; Rect: TRect;
 
   function ColorToBorderColor(AColor: TColor): TColor;
   type
-    TColorQuad = packed record
+    TColorQuad = record
       Red, Green, Blue, Alpha: Byte;
     end;
   begin
     if (TColorQuad(AColor).Red > 192) or (TColorQuad(AColor).Green > 192) or
-      (TColorQuad(AColor).Blue > 192) then
+       (TColorQuad(AColor).Blue > 192) then
       Result := clBlack
     else if (odSelected in State) then
       Result := clWhite
@@ -696,7 +524,6 @@ procedure TColorComboBox.DrawItem(Index: Integer; Rect: TRect;
 
 const
   ColorWidth = 22;
-//  ColorWidth = 21;
 var
   ARect: TRect;
   Text: array[0..255] of Char;
@@ -706,40 +533,29 @@ begin
   Inc(ARect.Top, 2);
   Inc(ARect.Left, 2);
   Dec(ARect.Bottom, 2);
-  if FDisplayNames then
-    ARect.Right := ARect.Left + ColorWidth
-  else
-    Dec(ARect.Right, 3);
-  with Canvas do
-  begin
+  if FDisplayNames then ARect.Right := ARect.Left + ColorWidth
+  else Dec(ARect.Right, 3);
+  with Canvas do begin
     FillRect(Rect);
     Safer := Brush.Color;
     Pen.Color := ColorToBorderColor(ColorToRGB(TColor(Items.Objects[Index])));
     Rectangle(ARect.Left, ARect.Top, ARect.Right, ARect.Bottom);
-
-//Polaris
-//    if Index <> Pred(Items.Count) then
-    begin
-      Brush.Color := TColor(Items.Objects[Index]);
-      try
-        InflateRect(ARect, -1, -1);
-        FillRect(ARect);
-      finally
-        Brush.Color := Safer;
-      end;
+    Brush.Color := TColor(Items.Objects[Index]);
+    try
+      InflateRect(ARect, -1, -1);
+      FillRect(ARect);
+    finally
+      Brush.Color := Safer;
     end;
-//Polaris
-
-    if FDisplayNames then
-    begin
+    if FDisplayNames then begin
       StrPCopy(Text, Items[Index]);
       Rect.Left := Rect.Left + ColorWidth + 6;
       DrawText(Canvas.Handle, Text, StrLen(Text), Rect,
-      {$IFDEF RX_D4}
+{$IFDEF RX_D4}
         DrawTextBiDiModeFlags(DT_SINGLELINE or DT_VCENTER or DT_NOPREFIX));
-      {$ELSE}
+{$ELSE}
         DT_SINGLELINE or DT_VCENTER or DT_NOPREFIX);
-      {$ENDIF}
+{$ENDIF}
     end;
   end;
 end;
@@ -750,8 +566,7 @@ var
 begin
   inherited Change;
   AColor := GetColorValue;
-  if FColorValue <> AColor then
-  begin
+  if FColorValue <> AColor then begin
     FColorValue := AColor;
     DoChange;
   end;
@@ -794,7 +609,7 @@ begin
     Result := Result and (FontType and RASTER_FONTTYPE = 0);
 end;
 
-{$IFNDEF VER80}
+{$IFDEF WIN32}
 
 function EnumFontsProc(var EnumLogFont: TEnumLogFont;
   var TextMetric: TNewTextMetric; FontType: Integer; Data: LPARAM): Integer;
@@ -829,7 +644,8 @@ begin
     end;
   Result := 1;
 end;
-{$ENDIF}
+
+{$ENDIF WIN32}
 
 constructor TFontComboBox.Create(AOwner: TComponent);
 begin
@@ -868,9 +684,9 @@ end;
 procedure TFontComboBox.PopulateList;
 var
   DC: HDC;
-  {$IFDEF VER80}
+{$IFNDEF WIN32}
   Proc: TFarProc;
-  {$ENDIF}
+{$ENDIF}
 begin
   if not HandleAllocated then Exit;
   Items.BeginUpdate;
@@ -878,30 +694,30 @@ begin
     Clear;
     DC := GetDC(0);
     try
-      {$IFNDEF VER80}
+{$IFDEF WIN32}
       if (FDevice = fdScreen) or (FDevice = fdBoth) then
-        EnumFontFamilies(DC, nil, @EnumFontsProc, LongInt(Self));
+        EnumFontFamilies(DC, nil, @EnumFontsProc, Longint(Self));
       if (FDevice = fdPrinter) or (FDevice = fdBoth) then
       try
-        EnumFontFamilies(Printer.Handle, nil, @EnumFontsProc, LongInt(Self));
+        EnumFontFamilies(Printer.Handle, nil, @EnumFontsProc, Longint(Self));
       except
         { skip any errors }
       end;
-      {$ELSE}
+{$ELSE}
       Proc := MakeProcInstance(@EnumFontsProc, HInstance);
       try
         if (FDevice = fdScreen) or (FDevice = fdBoth) then
           EnumFonts(DC, nil, Proc, PChar(Self));
         if (FDevice = fdPrinter) or (FDevice = fdBoth) then
-        try
-          EnumFonts(Printer.Handle, nil, Proc, PChar(Self));
-        except
+          try
+            EnumFonts(Printer.Handle, nil, Proc, PChar(Self));
+          except
             { skip any errors }
-        end;
+          end;
       finally
         FreeProcInstance(Proc);
       end;
-      {$ENDIF}
+{$ENDIF}
     finally
       ReleaseDC(0, DC);
     end;
@@ -914,26 +730,20 @@ procedure TFontComboBox.SetFontName(const NewFontName: TFontName);
 var
   Item: Integer;
 begin
-  if FontName <> NewFontName then
-  begin
-    if not (csLoading in ComponentState) then
-    begin
+  if FontName <> NewFontName then begin
+    if not (csLoading in ComponentState) then begin
       HandleNeeded;
       { change selected item }
       for Item := 0 to Items.Count - 1 do
-        if AnsiCompareText(Items[Item], NewFontName) = 0 then
-        begin
+        if AnsiCompareText(Items[Item], NewFontName) = 0 then begin
           ItemIndex := Item;
           DoChange;
           Exit;
         end;
-      if Style = csDropDownList then
-        ItemIndex := -1
-      else
-        inherited Text := NewFontName;
+      if Style = csDropDownList then ItemIndex := -1
+      else inherited Text := NewFontName;
     end
-    else
-      inherited Text := NewFontName;
+    else inherited Text := NewFontName;
     DoChange;
   end;
 end;
@@ -950,8 +760,7 @@ end;
 
 procedure TFontComboBox.SetOptions(Value: TFontListOptions);
 begin
-  if Value <> Options then
-  begin
+  if Value <> Options then begin
     FOptions := Value;
     Reset;
   end;
@@ -959,20 +768,16 @@ end;
 
 procedure TFontComboBox.SetTrueTypeOnly(Value: Boolean);
 begin
-  if Value <> TrueTypeOnly then
-  begin
-    if Value then
-      FOptions := FOptions + [foTrueTypeOnly]
-    else
-      FOptions := FOptions - [foTrueTypeOnly];
+  if Value <> TrueTypeOnly then begin
+    if Value then FOptions := FOptions + [foTrueTypeOnly]
+    else FOptions := FOptions - [foTrueTypeOnly];
     Reset;
   end;
 end;
 
 procedure TFontComboBox.SetDevice(Value: TFontDevice);
 begin
-  if Value <> FDevice then
-  begin
+  if Value <> FDevice then begin
     FDevice := Value;
     Reset;
   end;
@@ -980,8 +785,7 @@ end;
 
 procedure TFontComboBox.SetUseFonts(Value: Boolean);
 begin
-  if Value <> FUseFonts then
-  begin
+  if Value <> FUseFonts then begin
     FUseFonts := Value;
     Invalidate;
   end;
@@ -994,18 +798,15 @@ var
   BmpWidth: Integer;
   Text: array[0..255] of Char;
 begin
-  with Canvas do
-  begin
+  with Canvas do begin
     FillRect(Rect);
-    BmpWidth := 20;
+    BmpWidth  := 20;
     if (Integer(Items.Objects[Index]) and TRUETYPE_FONTTYPE) <> 0 then
       Bitmap := FTrueTypeBMP
     else if (Integer(Items.Objects[Index]) and DEVICE_FONTTYPE) <> 0 then
       Bitmap := FDeviceBMP
-    else
-      Bitmap := nil;
-    if Bitmap <> nil then
-    begin
+    else Bitmap := nil;
+    if Bitmap <> nil then begin
       BmpWidth := Bitmap.Width;
       BrushCopy(Bounds(Rect.Left + 2, (Rect.Top + Rect.Bottom - Bitmap.Height)
         div 2, Bitmap.Width, Bitmap.Height), Bitmap, Bounds(0, 0, Bitmap.Width,
@@ -1019,11 +820,11 @@ begin
     if FUseFonts and (Integer(Items.Objects[Index]) and WRITABLE_FONTTYPE <> 0) then
       Font.Name := Items[Index];
     DrawText(Handle, Text, StrLen(Text), Rect,
-    {$IFDEF RX_D4}
+{$IFDEF RX_D4}
       DrawTextBiDiModeFlags(DT_SINGLELINE or DT_VCENTER or DT_NOPREFIX));
-    {$ELSE}
+{$ELSE}
       DT_SINGLELINE or DT_VCENTER or DT_NOPREFIX);
-    {$ENDIF}
+{$ENDIF}
   end;
 end;
 
@@ -1045,11 +846,9 @@ var
   I: Integer;
 begin
   inherited Change;
-  if Style <> csDropDownList then
-  begin
+  if Style <> csDropDownList then begin
     I := Items.IndexOf(inherited Text);
-    if (I >= 0) and (I <> ItemIndex) then
-    begin
+    if (I >= 0) and (I <> ItemIndex) then begin
       ItemIndex := I;
       DoChange;
     end;
@@ -1072,8 +871,7 @@ procedure TFontComboBox.Reset;
 var
   SaveName: TFontName;
 begin
-  if HandleAllocated then
-  begin
+  if HandleAllocated then begin
     FUpdate := True;
     try
       SaveName := FontName;

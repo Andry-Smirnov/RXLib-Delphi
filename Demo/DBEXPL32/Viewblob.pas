@@ -12,7 +12,7 @@ unit ViewBlob;
 interface
 
 uses WinTypes, WinProcs, Classes, Graphics, Forms, Controls, Buttons, Dialogs,
-  StdCtrls, ExtCtrls, RxPlacemnt, DBCtrls, DB, DBTables, Menus, HexDump;
+  StdCtrls, ExtCtrls, Placemnt, DBCtrls, DB, DBTables, Menus, HexDump;
 
 type
   TBlobViewDlg = class(TForm)
@@ -34,7 +34,7 @@ type
     FData: Pointer;
     FHexDump: THexDump;
   protected
-{$IFDEF VER80}
+{$IFNDEF WIN32}
     procedure CreateParams(var Params: TCreateParams); override;
 {$ENDIF}
   end;
@@ -45,7 +45,7 @@ implementation
 
 {$R *.DFM}
 
-uses Messages, SysUtils, DBConsts, RxVCLUtils, RxMaxMin;
+uses Messages, SysUtils, DBConsts, VCLUtils, MaxMin;
 
 const
   SBlobSize = 'Blob size: %s byte(s)';
@@ -69,7 +69,7 @@ begin
   end;
 end;
 
-{$IFDEF VER80}
+{$IFNDEF WIN32}
 procedure TBlobViewDlg.CreateParams(var Params: TCreateParams);
 begin
   inherited CreateParams(Params);

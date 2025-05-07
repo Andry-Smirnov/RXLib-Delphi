@@ -2,16 +2,13 @@ object SrcTableDlg: TSrcTableDlg
   Left = 279
   Top = 161
   BorderStyle = bsDialog
-  Caption = 'Import to %s'
+  Caption = 'Import to %s'  
   ClientHeight = 284
   ClientWidth = 420
-  Color = clBtnFace
-  Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   Font.Style = []
-  OldCreateOrder = True
   Position = poScreenCenter
   OnCreate = FormCreate
   PixelsPerInch = 96
@@ -91,12 +88,11 @@ object SrcTableDlg: TSrcTableDlg
         DecimalPlaces = 0
         DisplayFormat = ',0'
         Enabled = False
-        Font.Charset = DEFAULT_CHARSET
         Font.Color = clBtnFace
         Font.Height = -11
         Font.Name = 'MS Sans Serif'
         Font.Style = []
-        MaxValue = 2147483647.000000000000000000
+        MaxValue = 2147483647
         ParentColor = True
         ParentFont = False
         TabOrder = 2
@@ -109,11 +105,11 @@ object SrcTableDlg: TSrcTableDlg
       Height = 21
       Style = csDropDownList
       ItemHeight = 13
-      TabOrder = 1
       Items.Strings = (
         'Append'
         'Update'
         'AppendUpdate')
+      TabOrder = 1
     end
     object SrcNameEdit: TFilenameEdit
       Left = 8
@@ -185,27 +181,21 @@ object SrcTableDlg: TSrcTableDlg
       Top = 18
       Width = 315
       Height = 105
+      Columns = <
+        item
+          FieldName = 'SRC_NAME'
+          ReadOnly = True
+        end
+        item
+          FieldName = 'DST_NAME'
+        end>
       DataSource = dsMappings
       Options = [dgEditing, dgTitles, dgColLines, dgRowLines, dgCancelOnExit]
       TabOrder = 0
-      TitleFont.Charset = DEFAULT_CHARSET
       TitleFont.Color = clWindowText
       TitleFont.Height = -11
       TitleFont.Name = 'MS Sans Serif'
       TitleFont.Style = []
-      RowColor2 = 16776176
-      Columns = <
-        item
-          Expanded = False
-          FieldName = 'SRC_NAME'
-          ReadOnly = True
-          Visible = True
-        end
-        item
-          Expanded = False
-          FieldName = 'DST_NAME'
-          Visible = True
-        end>
     end
   end
   object FormStorage: TFormStorage
@@ -213,7 +203,6 @@ object SrcTableDlg: TSrcTableDlg
     StoredProps.Strings = (
       'SrcNameEdit.InitialDir'
       'RecordCntEdit.Value')
-    StoredValues = <>
     Left = 344
     Top = 124
   end

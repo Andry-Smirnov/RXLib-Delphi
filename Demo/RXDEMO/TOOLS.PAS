@@ -1,12 +1,11 @@
 unit Tools;
 
 interface
-{$I ..\units\RX.INC}
+
 uses
   SysUtils, WinTypes, WinProcs, Messages, Classes, Graphics, Controls,
-  Forms, Dialogs, StdCtrls, TabNotBk, ExtCtrls, RxPicClip, RxClipView, RxPlacemnt,
-  {$IFDEF RX_D17}System.Types,{$ENDIF}
-  RxDualList, RxDataConv, Spin, RXCtrls, RXCalc, Mask, RxToolEdit, ComCtrls;
+  Forms, Dialogs, StdCtrls, TabNotBk, ExtCtrls, PicClip, ClipView, Placemnt,
+  RxDualList, DataConv, Spin, RXCtrls, RXCalc, Mask, ToolEdit;
 
 type
   TToolsForm = class(TForm)
@@ -26,7 +25,7 @@ type
     Label13: TLabel;
     ComboBox2: TComboBox;
     Label17: TLabel;
-    DualListDialog1: TDualListDialog;
+    DualListDialog1: TRxDualListDialog;
     ListBox1: TListBox;
     Label21: TLabel;
     Button2: TButton;
@@ -57,7 +56,6 @@ type
     Label4: TLabel;
     FormStorage1: TFormStorage;
     PicImage: TImage;
-    RadioGroup1: TRadioGroup;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure Button1Click(Sender: TObject);
     procedure ComboBox1Change(Sender: TObject);
@@ -72,7 +70,6 @@ type
     procedure ComboEdit1ButtonClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure SecretPanel1DblClick(Sender: TObject);
-    procedure RadioGroup1Click(Sender: TObject);
   private
     { Private declarations }
     procedure PopulateListBox1;
@@ -84,7 +81,7 @@ implementation
 
 {$R *.DFM}
 
-uses Main, Clipbrd, RxClipIcon;
+uses Main, Clipbrd, ClipIcon;
 
 procedure TToolsForm.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
@@ -201,11 +198,6 @@ end;
 procedure TToolsForm.SecretPanel1DblClick(Sender: TObject);
 begin
   if SecretPanel1.Active then SecretPanel1.Active := False;
-end;
-
-procedure TToolsForm.RadioGroup1Click(Sender: TObject);
-begin
-  SecretPanel1.ScrollDirection := TScrollDirection(RadioGroup1.ItemIndex);
 end;
 
 initialization

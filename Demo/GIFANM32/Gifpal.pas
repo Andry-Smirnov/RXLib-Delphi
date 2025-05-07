@@ -12,7 +12,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  ExtCtrls, StdCtrls, Grids, RxCtrls, RxGrids, RxConst;
+  ExtCtrls, StdCtrls, Grids, RXCtrls, RxGrids;
 
 const
   NumPaletteEntries = 256;
@@ -49,7 +49,7 @@ function SelectColor(Palette: HPALETTE; AColor: TColor): TColor;
 
 implementation
 
-uses RxVCLUtils, RxMaxMin;
+uses VCLUtils, MaxMin;
 
 {$R *.DFM}
 
@@ -65,12 +65,8 @@ begin
   try
     SetPalette(Palette);
     ColorToCell(AColor, Col, Row);
-    try
-      ColorGrid.Col := Col;
-      ColorGrid.Row := Row;
-    except
-      { ignore exceptions }
-    end;
+    ColorGrid.Col := Col;
+    ColorGrid.Row := Row;
     ActiveControl := ColorGrid;
     if ShowModal = mrOk then begin
       Result := CellColor(ColorGrid.Row, ColorGrid.Col);
@@ -86,7 +82,7 @@ var
 begin
   I := GetNearestPaletteIndex(FPalette, ColorToRGB(AColor));
   if I < FCount then begin
-    Row := I div ColorGrid.ColCount;
+    Row := I div ColorGrid.RowCount;
     Col := I - (ColorGrid.ColCount * Row);
   end
   else begin

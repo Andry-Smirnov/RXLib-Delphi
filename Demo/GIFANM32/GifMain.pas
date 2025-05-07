@@ -14,9 +14,9 @@ interface
 
 uses
   SysUtils, WinTypes, WinProcs, Messages, Classes, Graphics, Controls,
-  Forms, Dialogs, StdCtrls, ExtCtrls, RxPlacemnt, RxSpeedBar, Grids, RxCtrls,
+  Forms, Dialogs, StdCtrls, ExtCtrls, Placemnt, SpeedBar, Grids, RXCtrls,
   ComCtrls {$IFDEF RX_D3}, ExtDlgs {$IFNDEF CBUILDER}, Jpeg {$ENDIF} {$ENDIF},
-  RxGIF, Mask, RxSpin, RxToolEdit, ImgList, RxConst;
+  RxGIF, Mask, ToolEdit, ImgList;
 
 type
   TAnimatorForm = class(TForm)
@@ -88,12 +88,15 @@ type
     Bevel5: TBevel;
     FrameH: TLabel;
     Label11: TLabel;
-    ImageLeft: TRxSpinEdit;
+    ImageLeft: TEdit;
+    ImageLeftBtn: TUpDown;
     Label9: TLabel;
     Label10: TLabel;
-    ImageTop: TRxSpinEdit;
+    ImageTop: TEdit;
+    ImageTopBtn: TUpDown;
     Label12: TLabel;
-    DelayTime: TRxSpinEdit;
+    DelayTime: TEdit;
+    DelayTimeBtn: TUpDown;
     DisposalCombo: TComboBox;
     Label13: TLabel;
     TransColor: TComboEdit;
@@ -107,7 +110,8 @@ type
     AlwaysOnTopLabel: TRxLabel;
     GrayscaleBtn: TSpeedItem;
     ToolbarImages: TImageList;
-    RepeatCnt: TRxSpinEdit;
+    RepeatCntBtn: TUpDown;
+    RepeatCnt: TEdit;
     LoopBox: TCheckBox;
     LoopLbl: TRxLabel;
     RepeatForever: TCheckBox;
@@ -190,7 +194,7 @@ var
 
 implementation
 
-uses Clipbrd, RxVclUtils, RxAppUtils, RxMaxMin, RxProps, RxGraph, RxHints,
+uses Clipbrd, VclUtils, AppUtils, MaxMin, RxProps, RxGraph, RxHints,
   GIFPrvw, GIFPal, About;
 
 {$R *.DFM}
@@ -247,18 +251,23 @@ begin
     BackColor.Color := PaletteColor(FImage.BackgroundColor);
     LoopBox.Checked := FImage.Looping;
     RepeatForever.Checked := FImage.RepeatCount = 0;
-    RepeatCnt.AsInteger := FImage.RepeatCount;
+    RepeatCnt.Text := IntToStr(FImage.RepeatCount);
     TrailingComment.Lines := FImage.Comment;
-    GIFVersion.Caption := GIFVersionName(FImage.Version);
+    case FImage.Version of
+      gv87a: GIFVersion.Caption := '87a';
+      gv89a: GIFVersion.Caption := '89a';
+      else GIFVersion.Caption := '';
+    end;
     if FImage.FrameIndex >= 0 then begin
       with FImage.Frames[FImage.FrameIndex] do begin
         FrameComment.Lines := Comment;
         FrameW.Caption := IntToStr(Width);
         FrameH.Caption := IntToStr(Height);
-        ImageLeft.AsInteger := Origin.X;
-        ImageTop.AsInteger := Origin.Y;
-        DelayTime.AsInteger :=
+        ImageLeftBtn.Position := Origin.X;
+        ImageTopBtn.Position := Origin.Y;
+        DelayTimeBtn.Position :=
           FImage.Frames[FImage.FrameIndex].AnimateInterval div 10;
+        DelayTime.Text := IntToStr(DelayTimeBtn.Position);
         if DisposalMethod in [dmUndefined..dmRestorePrevious] then
           DisposalCombo.ItemIndex := Ord(DisposalMethod)
         else DisposalCombo.ItemIndex := 0;
@@ -315,7 +324,7 @@ var
 begin
   with ImageScroll do begin
     Min := 0;
-    Max := RxMaxMin.Max(0, FImage.Count - 1);
+    Max := MaxMin.Max(0, FImage.Count - 1);
     Enable := (Max > Min) and not FImage.Empty;
     if not Enable then ActiveControl := Pages;
     Enabled := Enable;
@@ -506,7 +515,7 @@ begin
         try
           FImage.LoadFromFile(FOpenDlg.FileName);
           FImage.DecodeAllFrames;
-          FModified := FImage.Corrupted;
+          FModified := False;
         except
           FImage.Clear;
           FFileName := '';
@@ -517,7 +526,7 @@ begin
       finally
         FLoading := False;
         FAborting := False;
-        FModified := FImage.Corrupted;
+        FModified := False;
         StopWait;
         Status.Caption := SReady;
         InvalidateImage(True);
@@ -787,15 +796,14 @@ end;
 procedure TAnimatorForm.LoopChange(Sender: TObject);
 begin
   RepeatForever.Enabled := LoopBox.Checked;
-  LoopLbl.Enabled := RepeatForever.Enabled;
+  LoopLbl.Enabled := RepeatForever.Enabled and not RepeatForever.Checked;
   RepeatCnt.Enabled := LoopLbl.Enabled;
+  RepeatCntBtn.Enabled := LoopLbl.Enabled;
   if not (FLoading or FUpdating) then begin
-    if Sender <> RepeatForever then
-      RepeatForever.Checked := RepeatCnt.AsInteger = 0;
     if RepeatForever.Checked then
       FImage.RepeatCount := 0
     else
-      FImage.RepeatCount := RepeatCnt.AsInteger;
+      FImage.RepeatCount := StrToIntDef(RepeatCnt.Text, FImage.RepeatCount);
     FImage.Looping := LoopBox.Checked;
     FModified := True;
   end;
@@ -815,8 +823,9 @@ end;
 procedure TAnimatorForm.TopLeftChange(Sender: TObject);
 begin
   if not (FLoading or FUpdating) and (FImage.FrameIndex >= 0) then begin
-    FImage.Frames[FImage.FrameIndex].Origin := Point(ImageLeft.AsInteger,
-      ImageTop.AsInteger);
+    FImage.Frames[FImage.FrameIndex].Origin := Point(
+      StrToIntDef(ImageLeft.Text, ImageLeftBtn.Position),
+      StrToIntDef(ImageTop.Text, ImageTopBtn.Position));
     FModified := True;
   end;
 end;
@@ -824,7 +833,8 @@ end;
 procedure TAnimatorForm.DelayTimeChange(Sender: TObject);
 begin
   if not (FLoading or FUpdating) and (FImage.FrameIndex >= 0) then begin
-    FImage.Frames[FImage.FrameIndex].AnimateInterval := DelayTime.AsInteger * 10;
+    FImage.Frames[FImage.FrameIndex].AnimateInterval :=
+      StrToIntDef(DelayTime.Text, DelayTimeBtn.Position) * 10;
     FModified := True;
   end;
 end;

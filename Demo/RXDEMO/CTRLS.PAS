@@ -1,15 +1,12 @@
 unit Ctrls;
 
-{$I RX.INC}
-
 interface
-{$WARN UNIT_PLATFORM OFF}
+
 uses
   SysUtils, WinTypes, WinProcs, Messages, Classes, Graphics, Controls,
-  Forms, Dialogs, RxPlacemnt, StdCtrls, RXCtrls, TabNotBk, RXSlider, ExtCtrls,
-  RXSwitch, Mask, RxToolEdit, Spin, RxCurrEdit, FileCtrl, RXSplit, Grids,
-  {$IFDEF RX_D17}System.UITypes,{$ENDIF}
-  DirOutln, RXDice, RXClock, RxAnimate, RXSpin, RxCombos, ComCtrls;
+  Forms, Dialogs, Placemnt, StdCtrls, RXCtrls, TabNotBk, RXSlider, ExtCtrls,
+  RXSwitch, Mask, ToolEdit, Spin, CurrEdit, FileCtrl, RXSplit, Grids,
+  Outline, DirOutln, RXDice, RXClock, Animate, RXSpin, RxCombos;
 
 type
   TControlsForm = class(TForm)
@@ -195,15 +192,12 @@ implementation
 
 {$R *.DFM}
 
-uses RxAniFile, RxPickDate, RxDateUtil;
+uses AniFile, PickDate, DateUtil;
 
 procedure TControlsForm.FormCreate(Sender: TObject);
 begin
-{$IFNDEF VER80}
+{$IFDEF WIN32}
   if NewStyleControls then DirectoryEdit1.DialogKind := dkWin32;
-{$ENDIF}
-{$IFDEF RX_D3}
-  AnimatedImage1.AsyncDrawing := True;
 {$ENDIF}
 end;
 
@@ -391,34 +385,29 @@ begin
 end;
 
 procedure TControlsForm.ComboBox7Change(Sender: TObject);
-var
-  Animated: Boolean;
 begin
-  Animated := AnimatedImage1.Active;
-  AnimatedImage1.Active := False;
   case ComboBox7.ItemIndex of
     0:
       begin
         AnimatedImage1.Glyph := RunnerImage.Picture.Bitmap;
-        AnimatedImage1.NumGlyphs := 12;
+        AnimatedImage1.GlyphNum := 12;
       end;
     1:
       begin
         AnimatedImage1.Glyph := FlagImage.Picture.Bitmap;
-        AnimatedImage1.NumGlyphs := 4;
+        AnimatedImage1.GlyphNum := 4;
       end;
     2:
       begin
         AnimatedImage1.Glyph := SearchImage.Picture.Bitmap;
-        AnimatedImage1.NumGlyphs := 12;
+        AnimatedImage1.GlyphNum := 12;
       end;
     3:
       begin
         AnimatedImage1.Glyph := BookImage.Picture.Bitmap;
-        AnimatedImage1.NumGlyphs := 5;
+        AnimatedImage1.GlyphNum := 5;
       end;
   end;
-  AnimatedImage1.Active := Animated;
 end;
 
 procedure TControlsForm.Button2Click(Sender: TObject);
@@ -546,7 +535,7 @@ begin
     try
       AnimatedImage1.Active := False;
       Image.LoadFromFile(OpenDialog.FileName);
-      Image.AssignToBitmap(AnimatedImage1.Glyph, clFuchsia, False,
+      Image.AssignToBitmap(AnimatedImage1.Glyph, clFuchsia, True,
         AnimatedImage1.Orientation = goVertical);
       ComboBox7.ItemIndex := -1;
       AnimatedImage1.Interval := Image.DefaultRate;

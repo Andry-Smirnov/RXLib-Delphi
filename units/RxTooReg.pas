@@ -2,20 +2,12 @@
 {                                                       }
 {         Delphi VCL Extensions (RX)                    }
 {                                                       }
-{         Copyright (c) 1995, 1996 AO ROSNO             }
-{         Copyright (c) 1997, 1998 Master-Bank          }
+{         Copyright (c) 2001,2002 SGB Software          }
+{         Copyright (c) 1997, 1998 Fedor Koshevnikov,   }
+{                        Igor Pavluk and Serge Korolev  }
 {                                                       }
-{ Patched by Polaris Software                           }
-{ Revision and component added by JB.                   }
 {*******************************************************}
 
-{ Note:
-  - in Delphi 4.0 you must add DCLSTD40 to the requires page of the
-    package you install this components into.
-  - in Delphi 3.0 you must add DCLSTD30 to the requires page of the
-    package you install this components into.
-  - in C++Builder 3.0 you must add DCLSTD35 to the requires page of the
-    package you install this components into. }
 
 unit RxTooReg;
 
@@ -28,49 +20,35 @@ procedure Register;
 
 implementation
 
-{$R *.dcr}
+{$IFDEF WIN32}
+{$R *.D32}
+{$ELSE}
+{$R *.D16}
+{$ENDIF}
 
-uses
-  Classes, SysUtils, Controls, Graphics, TypInfo, Consts, Dialogs, ExtCtrls,
-  RxPictEdit, RxHook, RxPicClip, RxPlacemnt, RxPresrDsn, RxMinMaxEd, RxDualList,
-  RxClipView, RxSpeedbar, RxSbEdit, RxDataConv, RXCalc, RxPageMngr, RxPgMngrEd, RxMrgMngr,
-  RxStrHlder, RXShell, RxAppEvent, RxVCLUtils, RxTimerLst, RxTimLstEd, RxIcoList, RxIcoLEdit,
-  {$IFDEF RX_D6}RxPlugin, RxPluginManager, RxPluginWizard, RxPluginParamsForm, {$ENDIF}
-  {$IFDEF USE_RX_GIF}RxGIF, RxGIFCtrl, {$ENDIF}RxResConst, RXCtrls, RxRichPopup, RxCalcEditDlg,
-  {$IFDEF RX_D3}RxResExp, {$ENDIF}RxMenus, RxMRUList, RxMailBox, RxTranslate, RxNTSecurity,
-  {$IFNDEF VER80}RxNotify, RxGrdCpt, RxGradEdit, {$ENDIF}RxHintProp, ToolsAPI, RxViewer,
-  {$IFDEF RX_D6}RTLConsts, DesignIntf, DesignEditors, VCLEditors{$ELSE}DsgnIntf{$ENDIF}; // Polaris
+uses Classes, SysUtils, Controls, Graphics, TypInfo, RTLConsts, DesignIntf, DesignEditors, VCLEditors, Consts,
+  ExtCtrls, PictEdit, RxHook, PicClip, Placemnt, PresrDsn, MinMaxEd, RxDualList,
+  ClipView, Speedbar, SbEdit, DataConv, RXCalc, PageMngr, PgMngrEd, MrgMngr,
+  StrHlder, RXShell, AppEvent, VCLUtils, TimerLst, TimLstEd, IcoList, IcoLEdit,
+  {$IFDEF USE_RX_GIF} RxGIF, GIFCtrl, {$ENDIF} RXLConst, RXCtrls,
+  {$IFDEF RX_D3} RxResExp, {$ENDIF} RxMenus, MRUList,
+  {$IFDEF WIN32} RxNotify, RxGrdCpt, GradEdit, {$ENDIF} HintProp;
 
 { TStringsEditor }
 
 type
   TStringsEditor = class(TDefaultEditor)
   public
-    {$IFDEF RX_D6} // Polaris
-    procedure EditProperty(const PropertyEditor: IProperty;
-      var Continue: Boolean); override;
-    {$ELSE}
-    procedure EditProperty(PropertyEditor: TPropertyEditor;
-      var Continue, FreeEditor: Boolean); override;
-    {$ENDIF}
+    procedure EditProperty(const Prop: IProperty; var Continue: Boolean); override;
   end;
 
-  {$IFDEF RX_D6} // Polaris
-
-procedure TStringsEditor.EditProperty(const PropertyEditor: IProperty;
-  var Continue: Boolean);
-{$ELSE}
-
-procedure TStringsEditor.EditProperty(PropertyEditor: TPropertyEditor;
-  var Continue, FreeEditor: Boolean);
-{$ENDIF}
+procedure TStringsEditor.EditProperty(const Prop: IProperty; var Continue: Boolean);
 var
   PropName: string;
 begin
-  PropName := PropertyEditor.GetName;
-  if (CompareText(PropName, 'STRINGS') = 0) then
-  begin
-    PropertyEditor.Edit;
+  PropName := Prop.GetName;
+  if (CompareText(PropName, 'STRINGS') = 0) then begin
+    Prop.Edit;
     Continue := False;
   end;
 end;
@@ -87,126 +65,48 @@ type
 procedure TComponentFormProperty.GetValues(Proc: TGetStrProc);
 begin
   inherited GetValues(Proc);
-  {$IFDEF RX_D6} // Polaris
   if (Designer.Root is GetTypeData(GetPropType)^.ClassType) and
     (Designer.Root.Name <> '') then Proc(Designer.Root.Name);
-  {$ELSE}
-  if (Designer.Form is GetTypeData(GetPropType)^.ClassType) and
-    (Designer.Form.Name <> '') then Proc(Designer.Form.Name);
-  {$ENDIF}
 end;
 
 procedure TComponentFormProperty.SetValue(const Value: string);
 var
   Component: TComponent;
 begin
-  {$IFNDEF VER80}
+{$IFDEF WIN32}
   Component := Designer.GetComponent(Value);
-  {$ELSE}
-  Component := Designer.Form.FindComponent(Value);
-  {$ENDIF}
-  {$IFDEF RX_D6} // Polaris
+{$ELSE}
+  Component := Designer.Root.FindComponent(Value);
+{$ENDIF}
   if ((Component = nil) or not (Component is GetTypeData(GetPropType)^.ClassType))
     and (CompareText(Designer.Root.Name, Value) = 0) then
   begin
     if not (Designer.Root is GetTypeData(GetPropType)^.ClassType) then
       raise EPropertyError.Create(ResStr(SInvalidPropertyValue));
-    SetOrdValue(LongInt(Designer.Root));
-    {$ELSE}
-  if ((Component = nil) or not (Component is GetTypeData(GetPropType)^.ClassType))
-    and (CompareText(Designer.Form.Name, Value) = 0) then
-  begin
-    if not (Designer.Form is GetTypeData(GetPropType)^.ClassType) then
-      raise EPropertyError.Create(ResStr(SInvalidPropertyValue));
-    SetOrdValue(LongInt(Designer.Form));
-    {$ENDIF}
+    SetOrdValue(Longint(Designer.Root));
   end
-  else
-    inherited SetValue(Value);
-end;
-
-{ TRxTranslatorEditor }
-
-type
-  TRxTranslatorEditor = class(TComponentEditor)
-  private
-    procedure CreateLanguageFile;
-  public
-    procedure ExecuteVerb(Index: Integer); override;
-    function GetVerb(Index: Integer): string; override;
-    function GetVerbCount: Integer; override;
-  end;
-
-{ TRxTranslatorEditor }
-
-procedure TRxTranslatorEditor.CreateLanguageFile;
-var
-  fs: TSaveDialog;
-begin
-  fs := TSaveDialog.Create(nil);
-  try
-    fs.FileName := TRxTranslator(Component).LanguageFileName;
-    fs.InitialDir := ExtractFilePath(fs.FileName);
-    if (ExtractFileName(fs.FileName) = '') then
-      fs.FileName := '';
-    fs.Filter := 'Ini files (*.ini)|*.ini|All files (*.*)|*.*';
-    fs.Options := fs.Options + [ofHideReadOnly];
-    if fs.Execute then
-    begin
-      TRxTranslator(Component).CreateLanguageFile(fs.FileName, True);
-    end;
-  finally
-    fs.Free;
-  end;
-end;
-
-procedure TRxTranslatorEditor.ExecuteVerb(Index: Integer);
-begin
-  case Index of
-    0: CreateLanguageFile;
-  end;
-end;
-
-function TRxTranslatorEditor.GetVerb(Index: Integer): string;
-begin
-  case Index of
-    0: Result := 'Create &language file...'
-  end;
-end;
-
-function TRxTranslatorEditor.GetVerbCount: Integer;
-begin
-  Result := 1;
+  else inherited SetValue(Value);
 end;
 
 { Designer registration }
 
 procedure Register;
-const
-  srRXTools = 'RX Tools';
 begin
 { Components }
-  RegisterComponents(srRXTools, [TPicClip, TFormStorage,
+  RegisterComponents(LoadStr(srRXTools), [TPicClip, TFormStorage,
     TFormPlacement, TRxWindowHook, TAppEvents, TSpeedbar, TRxCalculator,
-      TRxTimerList, TPageManager, TMergeManager, TMRUManager, TSecretPanel, TRxTrayIconEx,
-      TStrHolder, TRxTrayIcon, TRxMainMenu, TRxPopupMenu, TRxRichPopUpMenu, TRxViewer,
-      {$IFDEF RX_D6}TRxPluginManager, {$ENDIF}
-    {$IFNDEF VER80}TRxFolderMonitor, {$ENDIF}TClipboardViewer, TRxTranslator, TRxMailBoxManager,
-    {$IFNDEF VER80}TRxGradientCaption, {$ENDIF}TDualListDialog, TRxCalcEditDlg
-    {$IFNDEF RX_D4}, TConverter{$ENDIF}]);
+    TRxTimerList, TPageManager, TMergeManager, TMRUManager, TSecretPanel,
+    TStrHolder, TRxTrayIcon, TRxMainMenu, TRxPopupMenu,
+    {$IFDEF WIN32} TRxFolderMonitor, {$ENDIF} TClipboardViewer,
+    {$IFDEF WIN32} TRxGradientCaption, {$ENDIF} TRxDualListDialog
+    {$IFNDEF RX_D4}, TConverter {$ENDIF}]);
 
-  {$IFDEF RX_D3}
+{$IFDEF RX_D3}
   RegisterNonActiveX([TPicClip, TFormPlacement, TFormStorage, TRxWindowHook,
-    TDualListDialog, TSecretPanel, TSpeedbar, TClipboardViewer, TRxMailBoxManager,
-      TPageManager, TMergeManager, TMRUManager, TAppEvents, TRxTimerList,
-      TRxTrayIcon, TRxFolderMonitor, TRxGradientCaption], axrComponentOnly);
-  {$ENDIF RX_D3}
-
-  {$IFDEF RX_D6}
-{ TRxPluginCommand }
-  RegisterPropertyEditor(TypeInfo(TShortCut), TRxPluginCommand, 'ShortCut', TShortCutProperty);
-  RegisterPackageWizard(TRxPluginWizard.Create);
-  {$ENDIF RX_D6}
+    TRxDualListDialog, TSecretPanel, TSpeedbar, TClipboardViewer,
+    TPageManager, TMergeManager, TMRUManager, TAppEvents, TRxTimerList, 
+    TRxTrayIcon, TRxFolderMonitor, TRxGradientCaption], axrComponentOnly);
+{$ENDIF RX_D3}
 
 { TPicClip }
   RegisterComponentEditor(TPicClip, TGraphicsEditor);
@@ -258,36 +158,35 @@ begin
   RegisterPropertyEditor(TypeInfo(TIconList), nil, '', TIconListProperty);
   RegisterPropertyEditor(TypeInfo(string), TRxTrayIcon, 'Hint',
     TStringProperty);
-  {$IFDEF RX_D4}
+{$IFDEF RX_D4}
 
 { RxMenus }
   RegisterPropertyEditor(TypeInfo(Boolean), TRxMainMenu, 'OwnerDraw', nil);
   RegisterPropertyEditor(TypeInfo(Boolean), TRxPopupMenu, 'OwnerDraw', nil);
-  {$ENDIF}
+{$ENDIF}
 
-  {$IFDEF USE_RX_GIF}
+{$IFDEF USE_RX_GIF}
 { TRxGIFAnimator }
   RegisterComponentEditor(TRxGIFAnimator, TGraphicsEditor);
-  {$ENDIF}
+{$ENDIF}
 
   RegisterPropertyEditor(TypeInfo(TPicture), nil, '', TPictProperty);
   RegisterPropertyEditor(TypeInfo(TGraphic), nil, '', TGraphicPropertyEditor);
   RegisterComponentEditor(TImage, TGraphicsEditor);
 
-  RegisterComponentEditor(TRxTranslator, TRxTranslatorEditor);
-  {$IFNDEF VER80}
+{$IFDEF WIN32}
 { TRxGradientCaption }
   RegisterComponentEditor(TRxGradientCaption, TGradientCaptionEditor);
-  {$IFNDEF RX_D3}
+ {$IFNDEF RX_D3}
   RegisterPropertyEditor(TypeInfo(TRxCaptionList), TRxGradientCaption, '',
     TGradientCaptionsProperty);
-  {$ENDIF}
-  {$ENDIF}
+ {$ENDIF}
+{$ENDIF}
 
-  {$IFDEF RX_D3}
+{$IFDEF RX_D3}
 { Project Resource Expert }
   RegisterResourceExpert;
-  {$ENDIF}
+{$ENDIF}
 end;
 
 end.

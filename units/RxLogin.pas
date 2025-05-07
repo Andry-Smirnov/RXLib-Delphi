@@ -2,10 +2,10 @@
 {                                                       }
 {         Delphi VCL Extensions (RX)                    }
 {                                                       }
-{         Copyright (c) 1995, 1996 AO ROSNO             }
-{         Copyright (c) 1997, 1998 Master-Bank          }
+{         Copyright (c) 2001,2002 SGB Software          }
+{         Copyright (c) 1997, 1998 Fedor Koshevnikov,   }
+{                        Igor Pavluk and Serge Korolev  }
 {                                                       }
-{ Patched by Polaris Software                           }
 {*******************************************************}
 
 unit RxLogin;
@@ -14,8 +14,7 @@ unit RxLogin;
 
 interface
 
-uses
-  {$IFNDEF VER80}Windows, {$ELSE}WinTypes, WinProcs, {$ENDIF}SysUtils,
+uses {$IFDEF WIN32} Windows, {$ELSE} WinTypes, WinProcs, {$ENDIF} SysUtils,
   Messages, Classes, Graphics, Controls, Forms, Dialogs, StdCtrls, ExtCtrls,
   Buttons;
 
@@ -35,16 +34,11 @@ type
   private
     FActive: Boolean;
     FAttemptNumber: Integer;
-    {$IFDEF RX_D4} // Polaris
-    FLoggedUser: string;
-    FIniFileName: string;
-    {$ELSE}
-    FLoggedUser: PString;
-    FIniFileName: PString;
-    {$ENDIF}
+    FLoggedUser: String;
     FMaxPasswordLen: Integer;
     FAllowEmpty: Boolean;
     FUpdateCaption: TUpdateCaption;
+    FIniFileName: String;
     FUseRegistry: Boolean;
     FLocked: Boolean;
     FUnlockDlgShowing: Boolean;
@@ -155,31 +149,27 @@ function CreateLoginDialog(UnlockMode, ASelectDatabase: Boolean;
 
 implementation
 
-uses
-  {$IFNDEF VER80}Registry, {$ENDIF}IniFiles, RxAppUtils, RxResConst, // Polaris
-  Consts, RxVclUtils, RxConst;
+uses {$IFDEF WIN32} Registry, {$ENDIF} IniFiles, AppUtils, RxDConst,
+  Consts, VclUtils, RxConst;
 
 {$R *.DFM}
 
 const
-  keyLoginSection = 'Login Dialog';
+  keyLoginSection  = 'Login Dialog';
   keyLastLoginUserName = 'Last Logged User';
 
 function CreateLoginDialog(UnlockMode, ASelectDatabase: Boolean;
   FormShowEvent, OkClickEvent: TNotifyEvent): TRxLoginForm;
 begin
   Result := TRxLoginForm.Create(Application);
-  with Result do
-  begin
+  with Result do begin
     FSelectDatabase := ASelectDatabase;
     FUnlockMode := UnlockMode;
-    if FUnlockMode then
-    begin
+    if FUnlockMode then begin
       FormStyle := fsNormal;
       FSelectDatabase := False;
     end
-    else
-    begin
+    else begin
       FormStyle := fsStayOnTop;
     end;
     OnFormShow := FormShowEvent;
@@ -192,13 +182,8 @@ end;
 constructor TRxCustomLogin.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  {$IFDEF RX_D4} // Polaris
   FIniFileName := EmptyStr;
   FLoggedUser := EmptyStr;
-  {$ELSE}
-  FIniFileName := NullStr;
-  FLoggedUser := NullStr;
-  {$ENDIF}
   FActive := True;
   FAttemptNumber := 3;
   FAllowEmpty := True;
@@ -207,63 +192,41 @@ end;
 
 destructor TRxCustomLogin.Destroy;
 begin
-  if FLocked then
-  begin
+  if FLocked then begin
     Application.UnhookMainWindow(UnlockHook);
     FLocked := False;
   end;
-  {$IFNDEF RX_D4} // Polaris
-  DisposeStr(FLoggedUser);
-  DisposeStr(FIniFileName);
-  {$ENDIF}
+  //DisposeStr(FLoggedUser);
+  //DisposeStr(FIniFileName);
   inherited Destroy;
 end;
 
 function TRxCustomLogin.GetIniFileName: string;
 begin
-  {$IFDEF RX_D4} // Polaris
   Result := FIniFileName;
-  {$ELSE}
-  Result := FIniFileName^;
-  {$ENDIF}
-  if (Result = '') and not (csDesigning in ComponentState) then
-  begin
-    {$IFNDEF VER80}
-    if UseRegistry then
-      Result := GetDefaultIniRegKey
-    else
-      Result := GetDefaultIniName;
-    {$ELSE}
+  if (Result = '') and not (csDesigning in ComponentState) then begin
+{$IFDEF WIN32}
+    if UseRegistry then Result := GetDefaultIniRegKey
+    else Result := GetDefaultIniName;
+{$ELSE}
     Result := GetDefaultIniName;
-    {$ENDIF}
+{$ENDIF}
   end;
 end;
 
 procedure TRxCustomLogin.SetIniFileName(const Value: string);
 begin
-  {$IFDEF RX_D4} // Polaris
   FIniFileName := Value;
-  {$ELSE}
-  AssignStr(FIniFileName, Value);
-  {$ENDIF}
 end;
 
 function TRxCustomLogin.GetLoggedUser: string;
 begin
-  {$IFDEF RX_D4} // Polaris
   Result := FLoggedUser;
-  {$ELSE}
-  Result := FLoggedUser^;
-  {$ENDIF}
 end;
 
 procedure TRxCustomLogin.SetLoggedUser(const Value: string);
 begin
-  {$IFDEF RX_D4} // Polaris
   FLoggedUser := Value;
-  {$ELSE}
-  AssignStr(FLoggedUser, Value);
-  {$ENDIF}
 end;
 
 procedure TRxCustomLogin.DoAfterLogin;
@@ -306,8 +269,7 @@ begin
   LoginName := EmptyStr;
   DoBeforeLogin;
   Result := DoLogin(LoginName);
-  if Result then
-  begin
+  if Result then begin
     SetLoggedUser(LoginName);
     DoUpdateCaption;
     DoAfterLogin;
@@ -324,38 +286,34 @@ end;
 
 procedure TRxCustomLogin.TerminateApplication;
 begin
-  with Application do
-  begin
-    {$IFNDEF VER80}
+  with Application do begin
+{$IFDEF WIN32}
     ShowMainForm := False;
-    {$ENDIF}
+{$ENDIF}
     if Handle <> 0 then ShowOwnedPopups(Handle, False);
     Terminate;
   end;
-  {$IFDEF RX_D3}
+{$IFDEF RX_D3}
   CallTerminateProcs;
-  {$ENDIF}
-  {$IFNDEF RX_D3}
+{$ENDIF}
+{$IFNDEF RX_D3}
   Halt(10);
-  {$ENDIF}
+{$ENDIF}
 end;
 
 procedure TRxCustomLogin.UnlockOkClick(Sender: TObject);
 var
   Ok: Boolean;
 begin
-  with TRxLoginForm(Sender) do
-  begin
+  with TRxLoginForm(Sender) do begin
     Ok := False;
     try
       Ok := CheckUnlock(UserNameEdit.Text, PasswordEdit.Text);
     except
       Application.HandleException(Self);
     end;
-    if Ok then
-      ModalResult := mrOk
-    else
-      ModalResult := mrCancel;
+    if Ok then ModalResult := mrOk
+    else ModalResult := mrCancel;
   end;
 end;
 
@@ -371,25 +329,19 @@ end;
 function TRxCustomLogin.CreateLoginForm(UnlockMode: Boolean): TRxLoginForm;
 begin
   Result := TRxLoginForm.Create(Application);
-  with Result do
-  begin
+  with Result do begin
     FUnlockMode := UnlockMode;
-    if FUnlockMode then
-    begin
+    if FUnlockMode then begin
       FormStyle := fsNormal;
       FSelectDatabase := False;
     end
-    else
-      FormStyle := fsStayOnTop;
-    if Assigned(Self.FOnIconDblClick) then
-    begin
-      with AppIcon do
-      begin
+    else FormStyle := fsStayOnTop;
+    if Assigned(Self.FOnIconDblClick) then begin
+      with AppIcon do begin
         OnDblClick := DoIconDblClick;
         Cursor := crHand;
       end;
-      with KeyImage do
-      begin
+      with KeyImage do begin
         OnDblClick := DoIconDblClick;
         Cursor := crHand;
       end;
@@ -405,8 +357,7 @@ begin
   try
     OnFormShow := nil;
     OnOkClick := UnlockOkClick;
-    with UserNameEdit do
-    begin
+    with UserNameEdit do begin
       Text := LoggedUser;
       ReadOnly := True;
       Font.Color := clGrayText;
@@ -425,22 +376,21 @@ function TRxCustomLogin.UnlockHook(var Message: TMessage): Boolean;
   begin
     with Application do
       if IsWindowVisible(Handle) and IsWindowEnabled(Handle) then
-        {$IFNDEF VER80}
+{$IFDEF WIN32}
         SetForegroundWindow(Handle);
-    {$ELSE}
+{$ELSE}
         BringWindowToTop(Handle);
-    {$ENDIF}
-    if FUnlockDlgShowing then
-    begin
+{$ENDIF}
+    if FUnlockDlgShowing then begin
       Popup := GetLastActivePopup(Application.Handle);
       if (Popup <> 0) and IsWindowVisible(Popup) and
         (WindowClassName(Popup) = TRxLoginForm.ClassName) then
       begin
-        {$IFNDEF VER80}
+{$IFDEF WIN32}
         SetForegroundWindow(Popup);
-        {$ELSE}
+{$ELSE}
         BringWindowToTop(Popup);
-        {$ENDIF}
+{$ENDIF}
       end;
       Result := False;
       Exit;
@@ -451,8 +401,7 @@ function TRxCustomLogin.UnlockHook(var Message: TMessage): Boolean;
     finally
       FUnlockDlgShowing := False;
     end;
-    if Result then
-    begin
+    if Result then begin
       Application.UnhookMainWindow(UnlockHook);
       FLocked := False;
     end;
@@ -461,20 +410,19 @@ function TRxCustomLogin.UnlockHook(var Message: TMessage): Boolean;
 begin
   Result := False;
   if not FLocked then Exit;
-  with Message do
-  begin
+  with Message do begin
     case Msg of
       WM_QUERYOPEN:
         begin
           UnlockHook := not DoUnlock;
         end;
       WM_SHOWWINDOW:
-        if Bool(WParam) then
-        begin
+        if Bool(WParam) then begin
           UnlockHook := not DoUnlock;
         end;
       WM_SYSCOMMAND:
-        if (WParam and $FFF0 = SC_RESTORE) or (WParam and $FFF0 = SC_ZOOM) then
+        if (WParam and $FFF0 = SC_RESTORE) or
+          (WParam and $FFF0 = SC_ZOOM) then
         begin
           UnlockHook := not DoUnlock;
         end;
@@ -490,8 +438,7 @@ var
 begin
   Loading := csLoading in ComponentState;
   inherited Loaded;
-  if not (csDesigning in ComponentState) and Loading then
-  begin
+  if not (csDesigning in ComponentState) and Loading then begin
     if Active and not Login then
       TerminateApplication;
   end;
@@ -501,20 +448,18 @@ procedure TRxLoginDialog.OkButtonClick(Sender: TObject);
 var
   SetCursor: Boolean;
 begin
-  with TRxLoginForm(Sender) do
-  begin
-    {$IFNDEF VER80}
+  with TRxLoginForm(Sender) do begin
+{$IFDEF WIN32}
     SetCursor := GetCurrentThreadID = MainThreadID;
-    {$ELSE}
+{$ELSE}
     SetCursor := True;
-    {$ENDIF}
+{$ENDIF}
     try
       if SetCursor then Screen.Cursor := crHourGlass;
       try
         if DoCheckUser(UserNameEdit.Text, PasswordEdit.Text) then
           ModalResult := mrOk
-        else
-          ModalResult := mrNone;
+        else ModalResult := mrNone;
       finally
         if SetCursor then Screen.Cursor := crDefault;
       end;
@@ -536,14 +481,12 @@ var
   Ini: TObject;
 begin
   try
-    {$IFNDEF VER80}
-    if UseRegistry then
-      Ini := TRegIniFile.Create(IniFileName)
-    else
-      Ini := TIniFile.Create(IniFileName);
-    {$ELSE}
+{$IFDEF WIN32}
+    if UseRegistry then Ini := TRegIniFile.Create(IniFileName)
+    else Ini := TIniFile.Create(IniFileName);
+{$ELSE}
     Ini := TIniFile.Create(IniFileName);
-    {$ENDIF}
+{$ENDIF}
     try
       IniWriteString(Ini, keyLoginSection, keyLastLoginUserName, UserName);
     finally
@@ -558,19 +501,18 @@ var
   Ini: TObject;
 begin
   try
-    {$IFNDEF VER80}
-    if UseRegistry then
-    begin
+{$IFDEF WIN32}
+    if UseRegistry then begin
       Ini := TRegIniFile.Create(IniFileName);
-      {$IFDEF RX_D5}
+{$IFDEF RX_D5}
       TRegIniFile(Ini).Access := KEY_READ;
-      {$ENDIF}
+{$ENDIF}
     end
-    else
+    else 
       Ini := TIniFile.Create(IniFileName);
-    {$ELSE}
+{$ELSE}
     Ini := TIniFile.Create(IniFileName);
-    {$ENDIF}
+{$ENDIF}
     try
       Result := IniReadString(Ini, keyLoginSection, keyLastLoginUserName,
         UserName);
@@ -591,8 +533,7 @@ begin
       UserName := ReadUserName(UserName);
       UserNameEdit.Text := UserName;
       Result := (ShowModal = mrOk);
-      if Result then
-      begin
+      if Result then begin
         UserName := UserNameEdit.Text;
         WriteUserName(UserName);
       end;
@@ -612,9 +553,9 @@ begin
   Icon := Application.Icon;
   if Icon.Empty then Icon.Handle := LoadIcon(0, IDI_APPLICATION);
   AppIcon.Picture.Assign(Icon);
-  AppTitleLabel.Caption := Format(RxLoadStr(SAppTitleLabel), [Application.Title]);
-  PasswordLabel.Caption := RxLoadStr(SPasswordLabel);
-  UserNameLabel.Caption := RxLoadStr(SUserNameLabel);
+  AppTitleLabel.Caption := FmtLoadStr(SAppTitleLabel, [Application.Title]);
+  PasswordLabel.Caption := LoadStr(SPasswordLabel);
+  UserNameLabel.Caption := LoadStr(SUserNameLabel);
   OkBtn.Caption := ResStr(SOKButton);
   CancelBtn.Caption := ResStr(SCancelButton);
 end;
@@ -622,10 +563,8 @@ end;
 procedure TRxLoginForm.OkBtnClick(Sender: TObject);
 begin
   Inc(FAttempt);
-  if Assigned(FOnOkClick) then
-    FOnOkClick(Self)
-  else
-    ModalResult := mrOk;
+  if Assigned(FOnOkClick) then FOnOkClick(Self)
+  else ModalResult := mrOk;
   if (ModalResult <> mrOk) and (FAttempt >= AttemptNumber) then
     ModalResult := mrCancel;
 end;
@@ -635,33 +574,29 @@ var
   I: Integer;
   S: string;
 begin
-  if FSelectDatabase then
-  begin
+  if FSelectDatabase then begin
     ClientHeight := CustomCombo.Top + PasswordEdit.Top - UserNameEdit.Top;
-    S := RxLoadStr(SDatabaseName);
+    S := LoadStr(SDatabaseName);
     I := Pos(':', S);
     if I = 0 then I := Length(S);
     CustomLabel.Caption := '&' + Copy(S, 1, I);
   end
-  else
-  begin
+  else begin
     ClientHeight := PasswordEdit.Top + PasswordEdit.Top - UserNameEdit.Top;
     CustomLabel.Visible := False;
     CustomCombo.Visible := False;
   end;
-  if not FUnlockMode then
-  begin
-    HintLabel.Caption := RxLoadStr(SHintLabel);
-    Caption := RxLoadStr(SRegistration);
+  if not FUnlockMode then begin
+    HintLabel.Caption := LoadStr(SHintLabel);
+    Caption := LoadStr(SRegistration);
   end
-  else
-  begin
-    HintLabel.Caption := RxLoadStr(SUnlockHint);
-    Caption := RxLoadStr(SUnlockCaption);
+  else begin
+    HintLabel.Caption := LoadStr(SUnlockHint);
+    Caption := LoadStr(SUnlockCaption);
   end;
   if (UserNameEdit.Text = EmptyStr) and not FUnlockMode then
     ActiveControl := UserNameEdit
-  else
+  else 
     ActiveControl := PasswordEdit;
   if Assigned(FOnFormShow) then FOnFormShow(Self);
   FAttempt := 0;

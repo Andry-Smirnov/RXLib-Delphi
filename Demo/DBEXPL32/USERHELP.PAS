@@ -12,8 +12,8 @@ interface
 
 uses
   SysUtils, WinTypes, WinProcs, Messages, Classes, Graphics, Controls,
-  Forms, Dialogs, RxPlacemnt, StdCtrls, RXCtrls, Grids, RxGrids, Mask,
-  RxToolEdit;
+  Forms, Dialogs, Placemnt, StdCtrls, RXCtrls, Grids, RxGrids, Mask,
+  ToolEdit;
 
 type
   TCustomizeHelpDlg = class(TForm)
@@ -48,7 +48,7 @@ type
     FEditChanged: Boolean;
     function ApplyEditChanges: Boolean;
   protected
-{$IFDEF VER80}
+{$IFNDEF WIN32}
     procedure CreateParams(var Params: TCreateParams); override;
 {$ENDIF}
   public
@@ -59,7 +59,7 @@ procedure CustomizeHelp(UserHelpList: TStrings);
 
 implementation
 
-uses RxVCLUtils;
+uses VCLUtils;
 
 {$R *.DFM}
 
@@ -81,7 +81,7 @@ end;
 
 { TCustomizeHelpDlg }
 
-{$IFDEF VER80}
+{$IFNDEF WIN32}
 procedure TCustomizeHelpDlg.CreateParams(var Params: TCreateParams);
 begin
   inherited CreateParams(Params);

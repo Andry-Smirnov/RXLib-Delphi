@@ -14,8 +14,8 @@ Unit TUtil;
 
 interface
 
-{$IFNDEF VER80}
-uses Windows, DB, BDE, SysUtils,{$ifdef RX_D10}DBCommonTypes, {$endif} DBTables;
+{$IFDEF WIN32}
+uses Windows, DB, BDE, SysUtils, DBTables;
 {$ELSE}
 uses WinTypes, WinProcs, DB, DbiTypes, DbiProcs, DbiErrs, SysUtils, DbTables;
 {$ENDIF}
@@ -128,8 +128,8 @@ procedure CheckTable(const TableName: string; Repair: TCheckRepair);
 
 implementation
 
-uses Classes, Controls, Dialogs, Forms, RxDbUtils, RxBdeUtils, RxDbPrgrss,
-  RxVCLUtils, RxFileUtil;
+uses Classes, Controls, Dialogs, Forms, DbUtils, BdeUtils, DbPrgrss,
+  VCLUtils, FileUtil;
 
 const
 { Verify table options }
@@ -148,7 +148,7 @@ const
   VFE_CANNOT_REBUILD    = 4; { table cannot be rebuilt; restore from a backup }
 
 const
-{$IFNDEF VER80}
+{$IFDEF WIN32}
   TULib = 'TUTIL32.DLL';
 {$ELSE}
   TULib = 'TUTILITY.DLL';
@@ -156,26 +156,26 @@ const
   TUHandle: THandle = 0;
 
 var
-  TUInit: function (hTUSession: PHTUses): DBIResult {$IFNDEF VER80} stdcall {$ENDIF};
+  TUInit: function (hTUSession: PHTUses): DBIResult {$IFDEF WIN32} stdcall {$ENDIF};
   TUVerifyTable: function (hTUSession: HTUses; pszTableName,
     pszDriverType, pszErrTableName, pszPassword: PChar; iOptions: Integer;
-    var piErrorLevel: Cardinal): DBIResult {$IFNDEF VER80} stdcall {$ENDIF};
+    var piErrorLevel: Cardinal): DBIResult {$IFDEF WIN32} stdcall {$ENDIF};
   TURebuildTable: function (hTUSession: HTUses; pszTableName,
     pszDriverType, pszBackupTableName, pszKeyviolName,
     pszProblemTableName: PChar;
-    pCrDesc: pCRTblDesc): DBIResult {$IFNDEF VER80} stdcall {$ENDIF};
+    pCrDesc: pCRTblDesc): DBIResult {$IFDEF WIN32} stdcall {$ENDIF};
   TUGetCRTblDescCount: function (hTUSession: HTUses;
     pszTableName: PChar; var iFldCount,iIdxCount, iSecRecCount,
     iValChkCount, iRintCount, iOptParams,
-    iOptDataLen: Word): DBIResult {$IFNDEF VER80} stdcall {$ENDIF};
+    iOptDataLen: Word): DBIResult {$IFDEF WIN32} stdcall {$ENDIF};
   TUFillCRTblDesc: function (hTUSession: HTUses; pCrDesc: pCRTblDesc;
     pszTableName,
-    pszPassword: PChar): DBIResult {$IFNDEF VER80} stdcall {$ENDIF};
+    pszPassword: PChar): DBIResult {$IFDEF WIN32} stdcall {$ENDIF};
   TUFillCURProps: function (hTUSession: HTUses; pszTableName: PChar;
-    tblProps: pCURProps): DBIResult {$IFNDEF VER80} stdcall {$ENDIF};
-  TUExit: function (hTUSession: HTUses): DBIResult {$IFNDEF VER80} stdcall {$ENDIF};
+    tblProps: pCURProps): DBIResult {$IFDEF WIN32} stdcall {$ENDIF};
+  TUExit: function (hTUSession: HTUses): DBIResult {$IFDEF WIN32} stdcall {$ENDIF};
   TUGetErrorString: function (iErrorCode: DBIResult;
-    pszError: PChar): DBIResult {$IFNDEF VER80} stdcall {$ENDIF};
+    pszError: PChar): DBIResult {$IFDEF WIN32} stdcall {$ENDIF};
 
 {$IFDEF RX_D3}
 resourcestring
@@ -203,21 +203,21 @@ function LoadTUtility: Boolean;
 var
   OldError: Word;
   Path: string;
-{$IFDEF VER80}
+{$IFNDEF WIN32}
   P: array[0..255] of Char;
 {$ENDIF}
 begin
   OldError := SetErrorMode(SEM_NOOPENFILEERRORBOX);
   try
     Path := NormalDir(GetBdeDirectory) + TULib;
-{$IFNDEF VER80}
+{$IFDEF WIN32}
     TUHandle := LoadLibrary(PChar(Path));
 {$ELSE}
     TUHandle := LoadLibrary(StrPCopy(P, Path));
 {$ENDIF}
     if not TUtilityLoaded then begin
       Path := TULib;
-{$IFNDEF VER80}
+{$IFDEF WIN32}
       TUHandle := LoadLibrary(PChar(Path));
 {$ELSE}
       TUHandle := LoadLibrary(StrPCopy(P, Path));
@@ -295,7 +295,7 @@ var
   Msg, LastMsg: DBIMSG;
 begin
   inherited Create(0);
-{$IFNDEF VER80}
+{$IFDEF WIN32}
   if not Session.Active then Exit;
 {$ENDIF}
   with EDBEngineErrorHack(Self) do begin
@@ -580,7 +580,7 @@ begin
     try
       Screen.Cursor := crHourGlass;
       try
-{$IFDEF VER80}
+{$IFNDEF WIN32}
         CheckBackupTable;
 {$ENDIF}
         while not CheckOpen(TURebuildTable(FSession, FTableName,
@@ -734,7 +734,7 @@ var
   Desc: FILEDesc;
   DbPath: DBIPATH;
 begin
-{$IFNDEF VER80}
+{$IFDEF WIN32}
   Session.Active := True;
 {$ENDIF}
   DirName := DirectoryName;
@@ -834,7 +834,7 @@ end;
 
 initialization
   LoadTUtility;
-{$IFDEF VER80}
+{$IFNDEF WIN32}
   AddExitProc(FreeTUtility);
 {$ENDIF}
 end.

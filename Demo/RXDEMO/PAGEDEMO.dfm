@@ -9,9 +9,10 @@ object ClientAssistant: TClientAssistant
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
-  Font.Name = 'Tahoma'
+  Font.Name = 'MS Sans Serif'
   Font.Style = []
   OldCreateOrder = True
+  Position = poDefaultPosOnly
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
   PixelsPerInch = 96
@@ -308,7 +309,7 @@ object ClientAssistant: TClientAssistant
       object Label20: TLabel
         Left = 56
         Top = 131
-        Width = 55
+        Width = 53
         Height = 13
         Caption = '&First Name:'
         FocusControl = SrchFirstName
@@ -316,7 +317,7 @@ object ClientAssistant: TClientAssistant
       object Label21: TLabel
         Left = 56
         Top = 155
-        Width = 23
+        Width = 20
         Height = 13
         Caption = '&City:'
         FocusControl = SrchCity
@@ -324,7 +325,7 @@ object ClientAssistant: TClientAssistant
       object Label23: TLabel
         Left = 56
         Top = 179
-        Width = 26
+        Width = 25
         Height = 13
         Caption = '&State'
         FocusControl = SrchState
@@ -332,7 +333,7 @@ object ClientAssistant: TClientAssistant
       object Label27: TLabel
         Left = 56
         Top = 203
-        Width = 54
+        Width = 55
         Height = 13
         Caption = '&Occupation'
         FocusControl = SrchOccupation
@@ -341,35 +342,35 @@ object ClientAssistant: TClientAssistant
         Left = 144
         Top = 104
         Width = 150
-        Height = 21
+        Height = 19
         TabOrder = 0
       end
       object SrchFirstName: TEdit
         Left = 144
         Top = 128
         Width = 150
-        Height = 21
+        Height = 19
         TabOrder = 1
       end
       object SrchCity: TEdit
         Left = 144
         Top = 152
         Width = 150
-        Height = 21
+        Height = 19
         TabOrder = 2
       end
       object SrchState: TEdit
         Left = 144
         Top = 176
         Width = 150
-        Height = 21
+        Height = 19
         TabOrder = 3
       end
       object SrchOccupation: TEdit
         Left = 144
         Top = 200
         Width = 150
-        Height = 21
+        Height = 19
         TabOrder = 4
       end
       object ExactBtn: TCheckBox
@@ -444,10 +445,9 @@ object ClientAssistant: TClientAssistant
         TitleFont.Charset = DEFAULT_CHARSET
         TitleFont.Color = clWindowText
         TitleFont.Height = -11
-        TitleFont.Name = 'Tahoma'
+        TitleFont.Name = 'MS Sans Serif'
         TitleFont.Style = []
         IniStorage = FormStorage
-        RowColor2 = 16776176
       end
     end
     object TPage
@@ -496,25 +496,25 @@ object ClientAssistant: TClientAssistant
         FocusControl = EditACCT_NBR
       end
       object Label3: TLabel
-        Left = 109
+        Left = 108
         Top = 83
-        Width = 27
+        Width = 28
         Height = 13
         Caption = 'Name'
         FocusControl = EditFIRST_NAME
       end
       object Label4: TLabel
-        Left = 97
+        Left = 98
         Top = 107
-        Width = 39
+        Width = 38
         Height = 13
         Caption = 'Address'
         FocusControl = EditADDRESS_
       end
       object Label8: TLabel
-        Left = 86
+        Left = 85
         Top = 157
-        Width = 50
+        Width = 51
         Height = 13
         Caption = 'Telephone'
         FocusControl = EditTELEPHONE
@@ -522,22 +522,22 @@ object ClientAssistant: TClientAssistant
       object Label11: TLabel
         Left = 182
         Top = 139
-        Width = 43
+        Width = 47
         Height = 13
         Caption = 'PICTURE'
       end
       object Label12: TLabel
-        Left = 89
+        Left = 91
         Top = 179
-        Width = 47
+        Width = 45
         Height = 13
         Caption = 'Birth date'
         FocusControl = EditBIRTH_DATE
       end
       object Label14: TLabel
-        Left = 82
+        Left = 81
         Top = 204
-        Width = 54
+        Width = 55
         Height = 13
         Caption = 'Occupation'
         FocusControl = EditOCCUPATION
@@ -553,15 +553,15 @@ object ClientAssistant: TClientAssistant
       object Label10: TLabel
         Left = 245
         Top = 157
-        Width = 23
+        Width = 24
         Height = 13
         Caption = 'SS #'
         FocusControl = EditSS_NUMBER
       end
       object Label13: TLabel
-        Left = 92
+        Left = 90
         Top = 229
-        Width = 44
+        Width = 46
         Height = 13
         Caption = 'Risk level'
         FocusControl = ComboRISK_LEVEL
@@ -569,15 +569,15 @@ object ClientAssistant: TClientAssistant
       object Label15: TLabel
         Left = 238
         Top = 229
-        Width = 51
+        Width = 50
         Height = 13
         Caption = 'Objectives'
         FocusControl = EditOBJECTIVES
       end
       object Label5: TLabel
-        Left = 92
+        Left = 96
         Top = 253
-        Width = 44
+        Width = 40
         Height = 13
         Caption = 'Interests'
         FocusControl = EditINTERESTS
@@ -611,7 +611,7 @@ object ClientAssistant: TClientAssistant
         Left = 142
         Top = 80
         Width = 100
-        Height = 22
+        Height = 21
         DataField = 'FIRST_NAME'
         DataSource = ClientsDS
         Font.Charset = DEFAULT_CHARSET
@@ -687,7 +687,7 @@ object ClientAssistant: TClientAssistant
         Left = 247
         Top = 80
         Width = 117
-        Height = 22
+        Height = 21
         DataField = 'LAST_NAME'
         DataSource = ClientsDS
         Font.Charset = DEFAULT_CHARSET
@@ -774,9 +774,11 @@ object ClientAssistant: TClientAssistant
         Width = 87
         Height = 21
         Hint = 'TRxDBComboBox|'
+        Style = csDropDownList
         DataField = 'RISK_LEVEL'
         DataSource = ClientsDS
-        ItemHeight = 0
+        EnableValues = True
+        ItemHeight = 13
         Items.Strings = (
           'Low'
           'Medium'

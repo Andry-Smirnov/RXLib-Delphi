@@ -70,15 +70,15 @@ CodePage=1252
 [Version Info Keys]
 CompanyName=RX
 FileDescription=RX Database Explorer
-FileVersion=2.57.0.2
+FileVersion=2.56.0.14
 InternalName=DBEXPL32
 LegalCopyright=Copyright © 1996, 1998 Master-Bank
 LegalTrademarks=
 OriginalFilename=DBEXPL32.EXE
 ProductName=RX Library
-ProductVersion=2.51
+ProductVersion=2.40
 Comments=RX Library Demo Program
-Developers=Fedor Koshevnikov; Igor Pavluk; Serge Korolev
+Developers=Fedor Koshevnikov; Igor Pavluk
 
 [Debugging]
 DebugSourceDirs=

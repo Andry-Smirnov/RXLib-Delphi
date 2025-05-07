@@ -5,13 +5,11 @@ object DestTableDlg: TDestTableDlg
   Caption = 'Destination Table Properties'
   ClientHeight = 208
   ClientWidth = 324
-  Color = clBtnFace
-  Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   Font.Style = []
-  OldCreateOrder = True
+  Position = poDefaultPosOnly
   PixelsPerInch = 96
   TextHeight = 13
   object Label1: TLabel
@@ -121,13 +119,12 @@ object DestTableDlg: TDestTableDlg
       DecimalPlaces = 0
       DisplayFormat = ',0'
       Enabled = False
-      Font.Charset = DEFAULT_CHARSET
       Font.Color = clBtnFace
       Font.Height = -11
       Font.Name = 'MS Sans Serif'
       Font.Style = []
       MaxLength = 10
-      MaxValue = 2147483647.000000000000000000
+      MaxValue = 2147483647
       ParentColor = True
       ParentFont = False
       TabOrder = 2
@@ -141,7 +138,6 @@ object DestTableDlg: TDestTableDlg
       'AllRecsBtn.Checked'
       'FirstRecsBtn.Checked'
       'RecordCntEdit.Value')
-    StoredValues = <>
     Left = 264
     Top = 8
   end

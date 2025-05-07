@@ -12,8 +12,8 @@ interface
 
 uses
   SysUtils, WinTypes, WinProcs, Messages, Classes, Graphics, Controls,
-  Forms, Dialogs, StdCtrls, ExtCtrls, RXSplit, RXCtrls, RxPlacemnt, DB,
-  RxDBPrgrss, ComCtrls, Grids, RxGrids, Menus;
+  Forms, Dialogs, StdCtrls, ExtCtrls, RXSplit, RXCtrls, Placemnt, DB,
+  DBPrgrss, ComCtrls, Grids, RxGrids, Menus;
 
 type
   TTraceSQL = class(TForm)
@@ -57,7 +57,7 @@ procedure BufSetSize(Value: Integer);
 
 implementation
 
-uses Options, RxStrUtils, RxMaxMin;
+uses Options, StrUtils, MaxMin;
 
 {$R *.DFM}
 

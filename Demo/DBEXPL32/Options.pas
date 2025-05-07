@@ -7,6 +7,7 @@
 {*******************************************************}
 
 unit Options;
+{$J+}
 
 interface
 
@@ -38,7 +39,7 @@ procedure LoadOptions(IniFile: TIniFile);
 
 implementation
 
-uses Consts, RxVCLUtils, RxDBUtils, RxBdeUtils, DBCbRest;
+uses Consts, VCLUtils, DBUtils, BdeUtils, DBCbRest;
 
 const
   siOptions = 'Options';

@@ -10,7 +10,7 @@ object DBAwareForm: TDBAwareForm
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
-  Font.Name = 'Tahoma'
+  Font.Name = 'MS Sans Serif'
   Font.Style = []
   FormStyle = fsMDIChild
   Icon.Data = {
@@ -39,6 +39,7 @@ object DBAwareForm: TDBAwareForm
     F0C7C393E4E3C393E4F0E007C1F8E3C301E0E001F1FEE1F0C078F1F87FFFF1FC
     3FFFF0FC3FFFF0F83FFFF0F13FFFC0063FFFFC7C7FFFF001FFFFFFFFFFFF07FA}
   OldCreateOrder = True
+  Position = poDefaultPosOnly
   ShowHint = True
   Visible = True
   OnClose = FormClose
@@ -51,12 +52,12 @@ object DBAwareForm: TDBAwareForm
     Width = 504
     Height = 313
     Align = alClient
-    PageIndex = 1
+    PageIndex = 3
     TabsPerRow = 4
     TabFont.Charset = DEFAULT_CHARSET
     TabFont.Color = clBtnText
     TabFont.Height = -11
-    TabFont.Name = 'Tahoma'
+    TabFont.Name = 'MS Sans Serif'
     TabFont.Style = []
     TabOrder = 0
     object TTabPage
@@ -73,7 +74,7 @@ object DBAwareForm: TDBAwareForm
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clBlue
         Font.Height = -11
-        Font.Name = 'Tahoma'
+        Font.Name = 'MS Sans Serif'
         Font.Style = []
         ParentFont = False
         TabOrder = 0
@@ -87,7 +88,7 @@ object DBAwareForm: TDBAwareForm
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           Options = [dgTitles, dgIndicator, dgColumnResize, dgColLines, dgRowLines, dgConfirmDelete, dgCancelOnExit, dgMultiSelect]
           ParentFont = False
@@ -96,13 +97,12 @@ object DBAwareForm: TDBAwareForm
           TitleFont.Charset = DEFAULT_CHARSET
           TitleFont.Color = clBlue
           TitleFont.Height = -11
-          TitleFont.Name = 'Tahoma'
+          TitleFont.Name = 'MS Sans Serif'
           TitleFont.Style = []
           OnKeyPress = rxDBGrid1KeyPress
           ClearSelection = False
           IniStorage = FormStorage1
           MultiSelect = True
-          RowColor2 = 16776176
           OnGetCellParams = rxDBGrid1GetCellParams
         end
         object Panel1: TPanel
@@ -115,7 +115,7 @@ object DBAwareForm: TDBAwareForm
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ParentFont = False
           TabOrder = 1
@@ -153,37 +153,38 @@ object DBAwareForm: TDBAwareForm
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clBlue
         Font.Height = -11
-        Font.Name = 'Tahoma'
+        Font.Name = 'MS Sans Serif'
         Font.Style = []
         ParentFont = False
         TabOrder = 1
         object DBStatusLabel1: TDBStatusLabel
           Left = 222
           Top = 34
-          Width = 85
+          Width = 257
           Height = 13
           DatasetName = 'Table "Biolife"'
           DataSource = DataSource1
+          AutoSize = False
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ParentFont = False
-          Transparent = True
         end
         object Label2: TLabel
           Left = 20
           Top = 15
-          Width = 347
-          Height = 13
+          Width = 449
+          Height = 14
+          AutoSize = False
           Caption = 
             'TDBStatusLabel component displays the DataSet state or record nu' +
             'mber'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = [fsUnderline]
           ParentFont = False
           WordWrap = True
@@ -191,17 +192,17 @@ object DBAwareForm: TDBAwareForm
         object DBStatusLabel2: TDBStatusLabel
           Left = 222
           Top = 50
-          Width = 85
+          Width = 263
           Height = 13
           DataSource = DataSource1
           Style = lsRecordNo
+          AutoSize = False
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ParentFont = False
-          Transparent = True
         end
         object DBNavigator1: TDBNavigator
           Left = 10
@@ -230,15 +231,16 @@ object DBAwareForm: TDBAwareForm
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clBlue
         Font.Height = -11
-        Font.Name = 'Tahoma'
+        Font.Name = 'MS Sans Serif'
         Font.Style = []
         ParentFont = False
         TabOrder = 0
         object Label3: TLabel
           Left = 15
           Top = 17
-          Width = 450
-          Height = 39
+          Width = 455
+          Height = 40
+          AutoSize = False
           Caption = 
             'TRxDBLookupCombo provides an incremental search, LookupSource ca' +
             'n refer to TTable, TQuery or TQbeQuery. End-users can incrementa' +
@@ -247,7 +249,7 @@ object DBAwareForm: TDBAwareForm
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = [fsUnderline]
           ParentFont = False
           WordWrap = True
@@ -257,34 +259,33 @@ object DBAwareForm: TDBAwareForm
           Top = 63
           Width = 92
           Height = 13
-          AutoSize = False
           Caption = 'Employee Name:    '
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ParentFont = False
         end
         object Label5: TLabel
           Left = 314
           Top = 63
-          Width = 102
+          Width = 101
           Height = 13
-          AutoSize = False
           Caption = 'Employee Number:    '
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ParentFont = False
         end
         object Label6: TLabel
           Left = 16
           Top = 111
-          Width = 457
-          Height = 39
+          Width = 445
+          Height = 46
+          AutoSize = False
           Caption = 
             'In this example the TRxDBLookupCombo component refers to the TQB' +
             'EQuery component. The non-visual TQBEQuery component allows you ' +
@@ -293,7 +294,7 @@ object DBAwareForm: TDBAwareForm
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ParentFont = False
           WordWrap = True
@@ -308,7 +309,7 @@ object DBAwareForm: TDBAwareForm
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           MaxLength = 5
           ParentFont = False
@@ -327,7 +328,7 @@ object DBAwareForm: TDBAwareForm
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ItemHeight = 17
           LookupField = 'EmpNo'
@@ -349,15 +350,16 @@ object DBAwareForm: TDBAwareForm
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clBlue
         Font.Height = -11
-        Font.Name = 'Tahoma'
+        Font.Name = 'MS Sans Serif'
         Font.Style = []
         ParentFont = False
         TabOrder = 1
         object Label7: TLabel
           Left = 8
           Top = 14
-          Width = 223
-          Height = 52
+          Width = 225
+          Height = 59
+          AutoSize = False
           Caption = 
             'TDBIndexCombo is the combo box with all available indexes for th' +
             'e table it'#39's assigned to. Allows to the end user to change the c' +
@@ -365,7 +367,7 @@ object DBAwareForm: TDBAwareForm
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = [fsUnderline]
           ParentFont = False
           WordWrap = True
@@ -379,16 +381,15 @@ object DBAwareForm: TDBAwareForm
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ParentFont = False
           TabOrder = 1
           TitleFont.Charset = DEFAULT_CHARSET
           TitleFont.Color = clWindowText
           TitleFont.Height = -11
-          TitleFont.Name = 'Tahoma'
+          TitleFont.Name = 'MS Sans Serif'
           TitleFont.Style = []
-          RowColor2 = 16776176
         end
         object DBIndexCombo1: TDBIndexCombo
           Left = 8
@@ -401,7 +402,7 @@ object DBAwareForm: TDBAwareForm
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ItemHeight = 13
           ParentFont = False
@@ -450,15 +451,16 @@ object DBAwareForm: TDBAwareForm
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clBlue
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ParentFont = False
           TabOrder = 1
           object Label15: TLabel
-            Left = 13
+            Left = 12
             Top = 21
-            Width = 458
-            Height = 39
+            Width = 461
+            Height = 52
+            AutoSize = False
             Caption = 
               'TRxDBFilter encapsulates BDE ability to filter records locally. ' +
               'The component provides event on filtering and/or conditions in S' +
@@ -467,7 +469,7 @@ object DBAwareForm: TDBAwareForm
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'Tahoma'
+            Font.Name = 'MS Sans Serif'
             Font.Style = [fsUnderline]
             ParentFont = False
             WordWrap = True
@@ -500,55 +502,62 @@ object DBAwareForm: TDBAwareForm
           object Label8: TLabel
             Left = 174
             Top = 9
-            Width = 45
+            Width = 63
             Height = 13
+            AutoSize = False
             Caption = 'Company'
             FocusControl = EditCompany
           end
           object Label9: TLabel
             Left = 360
             Top = 9
-            Width = 35
+            Width = 49
             Height = 13
+            AutoSize = False
             Caption = 'CustNo'
           end
           object Label10: TLabel
             Left = 174
             Top = 51
-            Width = 19
+            Width = 35
             Height = 13
+            AutoSize = False
             Caption = 'City'
             FocusControl = EditCity
           end
           object Label11: TLabel
             Left = 270
             Top = 51
-            Width = 26
+            Width = 43
             Height = 13
+            AutoSize = False
             Caption = 'State'
             FocusControl = EditState
           end
           object Label12: TLabel
             Left = 396
             Top = 51
-            Width = 14
+            Width = 29
             Height = 13
+            AutoSize = False
             Caption = 'Zip'
             FocusControl = EditZip
           end
           object Label13: TLabel
             Left = 174
             Top = 89
-            Width = 39
+            Width = 51
             Height = 13
+            AutoSize = False
             Caption = 'Country'
             FocusControl = EditCountry
           end
           object Label14: TLabel
             Left = 304
             Top = 89
-            Width = 30
+            Width = 45
             Height = 13
+            AutoSize = False
             Caption = 'Phone'
             FocusControl = EditPhone
           end
@@ -559,7 +568,6 @@ object DBAwareForm: TDBAwareForm
             Height = 21
             DataField = 'Company'
             DataSource = DataSource4
-            MaxLength = 30
             TabOrder = 1
           end
           object EditCity: TDBEdit
@@ -569,7 +577,6 @@ object DBAwareForm: TDBAwareForm
             Height = 21
             DataField = 'City'
             DataSource = DataSource4
-            MaxLength = 15
             TabOrder = 3
           end
           object EditState: TDBEdit
@@ -579,7 +586,6 @@ object DBAwareForm: TDBAwareForm
             Height = 21
             DataField = 'State'
             DataSource = DataSource4
-            MaxLength = 20
             TabOrder = 4
           end
           object EditZip: TDBEdit
@@ -589,7 +595,6 @@ object DBAwareForm: TDBAwareForm
             Height = 21
             DataField = 'Zip'
             DataSource = DataSource4
-            MaxLength = 10
             TabOrder = 5
           end
           object EditCountry: TDBEdit
@@ -599,7 +604,6 @@ object DBAwareForm: TDBAwareForm
             Height = 21
             DataField = 'Country'
             DataSource = DataSource4
-            MaxLength = 20
             TabOrder = 6
           end
           object EditPhone: TDBEdit
@@ -609,7 +613,6 @@ object DBAwareForm: TDBAwareForm
             Height = 21
             DataField = 'Phone'
             DataSource = DataSource4
-            MaxLength = 15
             TabOrder = 7
           end
           object GroupBox5: TGroupBox
@@ -629,7 +632,7 @@ object DBAwareForm: TDBAwareForm
               Hint = 'Enter query|'
               Glyph.Data = {
                 66010000424D6601000000000000760000002800000014000000140000000100
-                040000000000F000000000000000000000001000000010000000000000000000
+                040000000000F000000000000000000000001000000000000000000000000000
                 80000080000000808000800000008000800080800000C0C0C000808080000000
                 FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00333333333333
                 3333333300003333333333333300333300003333333333333333333300003333
@@ -651,7 +654,7 @@ object DBAwareForm: TDBAwareForm
               Enabled = False
               Glyph.Data = {
                 66010000424D6601000000000000760000002800000014000000140000000100
-                040000000000F000000000000000000000001000000010000000000000000000
+                040000000000F000000000000000000000001000000000000000000000000000
                 80000080000000808000800000008000800080800000C0C0C000808080000000
                 FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00333333333333
                 3333333300003333333333333333333300003333333033333333333300003333
@@ -673,7 +676,7 @@ object DBAwareForm: TDBAwareForm
               Enabled = False
               Glyph.Data = {
                 DE010000424DDE01000000000000760000002800000024000000120000000100
-                0400000000006801000000000000000000001000000010000000000000000000
+                0400000000006801000000000000000000001000000000000000000000000000
                 80000080000000808000800000008000800080800000C0C0C000808080000000
                 FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00333333333333
                 333333333333333333333333000033338833333333333333333F333333333333
@@ -731,15 +734,16 @@ object DBAwareForm: TDBAwareForm
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clBlue
         Font.Height = -11
-        Font.Name = 'Tahoma'
+        Font.Name = 'MS Sans Serif'
         Font.Style = []
         ParentFont = False
         TabOrder = 0
         object Label16: TLabel
-          Left = 12
+          Left = 8
           Top = 16
           Width = 481
-          Height = 39
+          Height = 46
+          AutoSize = False
           Caption = 
             'The component is the descendant of standard TQuery, so it provid' +
             'es all its functionality. In addition it supports "macros" in qu' +
@@ -748,7 +752,7 @@ object DBAwareForm: TDBAwareForm
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = [fsUnderline]
           ParentFont = False
           WordWrap = True
@@ -763,7 +767,7 @@ object DBAwareForm: TDBAwareForm
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = [fsUnderline]
           ParentFont = False
           WordWrap = True
@@ -773,25 +777,28 @@ object DBAwareForm: TDBAwareForm
           Top = 60
           Width = 481
           Height = 37
+          Caption = 'Panel4'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ParentFont = False
           TabOrder = 0
           object Label17: TLabel
             Left = 8
             Top = 12
-            Width = 49
+            Width = 53
             Height = 13
+            AutoSize = False
             Caption = 'Company:'
           end
           object Label19: TLabel
             Left = 224
             Top = 12
-            Width = 47
+            Width = 49
             Height = 13
+            AutoSize = False
             Caption = 'Order By:'
           end
           object rxDBLookupCombo2: TRxDBLookupCombo
@@ -833,17 +840,16 @@ object DBAwareForm: TDBAwareForm
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ParentFont = False
           TabOrder = 1
           TitleFont.Charset = DEFAULT_CHARSET
           TitleFont.Color = clBlue
           TitleFont.Height = -11
-          TitleFont.Name = 'Tahoma'
+          TitleFont.Name = 'MS Sans Serif'
           TitleFont.Style = []
           IniStorage = FormStorage1
-          RowColor2 = 16776176
           TitleButtons = True
           OnCheckButton = DBGrid1CheckButton
           OnGetBtnParams = DBGrid1GetBtnParams
@@ -858,6 +864,7 @@ object DBAwareForm: TDBAwareForm
     Top = 4
   end
   object Table2: TTable
+    Active = True
     DatabaseName = 'DBDEMOS'
     TableName = 'BIOLIFE.DB'
     Left = 40
@@ -899,6 +906,7 @@ object DBAwareForm: TDBAwareForm
     Top = 8
   end
   object QBEQuery1: TQBEQuery
+    Active = True
     DatabaseName = 'DBDEMOS'
     QBE.Strings = (
       'Query'
@@ -913,6 +921,7 @@ object DBAwareForm: TDBAwareForm
     ParamData = <>
   end
   object Table1: TTable
+    Active = True
     DatabaseName = 'DBDEMOS'
     ReadOnly = True
     TableName = 'ITEMS.DB'
@@ -940,6 +949,7 @@ object DBAwareForm: TDBAwareForm
     Top = 4
   end
   object Table3: TTable
+    Active = True
     DatabaseName = 'DBDEMOS'
     TableName = 'customer.db'
     Left = 120
@@ -970,6 +980,7 @@ object DBAwareForm: TDBAwareForm
     Top = 2
   end
   object Table4: TTable
+    Active = True
     DatabaseName = 'DBDEMOS'
     TableName = 'CUSTOMER.DB'
     Left = 168
@@ -980,6 +991,7 @@ object DBAwareForm: TDBAwareForm
     Top = 4
   end
   object rxQuery1: TRxQuery
+    Active = True
     DatabaseName = 'DBDEMOS'
     SQL.Strings = (
       'SELECT ORDERS."OrderNo" , '
@@ -1135,7 +1147,7 @@ object DBAwareForm: TDBAwareForm
     Rows = 2
     Picture.Data = {
       07544269746D617076030000424D760300000000000076000000280000003000
-      0000200000000100040000000000000300000000000000000000100000001000
+      0000200000000100040000000000000300000000000000000000100000000000
       000000000000000080000080000000808000800000008000800080800000C0C0
       C000808080000000FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFF
       FF00DDCCCCCC00CCDDDDD55555555500CCDDDDDD66000006DDDDDD0CCC0070C0

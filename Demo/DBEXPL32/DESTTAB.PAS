@@ -12,8 +12,8 @@ unit DestTab;
 interface
 
 uses WinTypes, WinProcs, SysUtils, Classes, Graphics, Forms, Controls,
-  StdCtrls, ExtCtrls, FileCtrl, RxPlacemnt, Mask, RxToolEdit, DB, DBTables,
-  RXLookup, RxCurrEdit;
+  StdCtrls, ExtCtrls, FileCtrl, Placemnt, Mask, ToolEdit, DB, DBTables,
+  RXLookup, CurrEdit;
 
 type
   TDestTableDlg = class(TForm)
@@ -55,7 +55,7 @@ implementation
 
 {$B-}
 
-uses Consts, Dialogs, RxVCLUtils, RxFileUtil, Main;
+uses Consts, Dialogs, VCLUtils, FileUtil, Main;
 
 {$R *.DFM}
 
@@ -105,22 +105,12 @@ end;
 
 function TDestTableDlg.GetTableType: TTableType;
 begin
-  Result := ttDefault;
-  case TypeBtn.ItemIndex of
-    0: Result := ttParadox;
-    1: Result := ttDBase;
-    2: Result := ttASCII;
-  end;
+  Result := TTableType(TypeBtn.ItemIndex + 1);
 end;
 
 procedure TDestTableDlg.SetTableType(Value: TTableType);
 begin
-  case Value of
-    ttParadox: TypeBtn.ItemIndex := 0;
-    ttDBase: TypeBtn.ItemIndex := 1;
-    ttASCII: TypeBtn.ItemIndex := 2;
-    else TypeBtn.ItemIndex := -1;
-  end;
+  TypeBtn.ItemIndex := Integer(Value) - 1;
 end;
 
 function TDestTableDlg.GetTableName: string;

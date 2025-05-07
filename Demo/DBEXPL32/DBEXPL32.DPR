@@ -3,7 +3,7 @@
 {     Delphi VCL Extensions (RX) demo program           }
 {                                                       }
 {     Copyright (c) 1996 AO ROSNO                       }
-{     Copyright (c) 1997, 1998 Master-Bank              }
+{     Copyright (c) 1997 Master-Bank                    }
 {                                                       }
 {*******************************************************}
 
@@ -11,8 +11,8 @@ program DbExpl32;
 
 uses
   Forms,
-  RxDBExcpt,
-  RxVCLUtils,
+  DBExcpt,
+  VCLUtils,
   Main in 'MAIN.PAS' {DBExplorerMainForm},
   ChildWin in 'CHILDWIN.PAS' {MDIChild},
   OpenDlg in 'OPENDLG.PAS' {OpenDatabaseDlg},

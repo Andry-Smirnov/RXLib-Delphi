@@ -5,16 +5,14 @@ object CustomizeHelpDlg: TCustomizeHelpDlg
   Caption = 'User Help Files'
   ClientHeight = 194
   ClientWidth = 339
-  Color = clBtnFace
-  Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   Font.Style = []
-  OldCreateOrder = True
+  PixelsPerInch = 96
+  Position = poDefaultPosOnly
   OnCreate = FormCreate
   OnDestroy = FormDestroy
-  PixelsPerInch = 96
   TextHeight = 13
   object Label1: TLabel
     Left = 8
@@ -93,7 +91,6 @@ object CustomizeHelpDlg: TCustomizeHelpDlg
   object FormStorage: TFormStorage
     StoredProps.Strings = (
       'FileName.InitialDir')
-    StoredValues = <>
     Left = 8
     Top = 159
   end

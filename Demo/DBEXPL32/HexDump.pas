@@ -12,7 +12,7 @@ unit HexDump;
 interface
 
 uses
-  SysUtils, {$IFNDEF VER80} Windows, {$ELSE} WinTypes, WinProcs, {$ENDIF}
+  SysUtils, {$IFDEF WIN32} Windows, {$ELSE} WinTypes, WinProcs, {$ENDIF}
   Messages, Classes, Graphics, Controls, Forms, Dialogs, StdCtrls, Menus;
 
 const
@@ -117,7 +117,7 @@ function CreateHexDump(AOwner: TWinControl): THexDump;
 
 implementation
 
-uses RxVCLUtils;
+uses VCLUtils;
 
 { Create THexDump control }
 
@@ -131,7 +131,7 @@ begin
   end;
 end;
 
-{$IFDEF VER80}
+{$IFNDEF WIN32}
 function LongMulDiv(Mult1, Mult2, Div1: Longint): Longint; assembler;
 { copied from GRIDS.PAS }
 type
@@ -238,7 +238,7 @@ begin
   inherited CreateParams(Params);
   with Params do begin
     if (FBorder = bsSingle) then
-{$IFNDEF VER80}
+{$IFDEF WIN32}
       if NewStyleControls and Ctl3D then
         ExStyle := ExStyle or WS_EX_CLIENTEDGE
       else Style := Style or WS_BORDER;
@@ -263,7 +263,7 @@ end;
 
 procedure THexDump.CMCtl3DChanged(var Message: TMessage);
 begin
-{$IFNDEF VER80}
+{$IFDEF WIN32}
   if NewStyleControls and (FBorder = bsSingle) then RecreateWnd;
   inherited;
 {$ELSE}
@@ -315,7 +315,7 @@ begin
     SB_TOP: NewTopLine := 0;
     SB_BOTTOM: NewTopLine := FLineCount - 1;
     SB_THUMBPOSITION, SB_THUMBTRACK:
-{$IFNDEF VER80}
+{$IFDEF WIN32}
       NewTopLine := Message.Pos;
 {$ELSE}
       NewTopLine := LongMulDiv(Message.Pos, FLineCount - 1, MaxInt);
@@ -370,7 +370,7 @@ end;
 
 procedure THexDump.SetScroll(Value: Longint);
 begin
-{$IFNDEF VER80}
+{$IFDEF WIN32}
   SetScrollPos(Handle, SB_VERT, Value, True);
 {$ELSE}
   SetScrollPos(Handle, SB_VERT, LongMulDiv(Value, MaxInt,
@@ -380,7 +380,7 @@ end;
 
 procedure THexDump.AdjustScrollBars;
 begin
-{$IFNDEF VER80}
+{$IFDEF WIN32}
   SetScrollRange(Handle, SB_VERT, 0, FLineCount - 1, True);
 {$ELSE}
   if FLineCount > 1 then SetScrollRange(Handle, SB_VERT, 0, MaxInt, True)

@@ -2,11 +2,12 @@
 {                                                       }
 {         Delphi VCL Extensions (RX)                    }
 {                                                       }
-{         Copyright (c) 1995, 1996 AO ROSNO             }
-{         Copyright (c) 1997, 1998 Master-Bank          }
+{         Copyright (c) 2001,2002 SGB Software          }
+{         Copyright (c) 1997, 1998 Fedor Koshevnikov,   }
+{                        Igor Pavluk and Serge Korolev  }
 {                                                       }
-{ Patched by Polaris Software                           }
 {*******************************************************}
+
 
 unit RxCalc;
 
@@ -14,10 +15,8 @@ interface
 
 {$I RX.INC}
 
-uses
-  {$IFNDEF VER80}Windows, {$ELSE}WinTypes, WinProcs, {$ENDIF}SysUtils,
+uses Windows, SysUtils, Variants,
   Messages, Classes, Graphics, Controls, Forms, Dialogs, StdCtrls, Menus,
-  {$IFDEF RX_D6}Types,{$ENDIF} {$IFDEF RX_D16}System.UITypes, {$ENDIF}
   ExtCtrls, Buttons, RxCtrls, Clipbrd;
 
 const
@@ -33,11 +32,7 @@ type
   private
     FValue: Double;
     FMemory: Double;
-    {$IFDEF RX_D4} // Polaris
-    FTitle: string;
-    {$ELSE}
-    FTitle: PString;
-    {$ENDIF}
+    FTitle: String;
     FCtl3D: Boolean;
     FPrecision: Byte;
     FBeepOnError: Boolean;
@@ -97,16 +92,19 @@ type
 
 function CreateCalculatorForm(AOwner: TComponent; AHelpContext: THelpContext): TRxCalculatorForm;
 function CreatePopupCalculator(AOwner: TComponent
-  {$IFDEF RX_D4}; ABiDiMode: TBiDiMode = bdLeftToRight{$ENDIF}): TWinControl;
+  {$IFDEF RX_D4}; ABiDiMode: TBiDiMode = bdLeftToRight {$ENDIF}): TWinControl;
 procedure SetupPopupCalculator(PopupCalc: TWinControl; APrecision: Byte;
   ABeepOnError: Boolean);
 
 implementation
 
-uses{$IFDEF VER80}RxStr16, {$ENDIF}RxVCLUtils, RxMaxMin, RxToolEdit,
-  {$IFDEF RX_D6}Variants, RTLConsts, {$ENDIF}RxStrUtils; // Polaris
+uses {$IFNDEF WIN32} Str16, {$ENDIF} VclUtils, MaxMin, rxStrUtils, ToolEdit;
 
-{$R *.RES}
+{$IFDEF WIN32}
+ {$R *.R32}
+{$ELSE}
+ {$R *.R16}
+{$ENDIF}
 
 const
   SCalculator = 'Calculator';
@@ -114,37 +112,34 @@ const
 
 type
   TCalcBtnKind =
-    (cbNone, cbNum0, cbNum1, cbNum2, cbNum3, cbNum4, cbNum5, cbNum6,
+   (cbNone, cbNum0, cbNum1, cbNum2, cbNum3, cbNum4, cbNum5, cbNum6,
     cbNum7, cbNum8, cbNum9, cbSgn, cbDcm, cbDiv, cbMul, cbSub,
     cbAdd, cbSqr, cbPcnt, cbRev, cbEql, cbBck, cbClr, cbMP,
     cbMS, cbMR, cbMC, cbOk, cbCancel);
 
   TCalcPanelLayout = (clDialog, clPopup);
 
-procedure SetDefaultFont(AFont: TFont; Layout: TCalcPanelLayout); {$IFDEF RX_D9}inline; {$ENDIF}
-{$IFNDEF VER80}
+procedure SetDefaultFont(AFont: TFont; Layout: TCalcPanelLayout);
+{$IFDEF WIN32}
 var
   NonClientMetrics: TNonClientMetrics;
 {$ENDIF}
 begin
-  {$IFNDEF VER80}
+{$IFDEF WIN32}
   NonClientMetrics.cbSize := SizeOf(NonClientMetrics);
   if SystemParametersInfo(SPI_GETNONCLIENTMETRICS, 0, @NonClientMetrics, 0) then
     AFont.Handle := CreateFontIndirect(NonClientMetrics.lfMessageFont)
   else
-  {$ENDIF}
-    with AFont do
-    begin
-      Color := clWindowText;
-      Name := {$IFDEF RX_D6} 'Tahoma'{$ELSE} 'MS Sans Serif'{$ENDIF};
-      Size := 8;
-    end;
+{$ENDIF}
+  with AFont do begin
+    Color := clWindowText;
+    Name := 'MS Sans Serif';
+    Size := 8;
+  end;
   AFont.Style := [fsBold];
-  if Layout = clDialog then
-  begin
+  if Layout = clDialog then begin
   end
-  else
-  begin
+  else begin
   end;
 end;
 
@@ -154,11 +149,10 @@ begin
   with Result do
   try
     HelpContext := AHelpContext;
-    {$IFNDEF VER80}
+{$IFDEF WIN32}
     if HelpContext <> 0 then BorderIcons := BorderIcons + [biHelp];
-    {$ENDIF}
-    if Screen.PixelsPerInch <> 96 then
-    begin { scale to screen res }
+{$ENDIF}
+    if Screen.PixelsPerInch <> 96 then begin { scale to screen res }
       ScaleBy(Screen.PixelsPerInch, 96);
       SetDefaultFont(Font, clDialog);
       Left := (Screen.Width div 2) - (Width div 2);
@@ -187,34 +181,27 @@ type
 constructor TCalcButton.CreateKind(AOwner: TComponent; AKind: TCalcBtnKind);
 begin
   inherited Create(AOwner);
-  {$IFNDEF VER80}
+{$IFDEF WIN32}
   ControlStyle := ControlStyle + [csReplicatable];
-  {$ENDIF}
+{$ENDIF}
   FKind := AKind;
-  if FKind in [cbNum0..cbClr] then
-    Tag := Ord(Kind) - 1
-  else
-    Tag := -1;
+  if FKind in [cbNum0..cbClr] then Tag := Ord(Kind) - 1
+  else Tag := -1;
 end;
 
 procedure TCalcButton.CMParentFontChanged(var Message: TMessage);
 
   function BtnColor(Kind: TCalcBtnKind): TColor;
   begin
-    if Kind in [cbSqr, cbPcnt, cbRev, cbMP..cbMC] then
-      Result := clNavy
-    else if Kind in [cbDiv, cbMul, cbSub, cbAdd, cbEql] then
-      Result := clPurple
-    else if Kind in [cbBck, cbClr] then
-      Result := clMaroon
-    else
-      Result := clBtnText;
+    if Kind in [cbSqr, cbPcnt, cbRev, cbMP..cbMC] then Result := clNavy
+    else if Kind in [cbDiv, cbMul, cbSub, cbAdd, cbEql] then Result := clPurple
+    else if Kind in [cbBck, cbClr] then Result := clMaroon
+    else Result := clBtnText;
   end;
 
 begin
   if not FFontChanging then inherited;
-  if ParentFont and not FFontChanging then
-  begin
+  if ParentFont and not FFontChanging then begin
     FFontChanging := True;
     try
       Font.Color := BtnColor(FKind);
@@ -227,7 +214,7 @@ end;
 
 const
   BtnPos: array[TCalcPanelLayout, TCalcBtnKind] of TPoint =
-  (((X: - 1; Y: - 1), (X: 47; Y: 104), (X: 47; Y: 80), (X: 85; Y: 80),
+  (((X: -1; Y: -1), (X: 47; Y: 104), (X: 47; Y: 80), (X: 85; Y: 80),
     (X: 123; Y: 80), (X: 47; Y: 56), (X: 85; Y: 56), (X: 123; Y: 56),
     (X: 47; Y: 32), (X: 85; Y: 32), (X: 123; Y: 32), (X: 85; Y: 104),
     (X: 123; Y: 104), (X: 161; Y: 32), (X: 161; Y: 56), (X: 161; Y: 80),
@@ -235,25 +222,14 @@ const
     (X: 199; Y: 104), (X: 145; Y: 6), (X: 191; Y: 6), (X: 5; Y: 104),
     (X: 5; Y: 80), (X: 5; Y: 56), (X: 5; Y: 32),
     (X: 47; Y: 6), (X: 85; Y: 6)),
-{PopUp}
-    {cbNone         cbNum0         cbNum1         cbNum2}
-    ((X: - 1; Y: - 1), (X: 6; Y: 75), (X: 6; Y: 52), (X: 29; Y: 52),
-    {cbNum3         cbNum4         cbNum5          cbNum6}
+   ((X: -1; Y: -1), (X: 6; Y: 75), (X: 6; Y: 52), (X: 29; Y: 52),
     (X: 52; Y: 52), (X: 6; Y: 29), (X: 29; Y: 29), (X: 52; Y: 29),
-    {cbNum7       cbNum8         cbNum9         cbSgn}
     (X: 6; Y: 6), (X: 29; Y: 6), (X: 52; Y: 6), (X: 52; Y: 75),
-    {cbDcm           cbDiv         cbMul           cbSub}
     (X: 29; Y: 75), (X: 75; Y: 6), (X: 75; Y: 29), (X: 75; Y: 52),
-    {cbAdd          cbSqr           cbPcnt          cbRev}
-//Polaris    (X: 75; Y: 75), (X: -1; Y: -1), (X: -1; Y: -1), (X: -1; Y: -1),
-    (X: 75; Y: 75), (X: 98; Y: 6), (X: 98; Y: 29), (X: 98; Y: 52),
-    {cbEql          cbBck           cbClr          cbMP}
-//Polaris    (X: 52; Y: 98), (X: 29; Y: 98), (X: 6; Y: 98), (X: -1; Y: -1),
-    (X: 98; Y: 75), (X: 29; Y: 98), (X: 6; Y: 98), (X: - 1; Y: - 1),
-    {cbMS           cbMR            cbMC}
-    (X: - 1; Y: - 1), (X: - 1; Y: - 1), (X: - 1; Y: - 1),
-    {cbOk           cbCancel}
-    (X: - 1; Y: - 1), (X: - 1; Y: - 1)));
+    (X: 75; Y: 75), (X: -1; Y: -1), (X: -1; Y: -1), (X: -1; Y: -1),
+    (X: 52; Y: 98), (X: 29; Y: 98), (X: 6; Y: 98), (X: -1; Y: -1),
+    (X: -1; Y: -1), (X: -1; Y: -1), (X: -1; Y: -1),
+    (X: -1; Y: -1), (X: -1; Y: -1)));
 
   ResultKeys = [#13, '=', '%'];
 
@@ -261,27 +237,22 @@ function CreateCalcBtn(AParent: TWinControl; AKind: TCalcBtnKind;
   AOnClick: TNotifyEvent; ALayout: TCalcPanelLayout): TCalcButton;
 const
   BtnCaptions: array[cbSgn..cbMC] of PChar =
-  ('±', ',', '/', '*', '-', '+', 'sqrt', '%', '1/x', '=', '<-', 'C',
+   ('±', ',', '/', '*', '-', '+', 'sqrt', '%', '1/x', '=', '<-', 'C',
     'MP', 'MS', 'MR', 'MC');
 begin
   Result := TCalcButton.CreateKind(AParent, AKind);
   with Result do
   try
-    if Kind in [cbNum0..cbNum9] then
-      Caption := IntToStr(Tag)
-    else if Kind = cbDcm then
-      Caption := {$IFDEF RX_D15}FormatSettings.{$ENDIF}DecimalSeparator
-    else if Kind in [cbSgn..cbMC] then
-      Caption := StrPas(BtnCaptions[Kind]);
+    if Kind in [cbNum0..cbNum9] then Caption := IntToStr(Tag)
+    else if Kind = cbDcm then Caption := DecimalSeparator
+    else if Kind in [cbSgn..cbMC] then Caption := StrPas(BtnCaptions[Kind]);
     Left := BtnPos[ALayout, Kind].X;
     Top := BtnPos[ALayout, Kind].Y;
-    if ALayout = clDialog then
-    begin
+    if ALayout = clDialog then begin
       Width := 36;
       Height := 22;
     end
-    else
-    begin
+    else begin
       Width := 21;
       Height := 21;
     end;
@@ -352,26 +323,23 @@ var
   Bmp: TBitmap;
   I: TCalcBtnKind;
 const
-  BtnGlyphs: array[cbSgn..cbCancel] of Integer = (2 {Sgn}, -1, -1, 3 {Mul},
-    4 {Sub}, 5 {Add}, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 1 {Ok}, 0 {Cancel});
+  BtnGlyphs: array[cbSgn..cbCancel] of Integer = (2{Sgn}, -1, -1, 3{Mul},
+    4{Sub}, 5{Add}, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 1{Ok}, 0{Cancel});
 begin
   inherited Create(AOwner);
-  {$IFNDEF VER80}
+{$IFDEF WIN32}
   if ALayout = clPopup then
     ControlStyle := ControlStyle + [csReplicatable];
-  {$ENDIF}
+{$ENDIF}
   ParentColor := False;
   Color := clBtnFace;
-  if ALayout = clDialog then
-  begin
+  if ALayout = clDialog then begin
     Height := 129;
     Width := 240;
   end
-  else
-  begin
+  else begin
     Height := 124;
-//    Width := 98;
-    Width := 131;
+    Width := 98;
   end;
   SetDefaultFont(Font, ALayout);
   ParentFont := False;
@@ -379,49 +347,30 @@ begin
   BevelInner := bvNone;
   ParentColor := True;
   ParentCtl3D := True;
-  if ALayout = clDialog then
-    Bmp := TBitmap.Create
-  else
-    Bmp := nil;
+  if ALayout = clDialog then Bmp := TBitmap.Create
+  else Bmp := nil;
   try
     if Bmp <> nil then Bmp.Handle := LoadBitmap(hInstance, 'CALCBTNS');
-    for I := cbNum0 to cbCancel do
-    begin
+    for I := cbNum0 to cbCancel do begin
       if BtnPos[ALayout, I].X > 0 then
-        with CreateCalcBtn(Self, I, BtnClick, ALayout) do
-        begin
-          if ALayout = clDialog then
-          begin
+        with CreateCalcBtn(Self, I, BtnClick, ALayout) do begin
+          if ALayout = clDialog then begin
             if (Kind in [cbBck, cbClr]) then Width := 44;
             if (Kind in [cbSgn..cbCancel]) then
-              if BtnGlyphs[Kind] >= 0 then
-              begin
+              if BtnGlyphs[Kind] >= 0 then begin
                 Caption := '';
                 AssignBitmapCell(Bmp, Glyph, 6, 1, BtnGlyphs[Kind]);
               end;
           end
-          else
-          begin
-//Polaris            if Kind in [cbEql] then Width := 44;
-            case Kind of
-              cbSqr..cbRev: Width := 31;
-              cbAdd: Height := 44;
-              cbEql:
-                begin
-                  Height := 44;
-                  Width := 31;
-                end;
-              cbBck: Width := 44;
-            end;
+          else begin
+            if Kind in [cbEql] then Width := 44;
           end;
         end;
     end;
-    if ALayout = clDialog then
-    begin
+    if ALayout = clDialog then begin
       { Memory panel }
       FMemoryPanel := TPanel.Create(Self);
-      with FMemoryPanel do
-      begin
+      with FMemoryPanel do begin
         SetBounds(6, 7, 34, 20);
         BevelInner := bvLowered;
         BevelOuter := bvNone;
@@ -429,8 +378,7 @@ begin
         Parent := Self;
       end;
       FMemoryLabel := TLabel.Create(Self);
-      with FMemoryLabel do
-      begin
+      with FMemoryLabel do begin
         SetBounds(3, 3, 26, 14);
         Alignment := taCenter;
         AutoSize := False;
@@ -449,8 +397,7 @@ end;
 
 procedure TCalculatorPanel.SetText(const Value: string);
 begin
-  if FText <> Value then
-  begin
+  if FText <> Value then begin
     FText := Value;
     TextChanged;
   end;
@@ -475,8 +422,7 @@ var
   S: string;
 begin
   S := FloatToStrF(R, ffGeneral, Max(2, FPrecision), 0);
-  if FText <> S then
-  begin
+  if FText <> S then begin
     SetText(S);
     if Assigned(FOnDisplayChange) then FOnDisplayChange(Self);
   end;
@@ -484,16 +430,13 @@ end;
 
 function TCalculatorPanel.GetDisplay: Double;
 begin
-  if FStatus = csError then
-    Result := 0.0
-  else
-    Result := StrToFloat(Trim(FText));
+  if FStatus = csError then Result := 0.0
+  else Result := StrToFloat(Trim(FText));
 end;
 
 procedure TCalculatorPanel.CheckFirst;
 begin
-  if FStatus = csFirst then
-  begin
+  if FStatus = csFirst then begin
     FStatus := csValid;
     SetText('0');
   end;
@@ -508,12 +451,10 @@ var
   I: Integer;
 begin
   inherited;
-  for I := 0 to ComponentCount - 1 do
-  begin
+  for I := 0 to ComponentCount - 1 do begin
     if Components[I] is TRxSpeedButton then
       TRxSpeedButton(Components[I]).Style := Ctl3DStyle[Ctl3D]
-    else if Components[I] = FMemoryPanel then
-    begin
+    else if Components[I] = FMemoryPanel then begin
       FMemoryPanel.BevelInner := Ctl3DBevel[Ctl3D];
       FMemoryPanel.BorderStyle := Ctl3DBorder[Ctl3D];
     end;
@@ -523,10 +464,8 @@ end;
 procedure TCalculatorPanel.UpdateMemoryLabel;
 begin
   if FMemoryLabel <> nil then
-    if FMemory <> 0.0 then
-      FMemoryLabel.Caption := 'M'
-    else
-      FMemoryLabel.Caption := '';
+    if FMemory <> 0.0 then FMemoryLabel.Caption := 'M'
+    else FMemoryLabel.Caption := '';
 end;
 
 procedure TCalculatorPanel.CalcKey(Key: Char);
@@ -536,42 +475,31 @@ begin
   Key := UpCase(Key);
   if (FStatus = csError) and (Key <> 'C') then Key := #0;
   if Assigned(FOnCalcKey) then FOnCalcKey(Self, Key);
-  if CharInSet(Key, [{$IFDEF RX_D15}FormatSettings.{$ENDIF}DecimalSeparator, '.', ',']) then
-  begin
+  if Key in [DecimalSeparator, '.', ','] then begin
     CheckFirst;
-    if Pos({$IFDEF RX_D15}FormatSettings.{$ENDIF}DecimalSeparator, FText) = 0 then
-      SetText(FText + {$IFDEF RX_D15}FormatSettings.{$ENDIF}DecimalSeparator);
+    if Pos(DecimalSeparator, FText) = 0 then
+      SetText(FText + DecimalSeparator);
     Exit;
   end;
   case Key of
     'R':
-      if FStatus in [csValid, csFirst] then
-      begin
+      if FStatus in [csValid, csFirst] then begin
         FStatus := csFirst;
-        if GetDisplay = 0 then
-          Error
-        else
-          SetDisplay(1.0 / GetDisplay);
+        if GetDisplay = 0 then Error else SetDisplay(1.0 / GetDisplay);
       end;
     'Q':
-      if FStatus in [csValid, csFirst] then
-      begin
+      if FStatus in [csValid, csFirst] then begin
         FStatus := csFirst;
-        if GetDisplay < 0 then
-          Error
-        else
-          SetDisplay(Sqrt(GetDisplay));
+        if GetDisplay < 0 then Error else SetDisplay(Sqrt(GetDisplay));
       end;
     '0'..'9':
       begin
         CheckFirst;
         if FText = '0' then SetText('');
-        if Pos('E', FText) = 0 then
-        begin
+        if Pos('E', FText) = 0 then begin
           if Length(FText) < Max(2, FPrecision) + Ord(Boolean(Pos('-', FText))) then
             SetText(FText + Key)
-          else if FBeepOnError then
-            MessageBeep(0);
+          else if FBeepOnError then MessageBeep(0);
         end;
       end;
     #8:
@@ -585,8 +513,7 @@ begin
     '_': SetDisplay(-GetDisplay);
     '+', '-', '*', '/', '=', '%', #13:
       begin
-        if FStatus = csValid then
-        begin
+        if FStatus = csValid then begin
           FStatus := csFirst;
           R := GetDisplay;
           if Key = '%' then
@@ -598,15 +525,12 @@ begin
             '+': SetDisplay(FOperand + R);
             '-': SetDisplay(FOperand - R);
             '*': SetDisplay(FOperand * R);
-            '/': if R = 0 then
-                Error
-              else
-                SetDisplay(FOperand / R);
+            '/': if R = 0 then Error else SetDisplay(FOperand / R);
           end;
         end;
         FOperator := Key;
         FOperand := GetDisplay;
-        if CharInSet(Key, ResultKeys) then
+        if Key in ResultKeys then
           if Assigned(FOnResult) then FOnResult(Self);
       end;
     #27, 'C': Clear;
@@ -627,10 +551,8 @@ var
   Btn: TRxSpeedButton;
 begin
   Btn := FindButton(Key);
-  if Btn <> nil then
-    Btn.ButtonClick
-  else
-    CalcKey(Key);
+  if Btn <> nil then Btn.ButtonClick
+  else CalcKey(Key);
 end;
 
 function TCalculatorPanel.FindButton(Key: Char): TRxSpeedButton;
@@ -638,20 +560,15 @@ const
   ButtonChars = '0123456789_./*-+Q%R='#8'C';
 var
   I: Integer;
-  BtnTag: LongInt;
+  BtnTag: Longint;
 begin
-  if CharInSet(Key, [{$IFDEF RX_D15}FormatSettings.{$ENDIF}DecimalSeparator, '.', ',']) then
-    Key := '.'
-  else if Key = #13 then
-    Key := '='
-  else if Key = #27 then
-    Key := 'C';
+  if Key in [DecimalSeparator, '.', ','] then Key := '.'
+  else if Key = #13 then Key := '='
+  else if Key = #27 then Key := 'C';
   BtnTag := Pos(UpCase(Key), ButtonChars) - 1;
   if BtnTag >= 0 then
-    for I := 0 to ControlCount - 1 do
-    begin
-      if Controls[I] is TRxSpeedButton then
-      begin
+    for I := 0 to ControlCount - 1 do begin
+      if Controls[I] is TRxSpeedButton then begin
         Result := TRxSpeedButton(Controls[I]);
         if Result.Tag = BtnTag then Exit;
       end;
@@ -664,7 +581,7 @@ begin
   case TCalcButton(Sender).Kind of
     cbNum0..cbNum9: CalcKey(Char(TComponent(Sender).Tag + Ord('0')));
     cbSgn: CalcKey('_');
-    cbDcm: CalcKey({$IFDEF RX_D15}FormatSettings.{$ENDIF}DecimalSeparator);
+    cbDcm: CalcKey(DecimalSeparator);
     cbDiv: CalcKey('/');
     cbMul: CalcKey('*');
     cbSub: CalcKey('-');
@@ -676,22 +593,19 @@ begin
     cbBck: CalcKey(#8);
     cbClr: CalcKey('C');
     cbMP:
-      if FStatus in [csValid, csFirst] then
-      begin
+      if FStatus in [csValid, csFirst] then begin
         FStatus := csFirst;
         FMemory := FMemory + GetDisplay;
         UpdateMemoryLabel;
       end;
     cbMS:
-      if FStatus in [csValid, csFirst] then
-      begin
+      if FStatus in [csValid, csFirst] then begin
         FStatus := csFirst;
         FMemory := GetDisplay;
         UpdateMemoryLabel;
       end;
     cbMR:
-      if FStatus in [csValid, csFirst] then
-      begin
+      if FStatus in [csValid, csFirst] then begin
         FStatus := csFirst;
         CheckFirst;
         SetDisplay(FMemory);
@@ -703,13 +617,11 @@ begin
       end;
     cbOk:
       begin
-        if FStatus <> csError then
-        begin
+        if FStatus <> csError then begin
           DisplayValue := DisplayValue; { to raise exception on error }
           if Assigned(FOnOk) then FOnOk(Self);
         end
-        else if FBeepOnError then
-          MessageBeep(0);
+        else if FBeepOnError then MessageBeep(0);
       end;
     cbCancel: if Assigned(FOnCancel) then FOnCancel(Self);
   end;
@@ -723,12 +635,12 @@ end;
 procedure TCalculatorPanel.Paste;
 begin
   if Clipboard.HasFormat(CF_TEXT) then
-  try
-    SetDisplay(StrToFloat(Trim(ReplaceStr(Clipboard.AsText,
-      {$IFDEF RX_D15}FormatSettings.{$ENDIF}CurrencyString, ''))));
-  except
-    SetText('0');
-  end;
+    try
+      SetDisplay(StrToFloat(Trim(ReplaceStr(Clipboard.AsText,
+        CurrencyString, ''))));
+    except
+      SetText('0');
+    end;
 end;
 
 { TLocCalculator }
@@ -747,9 +659,9 @@ constructor TLocCalculator.Create(AOwner: TComponent);
 begin
   inherited CreateLayout(AOwner, clPopup);
   ControlStyle := [csCaptureMouse, csClickEvents, csDoubleClicks];
-  {$IFNDEF VER80}
+{$IFDEF WIN32}
   ControlStyle := ControlStyle + [csReplicatable];
-  {$ENDIF}
+{$ENDIF}
   Enabled := False;
   TabStop := False;
 end;
@@ -763,12 +675,11 @@ end;
 procedure TLocCalculator.CreateParams(var Params: TCreateParams);
 begin
   inherited CreateParams(Params);
-  with Params do
-  begin
+  with Params do begin
     Style := Style and not (WS_TABSTOP or WS_DISABLED);
-    {$IFDEF RX_D4}
+{$IFDEF RX_D4}
     AddBiDiModeExStyle(ExStyle);
-    {$ENDIF}
+{$ENDIF}
   end;
 end;
 
@@ -782,20 +693,20 @@ type
     procedure ResultClick(Sender: TObject);
   protected
     procedure KeyPress(var Key: Char); override;
-    {$IFNDEF VER80}
+{$IFDEF WIN32}
     function GetValue: Variant; override;
     procedure SetValue(const Value: Variant); override;
-    {$ELSE}
+{$ELSE}
     function GetValue: string; override;
     procedure SetValue(const Value: string); override;
-    {$ENDIF}
+{$ENDIF}
   public
     constructor Create(AOwner: TComponent); override;
     function GetPopupText: string; override;
   end;
 
 function CreatePopupCalculator(AOwner: TComponent
-  {$IFDEF RX_D4}; ABiDiMode: TBiDiMode = bdLeftToRight{$ENDIF}): TWinControl;
+  {$IFDEF RX_D4}; ABiDiMode: TBiDiMode = bdLeftToRight {$ENDIF}): TWinControl;
 begin
   Result := TPopupCalculator.Create(AOwner);
   if (AOwner <> nil) and not (csDesigning in AOwner.ComponentState) and
@@ -806,9 +717,9 @@ begin
       font back to the original info. }
     TPopupCalculator(Result).FCalcPanel.ParentFont := True;
     SetDefaultFont(TPopupCalculator(Result).Font, clPopup);
-    {$IFDEF RX_D4}
+{$IFDEF RX_D4}
     Result.BiDiMode := ABiDiMode;
-    {$ENDIF}
+{$ENDIF}
   end;
 end;
 
@@ -818,8 +729,7 @@ begin
   if (PopupCalc = nil) or not (PopupCalc is TPopupCalculator) then
     Exit;
   if TPopupCalculator(PopupCalc).FCalcPanel <> nil then
-    with TPopupCalculator(PopupCalc).FCalcPanel do
-    begin
+    with TPopupCalculator(PopupCalc).FCalcPanel do begin
       FPrecision := Max(2, APrecision);
       FBeepOnError := ABeepOnError;
     end;
@@ -829,14 +739,12 @@ constructor TPopupCalculator.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   Height := 127;
-//  Width := 104;
-  Width := 137;
+  Width := 104;
   Color := clBtnFace;
   SetDefaultFont(Font, clPopup);
   if (csDesigning in ComponentState) then Exit;
   FCalcPanel := TLocCalculator.Create(Self);
-  with FCalcPanel do
-  begin
+  with FCalcPanel do begin
     Parent := Self;
     Align := alClient;
     BevelOuter := bvRaised;
@@ -853,21 +761,18 @@ begin
   inherited KeyPress(Key);
 end;
 
-{$IFNDEF VER80}
+{$IFDEF WIN32}
+
 function TPopupCalculator.GetValue: Variant;
 begin
-  if (csDesigning in ComponentState) then
-    Result := 0
-  else
-  begin
-    if FCalcPanel.FStatus <> csError then
-    begin
+  if (csDesigning in ComponentState) then Result := 0
+  else begin
+    if FCalcPanel.FStatus <> csError then begin
       { to raise exception on error }
       FCalcPanel.DisplayValue := FCalcPanel.DisplayValue;
       Result := FCalcPanel.DisplayValue;
     end
-    else
-    begin
+    else begin
       if FCalcPanel.FBeepOnError then MessageBeep(0);
       Result := 0;
     end;
@@ -877,8 +782,7 @@ end;
 procedure TPopupCalculator.SetValue(const Value: Variant);
 begin
   if not (csDesigning in ComponentState) then
-    with FCalcPanel do
-    begin
+    with FCalcPanel do begin
       try
         if VarIsNull(Value) or VarIsEmpty(Value) then
           DisplayValue := 0
@@ -898,18 +802,14 @@ function TPopupCalculator.GetValue: string;
 var
   D: Double;
 begin
-  if (csDesigning in ComponentState) or (FCalcPanel = nil) then
-    Result := '0'
-  else
-  begin
-    if FCalcPanel.FStatus <> csError then
-    begin
+  if (csDesigning in ComponentState) or (FCalcPanel = nil) then Result := '0'
+  else begin
+    if FCalcPanel.FStatus <> csError then begin
       { to raise exception on error }
       FCalcPanel.DisplayValue := FCalcPanel.DisplayValue;
       D := FCalcPanel.DisplayValue;
     end
-    else
-    begin
+    else begin
       if FCalcPanel.FBeepOnError then MessageBeep(0);
       D := 0;
     end;
@@ -919,23 +819,21 @@ end;
 
 procedure TPopupCalculator.SetValue(const Value: string);
 begin
-  if not (csDesigning in ComponentState) then
-  begin
-    with FCalcPanel do
-    begin
-      if Value = '' then
-        DisplayValue := 0
+  if not (csDesigning in ComponentState) then begin
+    with FCalcPanel do begin
+      if Value = '' then DisplayValue := 0
       else
-      try
-        DisplayValue := StrToFloat(Value);
-      except
-        DisplayValue := 0;
-      end;
+        try
+          DisplayValue := StrToFloat(Value);
+        except
+          DisplayValue := 0;
+        end;
       FStatus := csFirst;
       FOperator := '=';
     end;
   end;
 end;
+
 {$ENDIF}
 
 function TPopupCalculator.GetPopupText: string;
@@ -945,8 +843,7 @@ end;
 
 procedure TPopupCalculator.ResultClick(Sender: TObject);
 begin
-  if FCalcPanel.FStatus <> csError then
-  begin
+  if FCalcPanel.FStatus <> csError then begin
     FCalcPanel.DisplayValue := FCalcPanel.DisplayValue;
     CloseUp(True);
   end;
@@ -962,12 +859,7 @@ end;
 constructor TRxCalculator.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  {$IFDEF RX_D4} // Polaris
   FTitle := SCalculator;
-  {$ELSE}
-  FTitle := NullStr;
-  AssignStr(FTitle, SCalculator);
-  {$ENDIF}
   FCtl3D := True;
   FPrecision := DefCalcPrecision;
   FBeepOnError := True;
@@ -977,28 +869,17 @@ destructor TRxCalculator.Destroy;
 begin
   FOnChange := nil;
   FOnDisplayChange := nil;
-  {$IFNDEF RX_D4} // Polaris
-  DisposeStr(FTitle);
-  {$ENDIF}
   inherited Destroy;
 end;
 
 function TRxCalculator.GetTitle: string;
 begin
-  {$IFDEF RX_D4} // Polaris
   Result := FTitle;
-  {$ELSE}
-  Result := FTitle^;
-  {$ENDIF}
 end;
 
 procedure TRxCalculator.SetTitle(const Value: string);
 begin
-  {$IFDEF RX_D4} // Polaris
   FTitle := Value;
-  {$ELSE}
-  AssignStr(FTitle, Value);
-  {$ENDIF}
 end;
 
 function TRxCalculator.TitleStored: Boolean;
@@ -1010,8 +891,7 @@ function TRxCalculator.GetDisplay: Double;
 begin
   if Assigned(FCalc) then
     Result := TCalculatorPanel(FCalc.FCalcPanel).GetDisplay
-  else
-    Result := FValue;
+  else Result := FValue;
 end;
 
 procedure TRxCalculator.CalcKey(var Key: Char);
@@ -1040,18 +920,15 @@ begin
     TCalculatorPanel(FCalcPanel).UpdateMemoryLabel;
     TCalculatorPanel(FCalcPanel).FPrecision := Max(2, Self.Precision);
     TCalculatorPanel(FCalcPanel).FBeepOnError := Self.BeepOnError;
-    if Self.FValue <> 0 then
-    begin
+    if Self.FValue <> 0 then begin
       TCalculatorPanel(FCalcPanel).DisplayValue := Self.FValue;
       TCalculatorPanel(FCalcPanel).FStatus := csFirst;
       TCalculatorPanel(FCalcPanel).FOperator := '=';
     end;
     Result := (ShowModal = mrOk);
-    if Result then
-    begin
+    if Result then begin
       Self.FMemory := TCalculatorPanel(FCalcPanel).FMemory;
-      if (TCalculatorPanel(FCalcPanel).DisplayValue <> Self.FValue) then
-      begin
+      if (TCalculatorPanel(FCalcPanel).DisplayValue <> Self.FValue) then begin
         Self.FValue := TCalculatorPanel(FCalcPanel).DisplayValue;
         Change;
       end;
@@ -1070,11 +947,11 @@ var
   Popup: TPopupMenu;
   Items: array[0..1] of TMenuItem;
 begin
-  {$IFDEF CBUILDER}
+{$IFDEF CBUILDER}
   inherited CreateNew(AOwner, 0);
-  {$ELSE}
+{$ELSE}
   inherited CreateNew(AOwner);
-  {$ENDIF}
+{$ENDIF}
   BorderIcons := [biSystemMenu];
   BorderStyle := bsDialog;
   Caption := SCalculator;
@@ -1092,8 +969,7 @@ begin
   Popup.OnPopup := PopupMenuPopup;
   { MainPanel }
   FMainPanel := TPanel.Create(Self);
-  with FMainPanel do
-  begin
+  with FMainPanel do begin
     Align := alClient;
     Parent := Self;
     BevelOuter := bvLowered;
@@ -1102,8 +978,7 @@ begin
   end;
   { DisplayPanel }
   FDisplayPanel := TPanel.Create(Self);
-  with FDisplayPanel do
-  begin
+  with FDisplayPanel do begin
     SetBounds(6, 6, 230, 23);
     Parent := FMainPanel;
     BevelOuter := bvLowered;
@@ -1111,8 +986,7 @@ begin
     Ctl3D := False;
   end;
   Control := TPanel.Create(Self);
-  with TPanel(Control) do
-  begin
+  with TPanel(Control) do begin
     SetBounds(1, 1, 228, 21);
     Align := alClient;
     Parent := FDisplayPanel;
@@ -1123,8 +997,7 @@ begin
     ParentCtl3D := False;
   end;
   FDisplayLabel := TLabel.Create(Self);
-  with FDisplayLabel do
-  begin
+  with FDisplayLabel do begin
     AutoSize := False;
     Alignment := taRightJustify;
     SetBounds(5, 2, 217, 15);
@@ -1133,8 +1006,7 @@ begin
   end;
   { CalcPanel }
   FCalcPanel := TCalculatorPanel.CreateLayout(Self, clDialog);
-  with TCalculatorPanel(FCalcPanel) do
-  begin
+  with TCalculatorPanel(FCalcPanel) do begin
     Align := alBottom;
     Parent := FMainPanel;
     OnOkClick := Self.OkClick;

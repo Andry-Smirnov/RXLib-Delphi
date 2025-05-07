@@ -3,17 +3,16 @@
 {     Delphi VCL Extensions (RX) demo program           }
 {                                                       }
 {     Copyright (c) 1996 AO ROSNO                       }
-{     Copyright (c) 1997, 1998 Master-Bank              }
+{     Copyright (c) 1997 Master-Bank                    }
 {                                                       }
 {*******************************************************}
-
 unit OpenDlg;
 
 interface
 
 uses WinTypes, WinProcs, Classes, Graphics, Forms, Controls, Buttons,
-  StdCtrls, Mask, RxToolEdit, RXLookup, DB, RxDBLists, ExtCtrls, RxPlacemnt,
-  RxPicClip, DBTables;
+  StdCtrls, Mask, ToolEdit, RXLookup, DB, DBLists, ExtCtrls, Placemnt,
+  PicClip;
 
 type
   TOpenDatabaseDlg = class(TForm)
@@ -26,7 +25,7 @@ type
     Label2: TLabel;
     OkBtn: TButton;
     CancelBtn: TButton;
-    FormStorage: TFormStorage;
+    FormStorage1: TFormStorage;
     PicClip: TPicClip;
     procedure rxDBLookupCombo1Change(Sender: TObject);
     procedure DirectoryEdit1Change(Sender: TObject);
@@ -47,31 +46,7 @@ implementation
 
 {$R *.DFM}
 
-uses SysUtils, RxDBUtils, RxBdeUtils;
-
-type
-  TDBType = (dtSQL, dtStandard, dtODBC);
-
-const
-  NativeDrivers: array[0..6] of string = ('ORACLE', 'INTRBASE', 'SYBASE',
-    'INFORMIX', 'DB2', 'MSSQL', 'MSACCESS');
-
-function GetDBType(const DriverName: string): TDBType;
-var
-  I: Integer;
-begin
-  if CompareText(DriverName, 'STANDARD') = 0 then
-    Result := dtStandard
-  else begin
-    Result := dtODBC;
-    for I := Low(NativeDrivers) to High(NativeDrivers) do begin
-      if CompareText(DriverName, NativeDrivers[I]) = 0 then begin
-        Result := dtSQL;
-        Exit;
-      end;
-    end;
-  end;
-end;
+uses SysUtils, DBUtils, BdeUtils;
 
 function GetOpenDatabase(var DBName: string): Boolean;
 begin
@@ -115,14 +90,15 @@ procedure TOpenDatabaseDlg.DBLookupComboGetImage(Sender: TObject;
 begin
   TextMargin := PicClip.Width + 2;
   if not IsEmpty then begin
-    Graphic := PicClip.GraphicCell[Ord(GetDBType(
-      DatabaseList.FieldByName('DBTYPE').AsString))];
+    if CompareText(DatabaseList.FieldByName('DBTYPE').AsString, 'STANDARD') = 0
+      then Graphic := PicClip.GraphicCell[1]
+    else Graphic := PicClip.GraphicCell[0];
   end;
 end;
 
 procedure TOpenDatabaseDlg.FormCreate(Sender: TObject);
 begin
-{$IFNDEF VER80}
+{$IFDEF WIN32}
   DirectoryEdit1.DialogText := 'Select a path to the target database.';
   DirectoryEdit1.DialogKind := dkWin32;
 {$ENDIF}

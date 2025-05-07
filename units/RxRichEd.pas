@@ -2,30 +2,29 @@
 {                                                       }
 {         Delphi VCL Extensions (RX)                    }
 {                                                       }
-{         Copyright (c) 1998 Master-Bank                }
+{         Copyright (c) 2001,2002 SGB Software          }
+{         Copyright (c) 1997, 1998 Fedor Koshevnikov,   }
+{                        Igor Pavluk and Serge Korolev  }
 {                                                       }
-{ Revision and enhancements added by JB.                }
 {*******************************************************}
+
 
 unit RxRichEd;
 
 {$I RX.INC}
 
 {.$DEFINE RICHEDIT_VER_10}
-{$DEFINE RX_ENH} {last enhancement}
-{$DEFINE RX_ENHPRINT} {for better print preview}
+
 {$R-}
 
 interface
 
 uses Windows, {$IFDEF RX_D3} ActiveX, ComObj {$ELSE} Ole2, OleAuto {$ENDIF},
   CommCtrl, Messages, SysUtils, Classes, Controls, Forms, Graphics, StdCtrls,
-  {$IFDEF RX_D6}Types, {$ENDIF} {$IFDEF RX_D16}System.UITypes,{$ENDIF}
-  {$IFDEF RX_D18}System.AnsiStrings,{$ENDIF}
   Dialogs, RichEdit, Menus, ComCtrls;
 
 type
-  TRichEditVersion = 1..4;
+  TRichEditVersion = 1..3;
 
 {$IFNDEF RX_D3}
 
@@ -97,14 +96,10 @@ type
   TRxAttributeType = (atDefaultText, atSelected, atWord);
   TRxConsistentAttribute = (caBold, caColor, caFace, caItalic, caSize,
     caStrikeOut, caUnderline, caProtected, caOffset, caHidden, caLink,
-    caBackColor, caDisabled, caWeight, caSubscript, caRevAuthor,
-    caLanguage, caIndexKind, caSpacing, caKerning, caULType, caAnimation,
-    caSmallCaps, caAllCaps, caOutline, caShadow, caEmboss, caImprint, caURL);
+    caBackColor, caDisabled, caWeight, caSubscript, caRevAuthor);
   TRxConsistentAttributes = set of TRxConsistentAttribute;
   TSubscriptStyle = (ssNone, ssSubscript, ssSuperscript);
   TUnderlineType = (utNone, utSolid, utWord, utDouble, utDotted, utWave);
-  TAnimationType = (aniNone, aniLasVegas, aniBlink, aniSparkle, aniBlackAnts,
-                    aniRedAnts, aniShimmer);
 
   TRxTextAttributes = class(TPersistent)
   private
@@ -132,13 +127,7 @@ type
     function GetRevAuthorIndex: Byte;
     function GetSize: Integer;
     function GetStyle: TFontStyles;
-    function GetSpacing: Double;
-    procedure SetSpacing(Value: Double);
-    function GetKerning: Double;
-    procedure SetKerning(Value: Double);
     function GetUnderlineType: TUnderlineType;
-    function GetAnimation: TAnimationType;
-    procedure SetAnimation(Value: TAnimationType);
     procedure SetAttributes(var Format: TCharFormat2);
     procedure SetBackColor(Value: TColor);
     procedure SetColor(Value: TColor);
@@ -154,18 +143,6 @@ type
     procedure SetSize(Value: Integer);
     procedure SetStyle(Value: TFontStyles);
     procedure SetUnderlineType(Value: TUnderlineType);
-    function GetSmallCaps: Boolean;
-    procedure SetSmallCaps(Value: Boolean);
-    function GetAllCaps: Boolean;
-    procedure SetAllCaps(Value: Boolean);
-    function GetOutline: Boolean;
-    procedure SetOutline(Value: Boolean);
-    function GetShadow: Boolean;
-    procedure SetShadow(Value: Boolean);
-    function GetEmboss: Boolean;
-    procedure SetEmboss(Value: Boolean);
-    function GetImprint: Boolean;
-    procedure SetImprint(Value: Boolean);
   protected
     procedure InitFormat(var Format: TCharFormat2);
     procedure AssignTo(Dest: TPersistent); override;
@@ -190,16 +167,7 @@ type
     property Size: Integer read GetSize write SetSize;
     property Style: TFontStyles read GetStyle write SetStyle;
     property Height: Integer read GetHeight write SetHeight;
-    property Spacing: Double read GetSpacing write SetSpacing;
-    property Kerning: Double read GetKerning write SetKerning;
     property UnderlineType: TUnderlineType read GetUnderlineType write SetUnderlineType;
-    property Animation: TAnimationType read GetAnimation write SetAnimation; 
-    property SmallCaps: Boolean read GetSmallCaps write SetSmallCaps;
-    property AllCaps: Boolean read GetAllCaps write SetAllCaps;
-    property Outline: Boolean read GetOutline write SetOutline;
-    property Shadow: Boolean read GetShadow write SetShadow;
-    property Emboss: Boolean read GetEmboss write SetEmboss;
-    property Imprint: Boolean read GetImprint write SetImprint;
   end;
 
 { TRxParaAttributes }
@@ -275,13 +243,8 @@ type
 
   TOEMConversion = class(TConversion)
   public
-{$IFDEF RX_D12}
-    function ConvertReadStream(Stream: TStream; Buffer: TConversionBuffer; BufSize: Integer): Integer; override;
-    function ConvertWriteStream(Stream: TStream; Buffer: TConversionBuffer; BufSize: Integer): Integer; override;
-{$ELSE}
     function ConvertReadStream(Stream: TStream; Buffer: PChar; BufSize: Integer): Integer; override;
     function ConvertWriteStream(Stream: TStream; Buffer: PChar; BufSize: Integer): Integer; override;
-{$ENDIF}
   end;
 
 { TRxCustomRichEdit }
@@ -295,7 +258,7 @@ type
     rlImeAlwaysSendNotify);
   TRichLangOptions = set of TRichLangOption;
   TRichStreamFormat = (sfDefault, sfRichText, sfPlainText);
-  TRichStreamMode = (smSelection, smPlainRtf, smNoObjects{$IFNDEF RX_D12}, smUnicode{$ENDIF});
+  TRichStreamMode = (smSelection, smPlainRtf, smNoObjects, smUnicode);
   TRichStreamModes = set of TRichStreamMode;
   TRichEditURLClickEvent = procedure(Sender: TObject; const URLText: string;
     Button: TMouseButton) of object;
@@ -316,9 +279,6 @@ type
 
   TRxCustomRichEdit = class(TCustomMemo)
   private
-  {$IFDEF RX_ENHPRINT}
-    fdrawendpage : boolean;
-  {$ENDIF RX_ENHPRINT}
     FHideScrollBars: Boolean;
     FSelectionBar: Boolean;
     FAutoURLDetect: Boolean;
@@ -424,10 +384,6 @@ type
 {$IFDEF RX_D5}
     procedure WMRButtonUp(var Message: TMessage); message WM_RBUTTONUP;
 {$ENDIF}
-{$IFDEF RX_ENH}
-    function  GetRtfSelText: String;
-    procedure SetRtfSelText(const sRtf: String);
-{$ENDIF}
   protected
     procedure CreateParams(var Params: TCreateParams); override;
     procedure CreateWindowHandle(const Params: TCreateParams); override;
@@ -485,11 +441,6 @@ type
       write FOnCloseFindDialog;
 {$ENDIF}
   public
-  {$IFDEF RX_ENHPRINT} 
-    PercentDone:byte;
-    PrnPreviews:TList;
-    PrnPreview:Tmetafile;
-  {$ENDIF RX_ENHPRINT}
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure Clear; {$IFDEF RX_D3} override; {$ENDIF}
@@ -513,9 +464,6 @@ type
     function ReplaceDialog(const SearchStr, ReplaceStr: string): TReplaceDialog;
     function FindNext: Boolean;
     procedure Print(const Caption: string); virtual;
-  {$IFDEF RX_ENHPRINT}
-    procedure CreatePrnPrew(const Caption: string); virtual;
-  {$ENDIF RX_ENHPRINT}
     class procedure RegisterConversionFormat(const AExtension: string;
       APlainText: Boolean; AConversionClass: TConversionClass);
     procedure ClearUndo;
@@ -539,21 +487,10 @@ type
     property PageRect: TRect read FPageRect write FPageRect;
     property Paragraph: TRxParaAttributes read FParagraph;
     property SelectionType: TRichSelectionType read GetSelectionType;
-{$IFDEF RX_ENH}
-    property LinesUpdating: Boolean read FLinesUpdating write FLinesUpdating;//при сборке строки из кусочков, чтобы не мерцало выделение
-    property RtfSelText: String read GetRtfSelText write SetRtfSelText;//выделеный текст в native формате
-    property LinkClickRange: TCharRange read FClickRange;//+GetTextRange на чём кликнули
-{$ENDIF}
-  {$IFDEF RX_ENHPRINT}
-    property DrawEndPage: Boolean read FDrawEndPage write FDrawEndPage;
-  {$ENDIF RX_ENHPRINT}
   end;
 
   TRxRichEdit = class(TRxCustomRichEdit)
   published
-  {$IFDEF RX_ENHPRINT} 
-    property DrawEndPage;
-  {$ENDIF RX_ENHPRINT}
     property Align;
     property Alignment;
     property AutoURLDetect;
@@ -652,9 +589,8 @@ var
 
 implementation
 
-uses Printers, ComStrs, OleConst, OleDlg, {$IFDEF RX_D3} OleCtnrs, {$ENDIF}
-  {$IFDEF RX_D12}CommDlg,{$ENDIF}
-  RxMaxMin;
+uses Printers, ComStrs, OleConst, OleDlg {$IFDEF RX_D3}, OleCtnrs {$ENDIF},
+  MaxMin;
 
 const
   RTFConversionFormat: TRichConversionFormat = (
@@ -674,15 +610,12 @@ var
 const
   RichEdit10ModuleName = 'RICHED32.DLL';
   RichEdit20ModuleName = 'RICHED20.DLL';
-  RichEdit41ModuleName = 'MSFTEDIT.DLL';
 {$IFNDEF RX_D3}
   RICHEDIT_CLASSA      = 'RichEdit20A';     { Richedit 2.0 Window Class }
   RICHEDIT_CLASSW      = 'RichEdit20W';     { Richedit 2.0 Unicode }
   RICHEDIT_CLASS10A    = 'RICHEDIT';        { Richedit 1.0 }
   RICHEDIT_CLASS       = RICHEDIT_CLASSA;
 {$ENDIF}
-  MSFTEDIT_CLASS       = 'RichEdit50W'; //comes with RichEdit 4.1 (beginning in Win XP SP2)
-
 
 {$IFNDEF RX_D3}
 
@@ -922,8 +855,7 @@ const
 type
   PENLink = ^TENLink;
   PENOleOpFailed = ^TENOleOpFailed;
-
-  TFindTextEx = {$IFDEF RX_D12}TFindTextExW{$ELSE}TFindTextExA{$ENDIF};
+  TFindTextEx = TFindTextExA;
 
   TTextRangeA = record
     chrg: TCharRange;
@@ -933,7 +865,7 @@ type
     chrg: TCharRange;
     lpstrText: PWideChar;
   end;
-  TTextRange = {$IFDEF RX_D12}TTextRangeW{$ELSE}TTextRangeA{$ENDIF};
+  TTextRange = TTextRangeA;
 
 {$IFDEF RX_D3}
 function ResStr(const Ident: string): string;
@@ -987,17 +919,6 @@ begin
       if (dwMask and CFM_UNDERLINE) <> 0 then Include(Result, caUnderline);
       if (dwMask and CFM_PROTECTED) <> 0 then Include(Result, caProtected);
       if (dwMask and CFM_OFFSET) <> 0 then Include(Result, caOffset);
-      if (dwMask and CFM_SPACING) <> 0 then Include(Result, caSpacing);
-      if (dwMask and CFM_KERNING) <> 0 then Include(Result, caKerning);
-      if (dwMask and CFM_UNDERLINETYPE) <> 0 then Include(Result, caULType);
-      if (dwMask and CFM_ANIMATION) <> 0 then Include(Result, caAnimation);
-      if (dwMask and CFM_SMALLCAPS) <> 0 then Include(Result, caSmallCaps);
-      if (dwMask and CFM_ALLCAPS) <> 0 then Include(Result, caAllCaps);
-      if (dwMask and CFM_HIDDEN) <> 0 then Include(Result, caHidden);
-      if (dwMask and CFM_OUTLINE) <> 0 then Include(Result, caOutline);
-      if (dwMask and CFM_SHADOW) <> 0 then Include(Result, caShadow);
-      if (dwMask and CFM_EMBOSS) <> 0 then Include(Result, caEmboss);
-      if (dwMask and CFM_IMPRINT) <> 0 then Include(Result, caImprint);
       if (dwMask and CFM_HIDDEN) <> 0 then Include(result, caHidden);
       if RichEditVersion >= 2 then begin
         if (dwMask and CFM_LINK) <> 0 then Include(Result, caLink);
@@ -1218,7 +1139,7 @@ var
   Format: TCharFormat2;
 begin
   GetAttributes(Format);
-  Result := TFontName(Format.szFaceName);
+  Result := Format.szFaceName;
 end;
 
 procedure TRxTextAttributes.SetName(Value: TFontName);
@@ -1228,7 +1149,7 @@ begin
   InitFormat(Format);
   with Format do begin
     dwMask := CFM_FACE;
-    {$IFDEF RX_D18}System.AnsiStrings.{$ENDIF}StrPLCopy(szFaceName, AnsiString(Value), SizeOf(szFaceName));
+    StrPLCopy(szFaceName, Value, SizeOf(szFaceName));
   end;
   SetAttributes(Format);
 end;
@@ -1262,62 +1183,6 @@ begin
   SetAttributes(Format);
 end;
 
-function TRxTextAttributes.GetSpacing: Double;
-var
-  Format: TCharFormat2;
-begin
-  if RichEditVersion < 2 then
-    begin
-      Result:= 0;
-      Exit;
-    end;
-  GetAttributes(Format);
-  Result := Format.sSpacing/20;
-end;
-
-procedure TRxTextAttributes.SetSpacing(Value: Double);
-var
-  Format: TCharFormat2;
-begin
-  if RichEditVersion < 2 then
-    Exit;
-  InitFormat(Format);
-  with Format do
-  begin
-    dwMask := CFM_SPACING;
-    sSpacing := Round(Value*20);
-  end;
-  SetAttributes(Format);
-end;
-
-function TRxTextAttributes.GetKerning: Double;
-var
-  Format: TCharFormat2;
-begin
-  if RichEditVersion < 2 then
-    begin
-      Result:= 0;
-      Exit;
-    end;
-  GetAttributes(Format);
-  Result := Format.wKerning/20;
-end;
-
-procedure TRxTextAttributes.SetKerning(Value: Double);
-var
-  Format: TCharFormat2;
-begin
-  if RichEditVersion < 2 then
-    Exit;
-  InitFormat(Format);
-  with Format do
-  begin
-    dwMask := CFM_KERNING;
-    wKerning := Round(Value*20);
-  end;
-  SetAttributes(Format);
-end;
-
 function TRxTextAttributes.GetUnderlineType: TUnderlineType;
 var
   Format: TCharFormat2;
@@ -1342,208 +1207,6 @@ begin
     dwMask := CFM_UNDERLINETYPE or CFM_UNDERLINE;
     bUnderlineType := Ord(Value);
     if Value <> utNone then dwEffects := dwEffects or CFE_UNDERLINE;
-  end;
-  SetAttributes(Format);
-end;
-
-function TRxTextAttributes.GetSmallCaps: Boolean;
-var
-  Format: TCharFormat2;
-begin
-  if RichEditVersion < 2 then
-    begin
-      Result:= False;
-      Exit;
-    end;
-  GetAttributes(Format);
-  Result := Format.dwEffects and CFE_SMALLCAPS <>0;
-end;
-
-procedure TRxTextAttributes.SetSmallCaps(Value: Boolean);
-var
-  Format: TCharFormat2;
-begin
-  if RichEditVersion < 2 then
-    Exit;
-  InitFormat(Format);
-  with Format do
-  begin
-    dwMask := CFM_SMALLCAPS;
-    if Value then
-      dwEffects:= CFE_SMALLCAPS;
-  end;
-  SetAttributes(Format);
-end;
-
-function TRxTextAttributes.GetAllCaps: Boolean;
-var
-  Format: TCharFormat2;
-begin
-  if RichEditVersion < 2 then
-    begin
-      Result:= False;
-      Exit;
-    end;
-  GetAttributes(Format);
-  Result := Format.dwEffects and CFE_ALLCAPS <>0;
-end;
-
-procedure TRxTextAttributes.SetAllCaps(Value: Boolean);
-var
-  Format: TCharFormat2;
-begin
-  if RichEditVersion < 2 then
-    Exit;
-  InitFormat(Format);
-  with Format do
-  begin
-    dwMask := CFM_ALLCAPS;
-    if Value then
-      dwEffects:= CFE_ALLCAPS;
-  end;
-  SetAttributes(Format);
-end;
-
-function TRxTextAttributes.GetOutline: Boolean;
-var
-  Format: TCharFormat2;
-begin
-  if RichEditVersion < 2 then
-    begin
-      Result:= False;
-      Exit;
-    end;
-  GetAttributes(Format);
-  Result := Format.dwEffects and CFE_OUTLINE <>0;
-end;
-
-procedure TRxTextAttributes.SetOutline(Value: Boolean);
-var
-  Format: TCharFormat2;
-begin
-  if RichEditVersion < 2 then
-    Exit;
-  InitFormat(Format);
-  with Format do
-  begin
-    dwMask := CFM_OUTLINE;
-    if Value then
-      dwEffects:= CFE_OUTLINE;
-  end;
-  SetAttributes(Format);
-end;
-
-function TRxTextAttributes.GetShadow: Boolean;
-var
-  Format: TCharFormat2;
-begin
-  if RichEditVersion < 2 then
-    begin
-      Result:= False;
-      Exit;
-    end;
-  GetAttributes(Format);
-  Result := Format.dwEffects and CFE_SHADOW <>0;
-end;
-
-procedure TRxTextAttributes.SetShadow(Value: Boolean);
-var
-  Format: TCharFormat2;
-begin
-  if RichEditVersion < 2 then
-    Exit;
-  InitFormat(Format);
-  with Format do
-  begin
-    dwMask := CFM_SHADOW;
-    if Value then
-      dwEffects:= CFE_SHADOW;
-  end;
-  SetAttributes(Format);
-end;
-
-function TRxTextAttributes.GetEmboss: Boolean;
-var
-  Format: TCharFormat2;
-begin
-  if RichEditVersion < 2 then
-    begin
-      Result:= False;
-      Exit;
-    end;
-  GetAttributes(Format);
-  Result := Format.dwEffects and CFE_EMBOSS <>0;
-end;
-
-procedure TRxTextAttributes.SetEmboss(Value: Boolean);
-var
-  Format: TCharFormat2;
-begin
-  if RichEditVersion < 2 then
-    Exit;
-  InitFormat(Format);
-  with Format do
-  begin
-    dwMask := CFM_EMBOSS;
-    if Value then
-      dwEffects:= CFE_EMBOSS;
-  end;
-  SetAttributes(Format);
-end;
-
-function TRxTextAttributes.GetImprint: Boolean;
-var
-  Format: TCharFormat2;
-begin
-  if RichEditVersion < 2 then
-    begin
-      Result:= False;
-      Exit;
-    end;
-  GetAttributes(Format);
-  Result := Format.dwEffects and CFE_IMPRINT <>0;
-end;
-
-procedure TRxTextAttributes.SetImprint(Value: Boolean);
-var
-  Format: TCharFormat2;
-begin
-  if RichEditVersion < 2 then
-    Exit;
-  InitFormat(Format);
-  with Format do
-  begin
-    dwMask := CFM_IMPRINT;
-    if Value then
-      dwEffects:= CFE_IMPRINT;
-  end;
-  SetAttributes(Format);
-end;
-
-function TRxTextAttributes.GetAnimation: TAnimationType;
-var
-  Format: TCharFormat2;
-begin
-  if RichEditVersion < 2 then
-    begin
-      Result:= aniNone;
-      Exit;
-    end;
-  GetAttributes(Format);
-  Result := TAnimationType(Format.bAnimation);
-end;
-
-procedure TRxTextAttributes.SetAnimation(Value: TAnimationType);
-var
-  Format: TCharFormat2;
-begin
-  if RichEditVersion < 2 then
-    Exit;
-  InitFormat(Format);
-  with Format do
-  begin
-    dwMask := CFM_ANIMATION;
-    bAnimation := Byte(Value);
   end;
   SetAttributes(Format);
 end;
@@ -1676,7 +1339,7 @@ begin
     if fsItalic in Font.Style then dwEffects := dwEffects or CFE_ITALIC;
     if fsUnderline in Font.Style then dwEffects := dwEffects or CFE_UNDERLINE;
     if fsStrikeOut in Font.Style then dwEffects := dwEffects or CFE_STRIKEOUT;
-    {$IFDEF RX_D18}System.AnsiStrings.{$ENDIF}StrPLCopy(szFaceName, Ansistring(Font.Name), SizeOf(szFaceName));
+    StrPLCopy(szFaceName, Font.Name, SizeOf(szFaceName));
     if (Font.Color = clWindowText) or (Font.Color = clDefault) then
       dwEffects := CFE_AUTOCOLOR
     else crTextColor := ColorToRGB(Font.Color);
@@ -3099,10 +2762,10 @@ begin
     MB_OK or MB_ICONSTOP);
 end;
 {$ELSE}
-procedure LinkError(Ident: string{Integer});
+procedure LinkError(Ident: Integer);
 begin
-  Application.MessageBox(PChar({LoadStr(}Ident{)}),
-    PChar({LoadStr(}SLinkProperties{)}), MB_OK or MB_ICONSTOP);
+  Application.MessageBox(PChar(LoadStr(Ident)),
+    PChar(LoadStr(SLinkProperties)), MB_OK or MB_ICONSTOP);
 end;
 {$ENDIF}
 
@@ -3281,13 +2944,10 @@ type
     procedure AddStrings(Strings: TStrings); override;
     procedure Delete(Index: Integer); override;
     procedure Insert(Index: Integer; const S: string); override;
-{$IFDEF RX_D12}
     procedure LoadFromFile(const FileName: string); override;
-{$ENDIF}
-    procedure LoadFromFile(const FileName: string{$IFDEF RX_D12}; Encoding: TEncoding{$ENDIF}); override;
-    procedure LoadFromStream(Stream: TStream{$IFDEF RX_D12}; Encoding: TEncoding{$ENDIF}); override;
-    procedure SaveToFile(const FileName: string{$IFDEF RX_D12}; Encoding: TEncoding{$ENDIF}); override;
-    procedure SaveToStream(Stream: TStream{$IFDEF RX_D12}; Encoding: TEncoding{$ENDIF});override;
+    procedure LoadFromStream(Stream: TStream); override;
+    procedure SaveToFile(const FileName: string); override;
+    procedure SaveToStream(Stream: TStream); override;
     property Format: TRichStreamFormat read FFormat write FFormat;
     property Mode: TRichStreamModes read FMode write FMode;
   end;
@@ -3451,56 +3111,6 @@ begin
   end;
 end;
 
-{$IFDEF RX_D12}
-function AdjustLineBreaks(Dest: PByte; Source: TBytes; Start, Len: Integer): Integer;
-var
-  P: PByte;
-  I: Integer;
-begin
-  I := Start; // Position in Source
-  P := Dest;
-  while I < (Len - 1) do
-  begin
-    if (Source[I] = 10) and (Source[I + 1] = 0) then
-    begin
-      // Convert #10 to #13#10
-      P^ := 13;
-      Inc(P);
-      P^ := 0;
-      Inc(P);
-      P^ := 10;
-      Inc(P);
-      P^ := 0;
-      Inc(P);
-    end
-    else
-    begin
-      P^ := Source[I];
-      Inc(P);
-      P^ := Source[I + 1];
-      Inc(P);
-      if (Source[I] = 13) and (Source[I + 1] = 0) then
-      begin
-        // Convert #13 to #13#10
-        P^ := 10;
-        Inc(P);
-        P^ := 0;
-        Inc(P);
-        // Skip #10 if preceeded by #13
-        if (Source[I + 2] = 10) and (Source[I + 3] = 0) then
-          Inc(I, 2);
-      end;
-    end;
-    Inc(I, 2);
-  end;
-  if I = Len - 1 then
-  begin
-    P^ := Source[I];
-    Inc(P);
-  end;
-  Result := Integer(P) - Integer(Dest);
-end;
-{$ELSE}
 function AdjustLineBreaks(Dest, Source: PChar): Integer; assembler;
 asm
         PUSH    ESI
@@ -3532,51 +3142,7 @@ asm
         POP     EDI
         POP     ESI
 end;
-{$ENDIF}
 
-{$IFDEF RX_D12}
-{$IFDEF RX_D19}
-function StreamSave(dwCookie: DWORD_PTR; pbBuff: PByte;
-    cb: Longint; var pcb: Longint): Longint; stdcall;
-{$ELSE}
-function StreamSave(dwCookie: Longint; pbBuff: PByte;
-  cb: Longint; var pcb: Longint): Longint; stdcall;
-{$ENDIF}
-var
-  StreamInfo: TRichEditStreamInfo;
-  Buffer: TBytes;
-begin
-  Result := NoError;
-  StreamInfo := PRichEditStreamInfo(dwCookie)^;
-  try
-    pcb := 0;
-    if StreamInfo.Converter <> nil then
-    begin
-      SetLength(Buffer, cb);
-      Move(pbBuff^, Buffer[0], cb);
-
-      // Convert from Unicode to Encoding if PlainText is set
-      if StreamInfo.PlainText then
-      begin
-        if StreamInfo.Encoding = nil then
-          Buffer := TEncoding.Convert(TEncoding.Unicode, TEncoding.Default, Buffer)
-        else
-        begin
-          if not TEncoding.Unicode.Equals(StreamInfo.Encoding) then
-            Buffer := TEncoding.Convert(TEncoding.Unicode, StreamInfo.Encoding, Buffer);
-        end;
-      end;
-
-      pcb := StreamInfo.Converter.ConvertWriteStream(StreamInfo.Stream, Buffer, Length(Buffer));
-      // Length(Buffer) may be different from 'cb' if we converted the char set
-      if (pcb <> cb) and (pcb = Length(Buffer)) then
-        pcb := cb; // Fake the number of bytes written
-    end;
-  except
-    Result := WriteError;
-  end;
-end;
-{$ELSE}
 function StreamSave(dwCookie: Longint; pbBuff: PByte;
   cb: Longint; var pcb: Longint): Longint; stdcall;
 var
@@ -3592,66 +3158,7 @@ begin
     Result := WriteError;
   end;
 end;
-{$ENDIF}
 
-{$IFDEF RX_D12}
-{$IFDEF RX_D19}
-function StreamLoad(dwCookie: DWORD_PTR; pbBuff: PByte;
-    cb: Longint; var pcb: Longint): Longint; stdcall;
-{$ELSE}
-function StreamLoad(dwCookie: Longint; pbBuff: PByte;
-  cb: Longint; var pcb: Longint): Longint; stdcall;
-{$ENDIF}
-var
-  Buffer, Preamble: TBytes;
-  StreamInfo: TRichEditStreamInfo;
-  StartIndex: Integer;
-begin
-  Result := NoError;
-  StreamInfo := PRichEditStreamInfo(dwCookie)^;
-  SetLength(Buffer, cb + 1);
-  cb := cb div 2;
-  if (cb mod 2) > 0 then
-    cb := cb -1 ;
-  StartIndex := 0;
-  pcb := 0;
-  try
-    if StreamInfo.Converter <> nil then
-      pcb := StreamInfo.Converter.ConvertReadStream(StreamInfo.Stream, Buffer, cb);
-    if pcb > 0 then
-    begin
-      Buffer[pcb] := 0;
-      if Buffer[pcb - 1] = 13 then
-        Buffer[pcb - 1] := 0;
-
-      // Convert from desired Encoding to Unicode
-      if StreamInfo.PlainText then
-      begin
-        if StreamInfo.Encoding = nil then
-        begin
-          Buffer := TEncoding.Convert(TEncoding.Default, TEncoding.Unicode, Buffer, 0, pcb);
-          pcb := Length(Buffer);
-        end
-        else
-        begin
-          if not TEncoding.Unicode.Equals(StreamInfo.Encoding) then
-          begin
-            Buffer := TEncoding.Convert(StreamInfo.Encoding, TEncoding.Unicode, Buffer, 0, pcb);
-            pcb := Length(Buffer);
-          end;
-          // If Unicode preamble is present, set StartIndex to skip over it
-          Preamble := TEncoding.Unicode.GetPreamble;
-          if (pcb >= 2) and (Buffer[0] = Preamble[0]) and (Buffer[1] = Preamble[1]) then
-            StartIndex := 2;
-        end;
-      end;
-      pcb := AdjustLineBreaks(pbBuff, Buffer, StartIndex, pcb);
-    end;
-  except
-    Result := ReadError;
-  end;
-end;
-{$ELSE}
 function StreamLoad(dwCookie: Longint; pbBuff: PByte;
   cb: Longint; var pcb: Longint): Longint; stdcall;
 var
@@ -3682,127 +3189,47 @@ begin
     StrDispose(Buffer);
   end;
 end;
-{$ENDIF}
 
-{$IFDEF RX_D12}
-function ContainsPreamble(Stream: TStream; Signature: TBytes): Boolean;
-var
-  Buffer: TBytes;
-  I, LBufLen, LSignatureLen, LPosition: Integer;
-begin
-  Result := True;
-  LSignatureLen := Length(Signature);
-  LPosition := Stream.Position;
-  try
-    SetLength(Buffer, LSignatureLen);
-    LBufLen := Stream.Read(Buffer[0], LSignatureLen);
-  finally
-    Stream.Position := LPosition;
-  end;
-
-  if LBufLen = LSignatureLen then
-  begin
-    for I := 1 to LSignatureLen do
-      if Buffer[I - 1] <> Signature [I - 1] then
-      begin
-        Result := False;
-        Break;
-      end;
-  end
-  else
-    Result := False;
-end;
-{$ENDIF}
-
-procedure TRichEditStrings.LoadFromStream(Stream: TStream{$IFDEF RX_D12}; Encoding: TEncoding{$ENDIF});
+procedure TRichEditStrings.LoadFromStream(Stream: TStream);
 var
   EditStream: TEditStream;
   Position: Longint;
   TextType: Longint;
   StreamInfo: TRichEditStreamInfo;
   Converter: TConversion;
-{$IFDEF RX_D12}
-  PlainText: Boolean;
-{$ENDIF}
 begin
-{$IFDEF RX_D12}
-  if Encoding = nil then
-  begin
-    // Find the appropraite encoding
-    if ContainsPreamble(Stream, TEncoding.Unicode.GetPreamble) then
-      Encoding := TEncoding.Unicode
-    else
-      if ContainsPreamble(Stream, TEncoding.BigEndianUnicode.GetPreamble) then
-        Encoding := TEncoding.BigEndianUnicode
-      else
-        if ContainsPreamble(Stream, TEncoding.UTF8.GetPreamble) then
-          Encoding := TEncoding.UTF8
-        else
-          Encoding := TEncoding.Default;
-  end;
-{$ENDIF}
   StreamInfo.Stream := Stream;
-  if FConverter <> nil then
-    Converter := FConverter
-  else
-    Converter := RichEdit.DefaultConverter.Create;
+  if FConverter <> nil then Converter := FConverter
+  else Converter := RichEdit.DefaultConverter.Create;
   StreamInfo.Converter := Converter;
-{$IFDEF RX_D12}
-  PlainText:= (FFormat = sfPlainText) or
-                        ((FFormat = sfDefault) and (RichEdit.PlainText = True));
-  StreamInfo.PlainText:= PlainText;
-  StreamInfo.Encoding := Encoding;
-{$ENDIF}
   try
     with EditStream do
     begin
-{$IFDEF RX_D12}
-      dwCookie := DWORD_PTR(@StreamInfo);
-      pfnCallBack := StreamLoad;
-{$ELSE}
       dwCookie := Longint(Pointer(@StreamInfo));
       pfnCallBack := @StreamLoad;
-{$ENDIF}
       dwError := 0;
     end;
     Position := Stream.Position;
     case FFormat of
       sfDefault:
-        if RichEdit.PlainText then
-          TextType := SF_TEXT
-        else
-          TextType := SF_RTF;
+        if RichEdit.PlainText then TextType := SF_TEXT
+        else TextType := SF_RTF;
       sfRichText: TextType := SF_RTF;
-      else {sfPlainText}
-        TextType := SF_TEXT;
+      else {sfPlainText} TextType := SF_TEXT;
     end;
-    if TextType = SF_RTF then
-    begin
-      if smPlainRtf in Mode then
-        TextType := TextType or SFF_PLAINRTF;
-    end
-    else
-    if TextType = SF_TEXT then
-    begin
-{$IFNDEF RX_D12}
+    if TextType = SF_RTF then begin
+      if smPlainRtf in Mode then TextType := TextType or SFF_PLAINRTF;
+    end;
+    if TextType = SF_TEXT then begin
       if (smUnicode in Mode) and (RichEditVersion > 1) then
-{$ENDIF}
         TextType := TextType or SF_UNICODE;
     end;
-    if smSelection in Mode then
-      TextType := TextType or SFF_SELECTION;
+    if smSelection in Mode then TextType := TextType or SFF_SELECTION;
     SendMessage(RichEdit.Handle, EM_STREAMIN, TextType, Longint(@EditStream));
-
-    if (EditStream.dwError <> 0) then
-    begin
+    if (EditStream.dwError <> 0) then begin
       Stream.Position := Position;
-      if (TextType and SF_RTF = SF_RTF) then
-        TextType := SF_TEXT{$IFNDEF RX_D12} or SF_UNICODE{$ENDIF}
-      else
-        TextType := SF_RTF;
-{$IFDEF RX_D12}
-      StreamInfo.PlainText := not PlainText;
-{$ENDIF}
+      if (TextType and SF_RTF = SF_RTF) then TextType := SF_TEXT
+      else TextType := SF_RTF;
       SendMessage(RichEdit.Handle, EM_STREAMIN, TextType, Longint(@EditStream));
       if EditStream.dwError <> 0 then
         raise EOutOfResources.Create(ResStr(sRichEditLoadFail));
@@ -3813,72 +3240,40 @@ begin
   end;
 end;
 
-procedure TRichEditStrings.SaveToStream(Stream: TStream{$IFDEF RX_D12}; Encoding: TEncoding{$ENDIF});
+procedure TRichEditStrings.SaveToStream(Stream: TStream);
 var
   EditStream: TEditStream;
   TextType: Longint;
   StreamInfo: TRichEditStreamInfo;
   Converter: TConversion;
-{$IFDEF RX_D12}
-  Preamble: TBytes;
-{$ENDIF}
 begin
-  if FConverter <> nil then
-    Converter := FConverter
-  else
-    Converter := RichEdit.DefaultConverter.Create;
+  if FConverter <> nil then Converter := FConverter
+  else Converter := RichEdit.DefaultConverter.Create;
   StreamInfo.Stream := Stream;
   StreamInfo.Converter := Converter;
-{$IFDEF RX_D12}
-  StreamInfo.PlainText := (FFormat = sfPlainText) or
-                          ((FFormat = sfDefault) and (RichEdit.PlainText = True));
-  StreamInfo.Encoding := Encoding;
-{$ENDIF}
   try
     with EditStream do
     begin
-{$IFDEF RX_D12}
-      dwCookie := DWORD_PTR(@StreamInfo);
-      pfnCallBack := StreamSave;
-{$ELSE}
       dwCookie := Longint(Pointer(@StreamInfo));
       pfnCallBack := @StreamSave;
-{$ENDIF}
       dwError := 0;
     end;
     case FFormat of
       sfDefault:
-        if RichEdit.PlainText then
-          TextType := SF_TEXT
-        else
-          TextType := SF_RTF;
+        if RichEdit.PlainText then TextType := SF_TEXT
+        else TextType := SF_RTF;
       sfRichText: TextType := SF_RTF;
-    else {sfPlainText}
-      TextType := SF_TEXT;
+      else {sfPlainText} TextType := SF_TEXT;
     end;
-
-    if TextType = SF_RTF then
-    begin
+    if TextType = SF_RTF then begin
       if smNoObjects in Mode then TextType := SF_RTFNOOBJS;
       if smPlainRtf in Mode then TextType := TextType or SFF_PLAINRTF;
     end
-    else if TextType = SF_TEXT then
-    begin
-{$IFDEF RX_D12}
-        TextType := TextType or SF_UNICODE;
-        if Encoding <> nil then
-        begin
-          Preamble := Encoding.GetPreamble;
-          if Length(Preamble) > 0 then
-            Stream.WriteBuffer(Preamble[0], Length(Preamble));
-        end;
-{$ELSE}
+    else if TextType = SF_TEXT then begin
       if (smUnicode in Mode) and (RichEditVersion > 1) then
         TextType := TextType or SF_UNICODE;
-{$ENDIF}
     end;
-    if smSelection in Mode then
-      TextType := TextType or SFF_SELECTION;
+    if smSelection in Mode then TextType := TextType or SFF_SELECTION;
     SendMessage(RichEdit.Handle, EM_STREAMOUT, TextType, Longint(@EditStream));
     if EditStream.dwError <> 0 then
       raise EOutOfResources.Create(ResStr(sRichEditSaveFail));
@@ -3887,21 +3282,14 @@ begin
   end;
 end;
 
-{$IFDEF RX_D12}
 procedure TRichEditStrings.LoadFromFile(const FileName: string);
-begin
-  LoadFromFile(FileName, nil);
-end;
-{$ENDIF}
-
-procedure TRichEditStrings.LoadFromFile(const FileName: string{$IFDEF RX_D12}; Encoding: TEncoding{$ENDIF});
 var
   Ext: string;
   Convert: PRichConversionFormat;
   SaveFormat: TRichStreamFormat;
 begin
 {$IFNDEF VER90}
-  Ext := {$IFDEF RX_D12}WideLowerCase{$ELSE}AnsiLowerCaseFileName{$ENDIF}(ExtractFileExt(Filename));
+  Ext := AnsiLowerCaseFileName(ExtractFileExt(Filename));
 {$ELSE}
   Ext := LowerCase(ExtractFileExt(Filename));
 {$ENDIF}
@@ -3920,7 +3308,7 @@ begin
         if Convert^.PlainText then FFormat := sfPlainText
         else FFormat := sfRichText;
       end;
-      inherited LoadFromFile(FileName{$IFDEF RX_D12}, Encoding{$ENDIF});
+      inherited LoadFromFile(FileName);
     finally
       FFormat := SaveFormat;
     end;
@@ -3931,14 +3319,14 @@ begin
   end;
 end;
 
-procedure TRichEditStrings.SaveToFile(const FileName: string{$IFDEF RX_D12}; Encoding: TEncoding{$ENDIF});
+procedure TRichEditStrings.SaveToFile(const FileName: string);
 var
   Ext: string;
   Convert: PRichConversionFormat;
   SaveFormat: TRichStreamFormat;
 begin
 {$IFNDEF VER90}
-  Ext := {$IFDEF RX_D12}WideLowerCase{$ELSE}AnsiLowerCaseFileName{$ENDIF}(ExtractFileExt(Filename));
+  Ext := AnsiLowerCaseFileName(ExtractFileExt(Filename));
 {$ELSE}
   Ext := LowerCase(ExtractFileExt(Filename));
 {$ENDIF}
@@ -3957,7 +3345,7 @@ begin
         if Convert^.PlainText then FFormat := sfPlainText
         else FFormat := sfRichText;
       end;
-      inherited SaveToFile(FileName{$IFDEF RX_D12}, Encoding{$ENDIF});
+      inherited SaveToFile(FileName);
     finally
       FFormat := SaveFormat;
     end;
@@ -3970,33 +3358,31 @@ end;
 
 { TOEMConversion }
 
-function TOEMConversion.ConvertReadStream(Stream: TStream;
-  Buffer: {$IFDEF RX_D12}TConversionBuffer{$ELSE}PChar{$ENDIF}; BufSize: Integer): Integer;
+function TOEMConversion.ConvertReadStream(Stream: TStream; Buffer: PChar;
+  BufSize: Integer): Integer;
 var
   Mem: TMemoryStream;
 begin
   Mem := TMemoryStream.Create;
   try
     Mem.SetSize(BufSize);
-    Result := inherited ConvertReadStream(Stream,
-      {$IFDEF RX_D12}TConversionBuffer{$ELSE}PChar{$ENDIF}(Mem.Memory), BufSize);
-    OemToCharBuff(PAnsiChar(Mem.Memory), {$IFDEF RX_D12}PChar{$ENDIF}(Buffer), Result);
+    Result := inherited ConvertReadStream(Stream, PChar(Mem.Memory), BufSize);
+    OemToCharBuff(PChar(Mem.Memory), Buffer, Result);
   finally
     Mem.Free;
   end;
 end;
 
-function TOEMConversion.ConvertWriteStream(Stream: TStream;
-  Buffer: {$IFDEF RX_D12}TConversionBuffer{$ELSE}PChar{$ENDIF}; BufSize: Integer): Integer;
+function TOEMConversion.ConvertWriteStream(Stream: TStream; Buffer: PChar;
+  BufSize: Integer): Integer;
 var
   Mem: TMemoryStream;
 begin
   Mem := TMemoryStream.Create;
   try
     Mem.SetSize(BufSize);
-    CharToOemBuff({$IFDEF RX_D12}PChar{$ENDIF}(Buffer), PAnsiChar(Mem.Memory), BufSize);
-    Result := inherited ConvertWriteStream(Stream,
-      {$IFDEF RX_D12}TConversionBuffer{$ELSE}PChar{$ENDIF}(Mem.Memory), BufSize);
+    CharToOemBuff(Buffer, PChar(Mem.Memory), BufSize);
+    Result := inherited ConvertWriteStream(Stream, PChar(Mem.Memory), BufSize);
   finally
     Mem.Free;
   end;
@@ -4019,9 +3405,6 @@ begin
   TabStop := True;
   Width := 185;
   Height := 89;
-{$IFDEF RX_ENHPRINT} 
-  pagerect:=rect(180,180,1308,1924);
-{$ENDIF RX_ENHPRINT}
   AutoSize := False;
 {$IFDEF RX_D4}
   DoubleBuffered := False;
@@ -4030,9 +3413,6 @@ begin
 {$IFDEF RX_D3}
   FAllowInPlace := True;
 {$ENDIF}
-{$IFDEF RX_ENHPRINT}
-  PrnPreviews:=TList.create;
-{$ENDIF RX_ENHPRINT}
   FAutoVerbMenu := True;
   FHideSelection := True;
   FHideScrollBars := True;
@@ -4059,10 +3439,6 @@ end;
 
 destructor TRxCustomRichEdit.Destroy;
 begin
-{$IFDEF RX_ENHPRINT}
-  PrnPreviews.Clear;
-  PrnPreviews.Free;
-{$ENDIF RX_ENHPRINT}
   FLastFind := nil;
   FSelAttributes.Free;
   FDefAttributes.Free;
@@ -4095,9 +3471,7 @@ begin
   inherited CreateParams(Params);
   case RichEditVersion of
     1: CreateSubClass(Params, RICHEDIT_CLASS10A);
-    2..3: CreateSubClass(Params, RICHEDIT_CLASS);
-    else
-      CreateSubClass(Params, MSFTEDIT_CLASS);
+    else CreateSubClass(Params, RICHEDIT_CLASS);
   end;
   with Params do begin
     Style := (Style and not (WS_HSCROLL or WS_VSCROLL)) or ES_SAVESEL or
@@ -4204,24 +3578,6 @@ begin
   end;
 end;
 
-{$IFDEF RX_D12}
-procedure TRxCustomRichEdit.UpdateHostNames;
-var
-  AppName: string;
-  AppName_: PAnsiChar;
-begin
-  if HandleAllocated and Assigned(FRichEditOle) then begin
-    AppName := Application.Title;
-    if Trim(AppName) = '' then
-      AppName := ExtractFileName(Application.ExeName);
-      AppName_:= @AppName[1];
-    if Trim(Title) = '' then
-      IRichEditOle(FRichEditOle).SetHostNames(AppName_, AppName_)
-    else
-      IRichEditOle(FRichEditOle).SetHostNames(AppName_, PAnsiChar(AnsiString(Title)));
-  end;
-end;
-{$ELSE}
 procedure TRxCustomRichEdit.UpdateHostNames;
 var
   AppName: string;
@@ -4236,7 +3592,6 @@ begin
       IRichEditOle(FRichEditOle).SetHostNames(PChar(AppName), PChar(Title));
   end;
 end;
-{$ENDIF}
 
 procedure TRxCustomRichEdit.SetTitle(const Value: string);
 begin
@@ -4630,7 +3985,7 @@ begin
   SetLength(Result, EndPos - StartPos + 1);
   TextRange.chrg.cpMin := StartPos;
   TextRange.chrg.cpMax := EndPos;
-  TextRange.lpstrText := PChar(Result);
+  TextRange.lpstrText := PAnsiChar(Result);
   SetLength(Result, SendMessage(Handle, EM_GETTEXTRANGE, 0, Longint(@TextRange)));
 end;
 
@@ -5061,9 +4416,6 @@ var
   SaveRect: TRect;
   TextLenEx: TGetTextLengthEx;
 begin
-{$IFDEF RX_ENHPRINT}
-  percentdone:=0;
-{$ENDIF RX_ENHPRINT}
   FillChar(Range, SizeOf(TFormatRange), 0);
   with Printer, Range do begin
     Title := Caption;
@@ -5072,7 +4424,6 @@ begin
     hdcTarget := hdc;
     LogX := GetDeviceCaps(Handle, LOGPIXELSX);
     LogY := GetDeviceCaps(Handle, LOGPIXELSY);
-
     if IsRectEmpty(PageRect) then begin
       rc.right := PageWidth * 1440 div LogX;
       rc.bottom := PageHeight * 1440 div LogY;
@@ -5104,9 +4455,6 @@ begin
         chrg.cpMin := LastChar;
         LastChar := SendMessage(Self.Handle, EM_FORMATRANGE, 1, Longint(@Range));
         if (LastChar < MaxLen) and (LastChar <> -1) then NewPage;
-      {$IFDEF RX_ENHPRINT}
-        percentdone:=round(100*(LastChar/MaxLen));
-      {$ENDIF RX_ENHPRINT}
       until (LastChar >= MaxLen) or (LastChar = -1);
       EndDoc;
     finally
@@ -5116,98 +4464,12 @@ begin
   end;
 end;
 
-{$IFDEF RX_ENHPRINT}
-procedure TRxCustomRichEdit.CreatePrnPrew(const Caption: string);
-var
-  Range: TFormatRange;
-  LastChar, MaxLen, LogX, LogY, OldMap: Integer;
-  SaveRect: TRect;
-  TextLenEx: TGetTextLengthEx;
-  MetaCanvas:TmetafileCanvas;
-begin
-//  if prnpreview<>nil then prnpreview.free;
-  PrnPreviews.clear;
-  prnpreview:=tmetafile.create;
-  prnpreview.width:=pagerect.right-pagerect.left;
-  prnpreview.height:=pagerect.bottom-pagerect.top;
-  MetaCanvas:=TmetafileCanvas.create(prnpreview,0);
-  percentdone:=0;
-  FillChar(Range, SizeOf(TFormatRange), 0);
-  with Printer, Range do begin
-    Title := Caption;
-    hdcTarget := hdc;
-    hdc := metacanvas.Handle;
-    LogX := GetDeviceCaps(Handle, LOGPIXELSX);
-    LogY := GetDeviceCaps(Handle, LOGPIXELSY);
-    if IsRectEmpty(PageRect) then begin
-      rc.right := PageWidth * 1440 div LogX;
-      rc.bottom := PageHeight * 1440 div LogY;
-    end
-    else begin
-      rc.left := PageRect.Left * 1440 div LogX;
-      rc.top := PageRect.Top * 1440 div LogY;
-      rc.right := PageRect.Right * 1440 div LogX;
-      rc.bottom := PageRect.Bottom * 1440 div LogY;
-    end;
-    rcPage := rc;
-    SaveRect := rc;
-    LastChar := 0;
-    if RichEditVersion >= 2 then begin
-      with TextLenEx do begin
-        flags := GTL_DEFAULT;
-        codepage := CP_ACP;
-      end;
-      MaxLen := Perform(EM_GETTEXTLENGTHEX, WParam(@TextLenEx), 0);
-    end
-    else MaxLen := GetTextLen;
-    chrg.cpMax := -1;
-    { ensure printer DC is in text map mode }
-    OldMap := SetMapMode(hdc, MM_TEXT);
-    SendMessage(Self.Handle, EM_FORMATRANGE, 0, 0);    { flush buffer }
-    try
-      while (LastChar < MaxLen) and (LastChar <> -1) do
-      begin
-        rc := SaveRect;
-        chrg.cpMin := LastChar;
-        LastChar := SendMessage(Self.Handle, EM_FORMATRANGE, 1, Longint(@Range));
-        if (LastChar < MaxLen) and (LastChar <> -1) then
-        begin
-          MetaCanvas.Free;
-          PrnPreviews.Add(prnpreview);
-          prnpreview := tmetafile.Create;
-          prnpreview.Width := PageRect.Right-PageRect.Left;
-          prnpreview.Height := pagerect.Bottom-PageRect.Top;
-          MetaCanvas:=TmetafileCanvas.Create(prnpreview,0);
-          MetaCanvas.Brush.Color:=clWindow;
-          hdc := MetaCanvas.Handle;
-        end;
-        PercentDone:=round(100*(LastChar/MaxLen));
-      end;
-      MetaCanvas.Free;
-      PrnPreviews.Add(prnpreview);
-    finally
-      SendMessage(Self.Handle, EM_FORMATRANGE, 0, 0);  { flush buffer }
-      SetMapMode(hdc, OldMap);       { restore previous map mode }
-    end;
-  end;
-end;
-{$ENDIF RX_ENHPRINT}
-
 var
   Painting: Boolean = False;
 
 procedure TRxCustomRichEdit.WMPaint(var Message: TWMPaint);
 var
   R, R1: TRect;
-{$IFDEF RX_ENHPRINT}
-  I:integer;
-  lf,rg:tpoint;
-  a:array[0..1] of tpoint;
-  min,max:integer;
-  //pen:hpen;
-  logx:Integer;
-  //pagepos:integer;
-{$ENDIF RX_ENHPRINT}
 begin
   if RichEditVersion >= 2 then
     inherited
@@ -5228,24 +4490,6 @@ begin
       end;
     end;
   end;
-{$IFDEF RX_ENHPRINT}
-  if fDrawEndPage then
-  begin
-    LogX := GetDeviceCaps(printer.Handle, LOGPIXELSX);
-    //logx*screen.pixelsperinch
-    lf.x:=ClientRect.Left;
-    rg.x:=ClientRect.Right;
-    getScrollRange(handle,SB_Vert,min,max);
-    for i:=1 to Round((max-min)*2 / (PageRect.Bottom/logx*Screen.PixelsPerInch-PageRect.Top/logx*Screen.PixelsPerInch)) do
-    begin
-      lf.y:=Round(i*(PageRect.Bottom/logx*Screen.PixelsPerInch-PageRect.Top/logx*Screen.PixelsPerInch)-(GetScrollPos(handle,SB_Vert)));
-      rg.y:=lf.y;
-      a[0]:=lf;a[1]:=rg;
-      if PolyLine(getWindowDC(handle),a,2) then
-        {pagepos:=lf.y}; {save Y for future use}
-    end;
-  end;
-{$ENDIF RX_ENHPRINT}
 end;
 
 procedure TRxCustomRichEdit.WMDestroy(var Msg: TWMDestroy);
@@ -5270,51 +4514,11 @@ procedure TRxCustomRichEdit.WMRButtonUp(var Message: TMessage);
 begin
   { RichEd20 does not pass the WM_RBUTTONUP message to defwndproc, }
   { so we get no WM_CONTEXTMENU message. Simulate message here.    }
-  //if Win32MajorVersion < 5 then //bug on W2K, no popup invoked
-  {$IFNDEF WIN64}
+  if Win32MajorVersion < 5 then
     Perform(WM_CONTEXTMENU, Handle, LParam(PointToSmallPoint(
       ClientToScreen(SmallPointToPoint(TWMMouse(Message).Pos)))));
-  {$ENDIF}
   inherited;
 end;
-{$ENDIF}
-
-{$IFDEF RX_ENH}
-function  TRxCustomRichEdit.GetRtfSelText: String;
-var
-  SS: TStringStream;
-  bsmSelection: Boolean;
-Begin
-  bsmSelection:=smSelection in StreamMode;
-  StreamMode:=StreamMode+[smSelection];
-  SS:=TStringStream.Create('');
-  try
-    Lines.SaveToStream(SS);
-    Result:=SS.DataString;
-  finally
-    SS.FREE;
-    if NOT bsmSelection then
-      StreamMode:=StreamMode-[smSelection];
-  end;
-End;//GetRtfSelText
-
-procedure TRxCustomRichEdit.SetRtfSelText(const sRtf: String);
-var
-  SS: TStringStream;
-  bsmSelection: Boolean;
-Begin
-  bsmSelection:=smSelection in StreamMode;
-  StreamMode:=StreamMode+[smSelection];
-  SS:=TStringStream.Create(sRtf);
-  try
-    Lines.LoadFromStream(SS);
-  finally
-    SS.FREE;
-    if NOT bsmSelection then
-      StreamMode:=StreamMode-[smSelection];
-  end;
-End;//SetRtfSelText
-
 {$ENDIF}
 
 procedure TRxCustomRichEdit.CNNotify(var Message: TWMNotify);
@@ -5429,8 +4633,8 @@ begin
     Options := Options - [stBackward];
     Flags := 0;
   end;
-  if stWholeWord in Options then Flags := Flags or {$IFNDEF RX_D12}FT_WHOLEWORD{$ELSE}CommDlg.FR_WHOLEWORD{$ENDIF};
-  if stMatchCase in Options then Flags := Flags or {$IFNDEF RX_D12}FT_MATCHCASE{$ELSE}CommDlg.FR_MATCHCASE{$ENDIF};
+  if stWholeWord in Options then Flags := Flags or FT_WHOLEWORD;
+  if stMatchCase in Options then Flags := Flags or FT_MATCHCASE;
   Find.lpstrText := PChar(SearchStr);
   Result := SendMessage(Handle, EM_FINDTEXTEX, Flags, Longint(@Find));
   if (Result >= 0) and (stSetSelection in Options) then begin
@@ -5688,7 +4892,7 @@ begin
   New(NewRec);
   with NewRec^ do begin
 {$IFNDEF VER90}
-    Extension := {$IFDEF RX_D15}AnsiLowerCase{$ELSE}AnsiLowerCaseFileName{$ENDIF}(Ext);
+    Extension := AnsiLowerCaseFileName(Ext);
 {$ELSE}
     Extension := LowerCase(Ext);
 {$ENDIF}
@@ -5717,32 +4921,25 @@ initialization
   OldError := SetErrorMode(SEM_NOOPENFILEERRORBOX);
   try
 {$IFNDEF RICHEDIT_VER_10}
-    FLibHandle := LoadLibrary(RichEdit41ModuleName); //last version
-    if (FLibHandle > 0) and (FLibHandle < HINSTANCE_ERROR) then
-      FLibHandle := LoadLibrary(RichEdit20ModuleName) //most common version
-    else
-      RichEditVersion := 4;
+    FLibHandle := LoadLibrary(RichEdit20ModuleName);
     if (FLibHandle > 0) and (FLibHandle < HINSTANCE_ERROR) then FLibHandle := 0;
 {$ELSE}
     FLibHandle := 0;
 {$ENDIF}
-    if FLibHandle = 0 then
-    begin
+    if FLibHandle = 0 then begin
       FLibHandle := LoadLibrary(RichEdit10ModuleName);
       if (FLibHandle > 0) and (FLibHandle < HINSTANCE_ERROR) then FLibHandle := 0;
     end
-    else
-      if RichEditVersion <> 4 then
-      begin
-        RichEditVersion := 2;
-        Ver.dwOSVersionInfoSize := SizeOf(Ver);
-        GetVersionEx(Ver);
-        with Ver do
-        begin
-          if (dwPlatformId = VER_PLATFORM_WIN32_NT) and (dwMajorVersion >= 5) then
-            RichEditVersion := 3;
-        end;
+    else begin
+      RichEditVersion := 2;
+      Ver.dwOSVersionInfoSize := SizeOf(Ver);
+      GetVersionEx(Ver);
+      with Ver do begin
+        if (dwPlatformId = VER_PLATFORM_WIN32_NT) and
+          (dwMajorVersion >= 5) then
+          RichEditVersion := 3;
       end;
+    end;
   finally
     SetErrorMode(OldError);
   end;

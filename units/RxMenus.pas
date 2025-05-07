@@ -2,10 +2,12 @@
 {                                                       }
 {         Delphi VCL Extensions (RX)                    }
 {                                                       }
-{         Copyright (c) 1997, 1998 Master-Bank          }
+{         Copyright (c) 2001,2002 SGB Software          }
+{         Copyright (c) 1997, 1998 Fedor Koshevnikov,   }
+{                        Igor Pavluk and Serge Korolev  }
 {                                                       }
-{ Patched by Polaris Software                           }
 {*******************************************************}
+
 
 unit RxMenus;
 
@@ -14,16 +16,15 @@ unit RxMenus;
 
 interface
 
-uses {$IFNDEF VER80} Windows, {$ELSE} WinTypes, WinProcs, {$ENDIF} SysUtils,
+uses {$IFDEF WIN32} Windows, {$ELSE} WinTypes, WinProcs, {$ENDIF} SysUtils,
   Classes, Controls, Messages, Graphics, {$IFDEF RX_D4} ImgList, {$ENDIF}
-  {$IFDEF RX_D16}System.UITypes,{$ENDIF}
-  Menus, RxHook {$IFDEF RX_D6}, Types{$ENDIF};
+  Menus, RxHook;
 
 type
-  TRxMenuStyle = (msStandard, msOwnerDraw {$IFNDEF VER80}, msBtnLowered,
+  TRxMenuStyle = (msStandard, msOwnerDraw {$IFDEF WIN32}, msBtnLowered,
     msBtnRaised {$ENDIF});
   TMenuOwnerDrawState = set of (mdSelected, mdGrayed, mdDisabled, mdChecked,
-    mdFocused {$IFNDEF VER80}, mdDefault {$ENDIF});
+    mdFocused {$IFDEF WIN32}, mdDefault {$ENDIF});
 
   TDrawMenuItemEvent = procedure(Sender: TMenu; Item: TMenuItem; Rect: TRect;
     State: TMenuOwnerDrawState) of object;
@@ -33,7 +34,7 @@ type
   TItemParamsEvent = procedure(Sender: TMenu; Item: TMenuItem;
     State: TMenuOwnerDrawState; AFont: TFont; var Color: TColor;
     var Graphic: TGraphic; var NumGlyphs: Integer) of object;
-{$IFNDEF VER80}
+{$IFDEF WIN32}
   TItemImageEvent = procedure(Sender: TMenu; Item: TMenuItem;
     State: TMenuOwnerDrawState; var ImageIndex: Integer) of object;
 {$ENDIF}
@@ -51,7 +52,7 @@ type
     FOnDrawItem: TDrawMenuItemEvent;
     FOnMeasureItem: TMeasureMenuItemEvent;
     FOnGetItemParams: TItemParamsEvent;
-{$IFNDEF VER80}
+{$IFDEF WIN32}
     FImages: TImageList;
     FImageChangeLink: TChangeLink;
     FOnGetImageIndex: TItemImageEvent;
@@ -68,7 +69,7 @@ type
     procedure WMMenuSelect(var Message: TWMMenuSelect); message WM_MENUSELECT;
   protected
     procedure Loaded; override;
-{$IFNDEF VER80}
+{$IFDEF WIN32}
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
     procedure GetImageIndex(Item: TMenuItem; State: TMenuOwnerDrawState;
       var ImageIndex: Integer); dynamic;
@@ -96,7 +97,7 @@ type
 {$IFDEF RX_D4}
     property OwnerDraw stored False;
 {$ENDIF}
-{$IFNDEF VER80}
+{$IFDEF WIN32}
     property Images: TImageList read FImages write SetImages;
     property OnGetImageIndex: TItemImageEvent read FOnGetImageIndex write FOnGetImageIndex;
 {$ENDIF}
@@ -123,7 +124,7 @@ type
     FPopupPoint: TPoint;
     FParentBiDiMode: Boolean;
 {$ENDIF}
-{$IFNDEF VER80}
+{$IFDEF WIN32}
     FImages: TImageList;
     FImageChangeLink: TChangeLink;
     FOnGetImageIndex: TItemImageEvent;
@@ -143,7 +144,7 @@ type
 {$IFDEF RX_D4}
     function UseRightToLeftAlignment: Boolean;
 {$ENDIF}
-{$IFNDEF VER80}
+{$IFDEF WIN32}
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
     procedure GetImageIndex(Item: TMenuItem; State: TMenuOwnerDrawState;
       var ImageIndex: Integer); dynamic;
@@ -175,7 +176,7 @@ type
 {$IFDEF RX_D4}
     property OwnerDraw stored False;
 {$ENDIF}
-{$IFNDEF VER80}
+{$IFDEF WIN32}
     property Images: TImageList read FImages write SetImages;
     property OnGetImageIndex: TItemImageEvent read FOnGetImageIndex write FOnGetImageIndex;
 {$ENDIF}
@@ -183,10 +184,6 @@ type
     property OnDrawMargin: TDrawMarginEvent read FOnDrawMargin write FOnDrawMargin;
     property OnGetItemParams: TItemParamsEvent read FOnGetItemParams write FOnGetItemParams;
     property OnMeasureItem: TMeasureMenuItemEvent read FOnMeasureItem write FOnMeasureItem;
-    {$IFDEF RX_D6}
-    property OnChange;
-    property OnPopup;
-    {$ENDIF}
   end;
 
 { Utility routines }
@@ -196,8 +193,8 @@ function IsItemPopup(Item: TMenuItem): Boolean;
 
 implementation
 
-uses {$IFNDEF VER80} CommCtrl, {$ENDIF} Forms, ExtCtrls, Consts, RxConst,
-  RxMaxMin, RxVCLUtils, RxClipIcon, RxStrUtils; // Polaris
+uses {$IFDEF WIN32} CommCtrl, {$ENDIF} Forms, ExtCtrls, Consts, RxConst,
+  MaxMin, VclUtils, ClipIcon, rxStrUtils;
 
 const
   DefMarginColor: TColor = clBlue;
@@ -211,7 +208,7 @@ type
 
 function BtnStyle(MenuStyle: TRxMenuStyle): TBtnStyle;
 begin
-{$IFNDEF VER80}
+{$IFDEF WIN32}
   case MenuStyle of
     msBtnLowered: Result := bsLowered;
     msBtnRaised: Result := bsRaised;
@@ -228,7 +225,7 @@ begin
     not (Item.Parent.Owner is TMainMenu);
 end;
 
-{$IFDEF VER80}
+{$IFNDEF WIN32}
 const
   { return codes for WM_MENUCHAR (not defined in Delphi 1.0) }
   MNC_IGNORE = 0;
@@ -255,7 +252,7 @@ var
     end
     else begin
       Id := GetMenuItemID(Menu, I);
-      if Id <> {$IFNDEF VER80} $FFFFFFFF {$ELSE} $FFFF {$ENDIF} then
+      if Id <> {$IFDEF WIN32} $FFFFFFFF {$ELSE} $FFFF {$ENDIF} then
         Item := AMenu.FindItem(Id, fkCommand);
     end;
     if Item <> nil then Result := IsAccel(Ord(C), Item.Caption)
@@ -389,14 +386,14 @@ const
   Checks: array[Boolean] of LongInt = (MF_UNCHECKED, MF_CHECKED);
   Enables: array[Boolean] of LongInt = (MF_DISABLED or MF_GRAYED, MF_ENABLED);
   Separators: array[Boolean] of LongInt = (MF_STRING, MF_SEPARATOR);
-{$IFNDEF VER80}
+{$IFDEF WIN32}
   IBreaks: array[TMenuBreak] of DWORD = (MFT_STRING, MFT_MENUBREAK, MFT_MENUBARBREAK);
   IRadios: array[Boolean] of DWORD = (MFT_STRING, MFT_RADIOCHECK);
   ISeparators: array[Boolean] of DWORD = (MFT_STRING, MFT_SEPARATOR);
   IOwnerDraw: array[Boolean] of DWORD = (MFT_STRING, MFT_OWNERDRAW);
 {$ENDIF}
 var
-{$IFNDEF VER80}
+{$IFDEF WIN32}
   MenuItemInfo: TMenuItemInfo;
 {$ENDIF}
   CCaption: array[0..255] of Char;
@@ -405,7 +402,7 @@ var
   MenuHandle: THandle;
   Item: TMenuItem;
 
-{$IFNDEF VER80}
+{$IFDEF WIN32}
   procedure PrepareItemInfo;
   begin
     FillChar(MenuItemInfo, SizeOf(TMenuItemInfo), 0);
@@ -442,7 +439,7 @@ begin
       MenuHandle := TMenu(Item.Owner).Handle
     else
       MenuHandle := Item.Handle;
-{$IFNDEF VER80}
+{$IFDEF WIN32}
     if Lo(GetVersion) >= 4 then begin
       FillChar(MenuItemInfo, SizeOf(TMenuItemInfo), 0);
       MenuItemInfo.cbSize := SizeOf(TMenuItemInfo);
@@ -489,7 +486,7 @@ begin
       end;
     end
     else
-{$ENDIF}
+{$ENDIF WIN32}
     begin
       if OwnerDraw then begin
         ModifyMenu(MenuHandle, MenuItem.Command, NewFlags or MF_OWNERDRAW and
@@ -506,12 +503,12 @@ end;
 {$ENDIF RX_D4}
 
 procedure SetDefaultMenuFont(AFont: TFont);
-{$IFNDEF VER80}
+{$IFDEF WIN32}
 var
   NCMetrics: TNonCLientMetrics;
 {$ENDIF}
 begin
-{$IFNDEF VER80}
+{$IFDEF WIN32}
   if NewStyleControls then begin
     NCMetrics.cbSize := SizeOf(TNonCLientMetrics);
     if SystemParametersInfo(SPI_GETNONCLIENTMETRICS, 0, @NCMetrics, 0) then
@@ -522,7 +519,7 @@ begin
   end;
 {$ENDIF}
   with AFont do begin
-    if NewStyleControls then Name := {$IFDEF RX_D6}'Tahoma'{$ELSE}'MS Sans Serif'{$ENDIF}
+    if NewStyleControls then Name := 'MS Sans Serif'
     else Name := 'System';
     Size := 8;
     Color := clMenuText;
@@ -613,7 +610,7 @@ end;
 procedure DrawMenuItem(AMenu: TMenu; Item: TMenuItem; Glyph: TGraphic;
   NumGlyphs: Integer; Canvas: TCanvas; ShowCheck: Boolean; Buttons: TBtnStyle;
   Rect: TRect; MinOffset: {$IFDEF RX_D4} Integer {$ELSE} Cardinal {$ENDIF};
-  State: TMenuOwnerDrawState {$IFNDEF VER80}; Images: TImageList;
+  State: TMenuOwnerDrawState {$IFDEF WIN32}; Images: TImageList;
   ImageIndex: Integer {$ENDIF});
 var
   Left, LineTop, MaxWidth, I, W: Integer;
@@ -622,7 +619,7 @@ var
   IsPopup, DrawHighlight, DrawLowered: Boolean;
   GrayColor: TColor;
   Bmp: TBitmap;
-{$IFNDEF VER80}
+{$IFDEF WIN32}
   Ico: HIcon;
   H: Integer;
 {$ENDIF}
@@ -661,7 +658,7 @@ var
   begin
     Bmp := TBitmap.Create;
     try
-{$IFNDEF VER80}
+{$IFDEF WIN32}
       with Bmp do begin
         Width := LoWord(CheckSize);
         Height := HiWord(CheckSize);
@@ -720,7 +717,7 @@ var
     Frame3D(Canvas, ARect, GrayColor, clBtnHighlight, 1);
   end;
 
-{$IFNDEF VER80}
+{$IFDEF WIN32}
   function UseImages: Boolean;
   begin
     Result := Assigned(Images) and (ImageIndex >= 0) and
@@ -770,14 +767,14 @@ begin
       DrawCheckImage(Rect.Left + (Left - LoWord(CheckSize)) div 2,
         (Rect.Bottom + Rect.Top - HiWord(CheckSize)) div 2);
     end;
-{$IFNDEF VER80}
+{$IFDEF WIN32}
     if Assigned(Images) and IsPopup then
       MinOffset := Max(MinOffset, Images.Width + AddWidth);
 {$ENDIF}
     if not ShowCheck and (Assigned(Glyph) or (MinOffset > 0)) then
       if Buttons = bsOffice then Left := 1
       else Left := GetMarginOffset;
-{$IFNDEF VER80}
+{$IFDEF WIN32}
     if UseImages then begin
       W := Images.Width + AddWidth;
       if W < Integer(MinOffset) then W := MinOffset;
@@ -806,7 +803,7 @@ begin
       if (Glyph is TBitmap) and (NumGlyphs in [2..5]) then
         W := W div NumGlyphs;
       W := Max(W + AddWidth, MinOffset);
-{$IFNDEF VER80}
+{$IFDEF WIN32}
       if not (Glyph is TIcon) then
 {$ENDIF}
       begin
@@ -841,7 +838,7 @@ begin
           DrawLowered, State);
         Inc(Left, W + GetMarginOffset);
       end
-{$IFNDEF VER80}
+{$IFDEF WIN32}
       else if Glyph is TIcon then begin
         Ico := CreateRealSizeIcon(TIcon(Glyph));
         try
@@ -919,12 +916,12 @@ end;
 
 procedure MenuMeasureItem(AMenu: TMenu; Item: TMenuItem; Canvas: TCanvas;
   ShowCheck: Boolean; Glyph: TGraphic; NumGlyphs: Integer; var ItemWidth,
-  ItemHeight: Integer; MinOffset: Cardinal {$IFNDEF VER80}; Images: TImageList;
+  ItemHeight: Integer; MinOffset: Cardinal {$IFDEF WIN32}; Images: TImageList;
   ImageIndex: Integer {$ENDIF});
 var
   IsPopup: Boolean;
   W, H: Integer;
-{$IFNDEF VER80}
+{$IFDEF WIN32}
   Ico: HIcon;
 {$ENDIF}
 
@@ -953,7 +950,7 @@ begin
   ItemHeight := GetDefItemHeight;
   if IsPopup then begin
     ItemWidth := GetMarginOffset * 2;
-{$IFNDEF VER80}
+{$IFDEF WIN32}
     if Assigned(Images) then
       MinOffset := Max(MinOffset, Images.Width + AddWidth);
 {$ENDIF}
@@ -970,7 +967,7 @@ begin
   end
   else begin
     ItemHeight := Max(ItemHeight, Canvas.TextHeight(Item.Caption));
-{$IFNDEF VER80}
+{$IFDEF WIN32}
     if Assigned(Images) and (IsPopup or ((ImageIndex >= 0) and
       (ImageIndex < Images.Count))) then
     begin
@@ -985,7 +982,7 @@ begin
       if (Glyph is TBitmap) and (NumGlyphs in [2..5]) then
         W := W div NumGlyphs;
       H := Glyph.Height;
-{$IFNDEF VER80}
+{$IFDEF WIN32}
       if Glyph is TIcon then begin
         Ico := CreateRealSizeIcon(TIcon(Glyph));
         try
@@ -1016,7 +1013,7 @@ begin
   FShowCheckMarks := True;
   FHook := TRxWindowHook.Create(Self);
   FHook.AfterMessage := WndMessage;
-{$IFNDEF VER80}
+{$IFDEF WIN32}
   FImageChangeLink := TChangeLink.Create;
   FImageChangeLink.OnChange := ImageListChange;
 {$ENDIF}
@@ -1024,7 +1021,7 @@ end;
 
 destructor TRxMainMenu.Destroy;
 begin
-{$IFNDEF VER80}
+{$IFDEF WIN32}
   FImageChangeLink.Free;
 {$ENDIF}
   SetStyle(msStandard);
@@ -1042,10 +1039,10 @@ end;
 function TRxMainMenu.IsOwnerDrawMenu: Boolean;
 begin
   Result := (FStyle <> msStandard)
-    {$IFNDEF VER80} or (Assigned(FImages) and (FImages.Count > 0)) {$ENDIF};
+    {$IFDEF WIN32} or (Assigned(FImages) and (FImages.Count > 0)) {$ENDIF};
 end;
 
-{$IFNDEF VER80}
+{$IFDEF WIN32}
 procedure TRxMainMenu.Notification(AComponent: TComponent; Operation: TOperation);
 begin
   inherited Notification(AComponent, Operation);
@@ -1119,14 +1116,14 @@ procedure TRxMainMenu.DefaultDrawItem(Item: TMenuItem; Rect: TRect;
 var
   Graphic: TGraphic;
   BackColor: TColor;
-  NumGlyphs {$IFNDEF VER80}, ImageIndex {$ENDIF}: Integer;
+  NumGlyphs {$IFDEF WIN32}, ImageIndex {$ENDIF}: Integer;
 begin
   if Canvas.Handle <> 0 then begin
     Graphic := nil;
     BackColor := Canvas.Brush.Color;
     NumGlyphs := 1;
     GetItemParams(Item, State, Canvas.Font, BackColor, Graphic, NumGlyphs);
-{$IFNDEF VER80}
+{$IFDEF WIN32}
 {$IFDEF RX_D4}
     ImageIndex := Item.ImageIndex;
 {$ELSE}
@@ -1136,7 +1133,7 @@ begin
 {$ENDIF}
     DrawMenuItem(Self, Item, Graphic, NumGlyphs, Canvas, FShowCheckMarks,
       BtnStyle(Style), Rect, FMinTextOffset, State
-      {$IFNDEF VER80}, FImages, ImageIndex {$ENDIF});
+      {$IFDEF WIN32}, FImages, ImageIndex {$ENDIF});
   end;
 end;
 
@@ -1145,7 +1142,7 @@ procedure TRxMainMenu.DrawItem(Item: TMenuItem; Rect: TRect;
 var
   Graphic: TGraphic;
   BackColor: TColor;
-  NumGlyphs {$IFNDEF VER80}, ImageIndex {$ENDIF}: Integer;
+  NumGlyphs {$IFDEF WIN32}, ImageIndex {$ENDIF}: Integer;
 begin
   if Canvas.Handle <> 0 then begin
     Graphic := nil;
@@ -1158,7 +1155,7 @@ begin
     end;
     if Assigned(FOnDrawItem) then FOnDrawItem(Self, Item, Rect, State)
     else begin
-{$IFNDEF VER80}
+{$IFDEF WIN32}
 {$IFDEF RX_D4}
       ImageIndex := Item.ImageIndex;
 {$ELSE}
@@ -1168,7 +1165,7 @@ begin
 {$ENDIF}
       DrawMenuItem(Self, Item, Graphic, NumGlyphs, Canvas, FShowCheckMarks,
         BtnStyle(Style), Rect, FMinTextOffset, State
-        {$IFNDEF VER80}, FImages, ImageIndex {$ENDIF});
+        {$IFDEF WIN32}, FImages, ImageIndex {$ENDIF});
     end;
   end;
 end;
@@ -1192,7 +1189,7 @@ begin
   if (Item <> nil) and (Item.Caption = Separator) then Graphic := nil;
 end;
 
-{$IFNDEF VER80}
+{$IFDEF WIN32}
 procedure TRxMainMenu.GetImageIndex(Item: TMenuItem; State: TMenuOwnerDrawState;
   var ImageIndex: Integer);
 begin
@@ -1216,7 +1213,7 @@ var
   Item: TMenuItem;
 begin
   with Message.DrawItemStruct^ do begin
-{$IFNDEF VER80}
+{$IFDEF WIN32}
     State := TMenuOwnerDrawState(WordRec(LongRec(itemState).Lo).Lo);
 {$ELSE}
     State := TMenuOwnerDrawState(WordRec(itemState).Lo);
@@ -1232,11 +1229,11 @@ begin
         SetDefaultMenuFont(FCanvas.Font);
         FCanvas.Font.Color := clMenuText;
         FCanvas.Brush.Color := clMenu;
-{$IFNDEF VER80}
+{$IFDEF WIN32}
         if mdDefault in State then
           FCanvas.Font.Style := FCanvas.Font.Style + [fsBold];
 {$ENDIF}
-        if (mdSelected in State) {$IFNDEF VER80} and not
+        if (mdSelected in State) {$IFDEF WIN32} and not
           (Style in [msBtnLowered, msBtnRaised]) {$ENDIF} then
         begin
           FCanvas.Brush.Color := clHighlight;
@@ -1259,7 +1256,7 @@ var
   Graphic: TGraphic;
   BackColor: TColor;
   DC: HDC;
-  NumGlyphs {$IFNDEF VER80}, ImageIndex {$ENDIF}: Integer;
+  NumGlyphs {$IFDEF WIN32}, ImageIndex {$ENDIF}: Integer;
 begin
   with Message.MeasureItemStruct^ do begin
     Item := TMenuItem(Pointer(itemData));
@@ -1269,7 +1266,7 @@ begin
       try
         FCanvas.Handle := DC;
         SetDefaultMenuFont(FCanvas.Font);
-{$IFNDEF VER80}
+{$IFDEF WIN32}
         if Item.Default then
           FCanvas.Font.Style := FCanvas.Font.Style + [fsBold];
 {$ENDIF}
@@ -1277,7 +1274,7 @@ begin
         BackColor := FCanvas.Brush.Color;
         NumGlyphs := 1;
         GetItemParams(Item, [], FCanvas.Font, BackColor, Graphic, NumGlyphs);
-{$IFNDEF VER80}
+{$IFDEF WIN32}
 {$IFDEF RX_D4}
         ImageIndex := Item.ImageIndex;
 {$ELSE}
@@ -1287,7 +1284,7 @@ begin
 {$ENDIF}
         MenuMeasureItem(Self, Item, FCanvas, FShowCheckMarks, Graphic,
           NumGlyphs, Integer(itemWidth), Integer(itemHeight), FMinTextOffset
-          {$IFNDEF VER80}, FImages, ImageIndex {$ENDIF});
+          {$IFDEF WIN32}, FImages, ImageIndex {$ENDIF});
         MeasureItem(Item, Integer(itemWidth), Integer(itemHeight));
       finally
         FCanvas.Handle := 0;
@@ -1324,7 +1321,7 @@ end;
 type
   TPopupList = class(TList)
   private
-{$IFDEF VER80}
+{$IFNDEF WIN32}
     FMenuHelp: THelpContext;
 {$ENDIF}
     procedure WndProc(var Message: TMessage);
@@ -1371,7 +1368,7 @@ begin
           for I := 0 to Count - 1 do begin
             MenuItem := TRxPopupMenu(Items[I]).FindItem(ContextId, FindKind);
             if MenuItem <> nil then begin
-{$IFDEF VER80}
+{$IFNDEF WIN32}
               FMenuHelp := MenuItem.HelpContext;
 {$ENDIF}
               Application.Hint := MenuItem.Hint;
@@ -1384,7 +1381,7 @@ begin
               Exit;
             end;
           end;
-{$IFDEF VER80}
+{$IFNDEF WIN32}
           FMenuHelp := 0;
 {$ENDIF}
           Application.Hint := '';
@@ -1402,7 +1399,7 @@ begin
 {$ENDIF}
               Exit;
             end;
-{$IFNDEF VER80}
+{$IFDEF WIN32}
       WM_HELP:
         with PHelpInfo(Message.LParam)^ do begin
           for I := 0 to Count - 1 do
@@ -1427,7 +1424,7 @@ begin
           FMenuHelp := 0;
           Exit;
         end;
-{$ENDIF}
+{$ENDIF WIN32}
     end;
     with Message do Result := DefWindowProc(Window, Msg, wParam, lParam);
   except
@@ -1437,22 +1434,14 @@ end;
 
 procedure TPopupList.Add(Popup: TPopupMenu);
 begin
-{$IFDEF RX_D6}
   if Count = 0 then Window := Classes.AllocateHWnd(WndProc);
-{$ELSE}
-  if Count = 0 then Window := AllocateHWnd(WndProc);
-{$ENDIF}
   inherited Add(Popup);
 end;
 
 procedure TPopupList.Remove(Popup: TPopupMenu);
 begin
   inherited Remove(Popup);
-{$IFDEF RX_D6}
   if Count = 0 then Classes.DeallocateHWnd(Window);
-{$ELSE}
-  if Count = 0 then DeallocateHWnd(Window);
-{$ENDIF}
 end;
 
 { TRxPopupMenu }
@@ -1466,7 +1455,7 @@ begin
   FCanvas := TControlCanvas.Create;
   FCursor := crDefault;
   PopupList.Add(Self);
-{$IFNDEF VER80}
+{$IFDEF WIN32}
   FImageChangeLink := TChangeLink.Create;
   FImageChangeLink.OnChange := ImageListChange;
 {$ENDIF}
@@ -1477,7 +1466,7 @@ end;
 
 destructor TRxPopupMenu.Destroy;
 begin
-{$IFNDEF VER80}
+{$IFDEF WIN32}
   FImageChangeLink.Free;
 {$ENDIF}
   SetStyle(msStandard);
@@ -1492,7 +1481,7 @@ begin
   if IsOwnerDrawMenu then RefreshMenu(True);
 end;
 
-{$IFNDEF VER80}
+{$IFDEF WIN32}
 procedure TRxPopupMenu.Notification(AComponent: TComponent; Operation: TOperation);
 begin
   inherited Notification(AComponent, Operation);
@@ -1588,7 +1577,7 @@ begin
     FOnPopup := OnPopup;
     if Assigned(FOnPopup) then FOnPopup(Self);
     if IsOwnerDrawMenu then RefreshMenu(True);
-{$IFDEF VER80}
+{$IFNDEF WIN32}
     PopupList.FMenuHelp := HelpContext;
 {$ENDIF}
 {$IFDEF RX_D4}
@@ -1613,7 +1602,7 @@ end;
 function TRxPopupMenu.IsOwnerDrawMenu: Boolean;
 begin
   Result := (FStyle <> msStandard)
-    {$IFNDEF VER80} or (Assigned(FImages) and (FImages.Count > 0)) {$ENDIF};
+    {$IFDEF WIN32} or (Assigned(FImages) and (FImages.Count > 0)) {$ENDIF};
 end;
 
 procedure TRxPopupMenu.RefreshMenu(AOwnerDraw: Boolean);
@@ -1643,14 +1632,14 @@ procedure TRxPopupMenu.DefaultDrawItem(Item: TMenuItem; Rect: TRect;
 var
   Graphic: TGraphic;
   BackColor: TColor;
-  NumGlyphs {$IFNDEF VER80}, ImageIndex {$ENDIF}: Integer;
+  NumGlyphs {$IFDEF WIN32}, ImageIndex {$ENDIF}: Integer;
 begin
   if Canvas.Handle <> 0 then begin
     Graphic := nil;
     BackColor := Canvas.Brush.Color;
     NumGlyphs := 1;
     GetItemParams(Item, State, Canvas.Font, BackColor, Graphic, NumGlyphs);
-{$IFNDEF VER80}
+{$IFDEF WIN32}
 {$IFDEF RX_D4}
     ImageIndex := Item.ImageIndex;
 {$ELSE}
@@ -1660,7 +1649,7 @@ begin
 {$ENDIF}
     DrawMenuItem(Self, Item, Graphic, NumGlyphs, Canvas, FShowCheckMarks,
       BtnStyle(Style), Rect, FMinTextOffset, State
-      {$IFNDEF VER80}, FImages, ImageIndex {$ENDIF});
+      {$IFDEF WIN32}, FImages, ImageIndex {$ENDIF});
   end;
 end;
 
@@ -1669,7 +1658,7 @@ procedure TRxPopupMenu.DrawItem(Item: TMenuItem; Rect: TRect;
 var
   Graphic: TGraphic;
   BackColor: TColor;
-  NumGlyphs {$IFNDEF VER80}, ImageIndex {$ENDIF}: Integer;
+  NumGlyphs {$IFDEF WIN32}, ImageIndex {$ENDIF}: Integer;
 begin
   if Canvas.Handle <> 0 then begin
     Graphic := nil;
@@ -1682,7 +1671,7 @@ begin
     end;
     if Assigned(FOnDrawItem) then FOnDrawItem(Self, Item, Rect, State)
     else begin
-{$IFNDEF VER80}
+{$IFDEF WIN32}
 {$IFDEF RX_D4}
       ImageIndex := Item.ImageIndex;
 {$ELSE}
@@ -1692,7 +1681,7 @@ begin
 {$ENDIF}
       DrawMenuItem(Self, Item, Graphic, NumGlyphs, Canvas, FShowCheckMarks,
         BtnStyle(Style), Rect, FMinTextOffset, State
-        {$IFNDEF VER80}, FImages, ImageIndex {$ENDIF});
+        {$IFDEF WIN32}, FImages, ImageIndex {$ENDIF});
     end;
   end;
 end;
@@ -1716,7 +1705,7 @@ begin
   if (Item <> nil) and (Item.Caption = Separator) then Graphic := nil;
 end;
 
-{$IFNDEF VER80}
+{$IFDEF WIN32}
 procedure TRxPopupMenu.GetImageIndex(Item: TMenuItem; State: TMenuOwnerDrawState;
   var ImageIndex: Integer);
 begin
@@ -1762,7 +1751,7 @@ var
   MarginRect: TRect;
 begin
   with Message.DrawItemStruct^ do begin
-{$IFNDEF VER80}
+{$IFDEF WIN32}
     State := TMenuOwnerDrawState(WordRec(LongRec(itemState).Lo).Lo);
 {$ELSE}
     State := TMenuOwnerDrawState(WordRec(itemState).Lo);
@@ -1784,11 +1773,11 @@ begin
         SetDefaultMenuFont(FCanvas.Font);
         FCanvas.Font.Color := clMenuText;
         FCanvas.Brush.Color := clMenu;
-{$IFNDEF VER80}
+{$IFDEF WIN32}
         if mdDefault in State then
           FCanvas.Font.Style := FCanvas.Font.Style + [fsBold];
 {$ENDIF}
-        if (mdSelected in State) {$IFNDEF VER80} and
+        if (mdSelected in State) {$IFDEF WIN32} and
           not (Style in [msBtnLowered, msBtnRaised]) {$ENDIF} then
         begin
           FCanvas.Brush.Color := clHighlight;
@@ -1812,7 +1801,7 @@ var
   Item: TMenuItem;
   Graphic: TGraphic;
   BackColor: TColor;
-  NumGlyphs {$IFNDEF VER80}, ImageIndex {$ENDIF}: Integer;
+  NumGlyphs {$IFDEF WIN32}, ImageIndex {$ENDIF}: Integer;
 begin
   with Message.MeasureItemStruct^ do begin
     Item := TMenuItem(Pointer(itemData));
@@ -1821,7 +1810,7 @@ begin
       FCanvas.Handle := GetDC(0);
       try
         SetDefaultMenuFont(FCanvas.Font);
-{$IFNDEF VER80}
+{$IFDEF WIN32}
         if Item.Default then
           FCanvas.Font.Style := FCanvas.Font.Style + [fsBold];
 {$ENDIF}
@@ -1829,7 +1818,7 @@ begin
         BackColor := Canvas.Brush.Color;
         NumGlyphs := 1;
         GetItemParams(Item, [], FCanvas.Font, BackColor, Graphic, NumGlyphs);
-{$IFNDEF VER80}
+{$IFDEF WIN32}
 {$IFDEF RX_D4}
         ImageIndex := Item.ImageIndex;
 {$ELSE}
@@ -1839,7 +1828,7 @@ begin
 {$ENDIF}
         MenuMeasureItem(Self, Item, FCanvas, FShowCheckMarks, Graphic,
           NumGlyphs, Integer(itemWidth), Integer(itemHeight), FMinTextOffset
-          {$IFNDEF VER80}, FImages, ImageIndex {$ENDIF});
+          {$IFDEF WIN32}, FImages, ImageIndex {$ENDIF});
         MeasureItem(Item, Integer(itemWidth), Integer(itemHeight));
         if (Item.Parent = Self.Items) then
           Inc(itemWidth, LeftMargin + 1);
@@ -1851,7 +1840,7 @@ begin
   end;
 end;
 
-{$IFDEF VER80}
+{$IFNDEF WIN32}
 procedure FreePopupList; far;
 begin
   if PopupList <> nil then begin
@@ -1863,7 +1852,7 @@ end;
 
 initialization
   PopupList := nil;
-{$IFNDEF VER80}
+{$IFDEF WIN32}
 finalization
   if PopupList <> nil then PopupList.Free;
 {$ELSE}

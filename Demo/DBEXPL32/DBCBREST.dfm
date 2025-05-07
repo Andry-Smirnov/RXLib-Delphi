@@ -5,13 +5,10 @@ object RestructureDialog: TRestructureDialog
   Caption = 'Restructure Warning'
   ClientHeight = 187
   ClientWidth = 378
-  Color = clBtnFace
-  Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   Font.Style = []
-  OldCreateOrder = True
   Position = poScreenCenter
   OnCreate = FormCreate
   PixelsPerInch = 96
@@ -21,17 +18,17 @@ object RestructureDialog: TRestructureDialog
     Top = 96
     Width = 69
     Height = 13
-    Caption = 'Object Type:  '
     FocusControl = ObjType
     ShadowSize = 0
+    Caption = 'Object Type:  '
   end
   object ObjDescLabel: TRxLabel
     Left = 12
     Top = 116
     Width = 98
     Height = 13
-    Caption = 'Object Description:  '
     ShadowSize = 0
+    Caption = 'Object Description:  '
   end
   object OkBtn: TButton
     Left = 294

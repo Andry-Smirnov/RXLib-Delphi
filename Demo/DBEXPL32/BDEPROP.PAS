@@ -44,7 +44,7 @@ type
 
 implementation
 
-uses RxFileUtil, RxVCLUtils;
+uses FileUtil, VCLUtils;
 
 {$R *.DFM}
 

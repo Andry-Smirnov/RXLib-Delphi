@@ -1,13 +1,12 @@
 unit DbAware;
 
 interface
-{$I ..\units\RX.INC}
+
 uses
   SysUtils, WinTypes, WinProcs, Messages, Classes, Graphics, Controls,
   Forms, Dialogs, DB, DBTables, Grids, DBGrids, RXDBCtrl, ExtCtrls,
-  TabNotBk, StdCtrls, Spin, DBCtrls, RxDBQBE, RXLookup, Mask, RxDBIndex,
-  {$IFDEF RX_D17}System.UITypes,{$ENDIF}
-  Buttons, RxDBFilter, RxPlacemnt, RxQuery, RxPicClip, RXCtrls, ComCtrls;
+  TabNotBk, StdCtrls, Spin, DBCtrls, DbQBE, RXLookup, Mask, DBIndex,
+  Buttons, DBFilter, Placemnt, RxQuery, PicClip, RXCtrls;
 
 type
   TDBAwareForm = class(TForm)
@@ -150,7 +149,7 @@ type
 
 implementation
 
-uses RxDBUtils;
+uses DBUtils;
 
 {$R *.DFM}
 
@@ -245,7 +244,7 @@ end;
 procedure TDBAwareForm.FormCreate(Sender: TObject);
 begin
   ComboBox2.ItemIndex := 1;
-{$IFNDEF VER80}
+{$IFDEF WIN32}
   DBGrid1.Columns.State := csCustomized;
 {$ENDIF}
 end;

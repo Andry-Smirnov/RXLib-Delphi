@@ -2,20 +2,20 @@
 {                                                       }
 {         Delphi VCL Extensions (RX)                    }
 {                                                       }
-{         Copyright (c) 1998 Master-Bank                }
+{         Copyright (c) 2001,2002 SGB Software          }
+{         Copyright (c) 1997, 1998 Fedor Koshevnikov,   }
+{                        Igor Pavluk and Serge Korolev  }
 {                                                       }
 {*******************************************************}
+
 
 unit RxDirFrm;
 
 interface
 
-{$I RX.INC}
-
-uses
-  {$IFNDEF VER80}Windows, {$ELSE}WinTypes, WinProcs, {$ENDIF}Messages,
+uses {$IFDEF WIN32} Windows, {$ELSE} WinTypes, WinProcs, {$ENDIF} Messages,
   SysUtils, Classes, Graphics, Controls, Forms, Dialogs, StdCtrls, RXCtrls,
-  RxPlacemnt{$IFDEF RX_D6}, Types{$ENDIF};
+  Placemnt;
 
 type
   TDirectoryListDialog = class(TForm)
@@ -47,7 +47,7 @@ function EditFolderList(Folders: TStrings): Boolean;
 
 implementation
 
-uses RxFileUtil, RxBoxProcs, RxConst;
+uses FileUtil, BoxProcs, RxConst;
 
 {$R *.DFM}
 
@@ -80,8 +80,7 @@ var
   S: string;
 begin
   S := '';
-  if BrowseDirectory(S, '', 0) then
-  begin
+  if BrowseDirectory(S, '', 0) then begin
     I := DirectoryList.Items.Add(S);
     DirectoryList.ItemIndex := I;
     CheckButtons;
@@ -94,11 +93,9 @@ var
   S: string;
 begin
   I := DirectoryList.ItemIndex;
-  if I >= 0 then
-  begin
+  if I >= 0 then begin
     S := DirectoryList.Items[I];
-    if BrowseDirectory(S, '', 0) then
-    begin
+    if BrowseDirectory(S, '', 0) then begin
       DirectoryList.Items[I] := S;
     end;
   end;
@@ -109,8 +106,7 @@ var
   I: Integer;
 begin
   I := DirectoryList.ItemIndex;
-  if I >= 0 then
-  begin
+  if I >= 0 then begin
     DirectoryList.Items.Delete(I);
     CheckButtons;
   end;
@@ -142,15 +138,14 @@ end;
 
 procedure TDirectoryListDialog.FormCreate(Sender: TObject);
 begin
-  {$IFNDEF VER80}
-  with Storage do
-  begin
+{$IFDEF WIN32}
+  with Storage do begin
     UseRegistry := True;
     IniFileName := SDelphiKey;
   end;
-  {$ELSE}
+{$ELSE}
   if not NewStyleControls then Font.Style := [fsBold];
-  {$ENDIF}
+{$ENDIF}
 end;
 
 end.

@@ -5,8 +5,6 @@ object MDIChild: TMDIChild
   Height = 252
   ActiveControl = TablesGrid
   Caption = 'Database'
-  Color = clBtnFace
-  Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
@@ -37,7 +35,6 @@ object MDIChild: TMDIChild
     0000F0400000F0000000F80000009C0000000C00000000000000000000018000
     0003C0000007FC01FFFFFE00FFFFFF007FFFFF803FFFFFC003FFFFE001FFFFF0
     00FFFFF800FFFFFC30FFFFFC39FFFFFC1FFFFFFC0FFFFFFE0FFFFFFF1FFF8B85}
-  OldCreateOrder = True
   Position = poDefault
   Visible = True
   OnActivate = FormActivate
@@ -51,7 +48,7 @@ object MDIChild: TMDIChild
     Left = 0
     Top = 0
     Width = 92
-    Height = 218
+    Height = 225
     Align = alLeft
     BorderStyle = bsNone
     Ctl3D = False
@@ -60,7 +57,6 @@ object MDIChild: TMDIChild
     ParentCtl3D = False
     PopupMenu = PopupTablesMenu
     TabOrder = 0
-    TitleFont.Charset = DEFAULT_CHARSET
     TitleFont.Color = clWindowText
     TitleFont.Height = -11
     TitleFont.Name = 'MS Sans Serif'
@@ -68,13 +64,12 @@ object MDIChild: TMDIChild
     OnDrawDataCell = TablesGridDrawDataCell
     OnDblClick = OpenTableClick
     OnKeyPress = TablesGridKeyPress
-    RowColor2 = 16776176
   end
   object rxSplitter1: TRxSplitter
     Left = 92
     Top = 0
     Width = 4
-    Height = 218
+    Height = 225
     ControlFirst = TablesGrid
     ControlSecond = Panel1
     Align = alLeft
@@ -86,7 +81,7 @@ object MDIChild: TMDIChild
     Left = 96
     Top = 0
     Width = 284
-    Height = 218
+    Height = 225
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 2
@@ -94,10 +89,10 @@ object MDIChild: TMDIChild
       Left = 0
       Top = 0
       Width = 284
-      Height = 198
+      Height = 205
       Align = alClient
+      PageIndex = 1
       TabOrder = 0
-      OnPageChanged = Notebook1PageChanged
       object TPage
         Left = 0
         Top = 0
@@ -106,11 +101,10 @@ object MDIChild: TMDIChild
           Left = 0
           Top = 31
           Width = 284
-          Height = 167
+          Height = 174
           Align = alClient
           Ctl3D = False
           DataSource = DataSource2
-          Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
           Font.Name = 'MS Sans Serif'
@@ -118,13 +112,11 @@ object MDIChild: TMDIChild
           ParentCtl3D = False
           ParentFont = False
           TabOrder = 0
-          TitleFont.Charset = DEFAULT_CHARSET
           TitleFont.Color = clHighlight
           TitleFont.Height = -11
           TitleFont.Name = 'MS Sans Serif'
           TitleFont.Style = []
           OnDblClick = GridDblClick
-          RowColor2 = 16776176
           TitleButtons = True
           OnCheckButton = GridCheckButton
           OnGetCellParams = GridGetCellParams
@@ -183,7 +175,6 @@ object MDIChild: TMDIChild
             Width = 240
             Height = 96
             Align = alClient
-            Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -13
             Font.Name = 'Courier'
@@ -215,7 +206,7 @@ object MDIChild: TMDIChild
               Enabled = False
               Glyph.Data = {
                 66010000424D6601000000000000760000002800000014000000140000000100
-                040000000000F000000000000000000000001000000000000000000000000000
+                040000000000F000000000000000000000000000000000000000000000000000
                 80000080000000808000800000008000800080800000C0C0C000808080000000
                 FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00333333333333
                 3333333300003333333333333333333300003333333033333333333300003333
@@ -226,6 +217,7 @@ object MDIChild: TMDIChild
                 00003333330BFBFB0333333300003333330FFFBFF0333333000033333330FBFF
                 BF03333300003333333000000000333300003333333333333333333300003333
                 33333333333333330000}
+              ParentShowHint = False
               OnClick = RunSQLClick
             end
             object PriorSQL: TRxSpeedButton
@@ -238,7 +230,7 @@ object MDIChild: TMDIChild
               Enabled = False
               Glyph.Data = {
                 F6000000424DF600000000000000760000002800000010000000100000000100
-                0400000000008000000000000000000000001000000000000000000000000000
+                0400000000008000000000000000000000000000000000000000000000000000
                 80000080000000808000800000008000800080800000C0C0C000808080000000
                 FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00333333333333
                 3333333333333333333333333333333333333333333333333333333330000033
@@ -246,6 +238,7 @@ object MDIChild: TMDIChild
                 3333333304444403333333333044403333333333330403333333333333303333
                 3333333333333333333333333333333333333333333333333333}
               InitPause = 800
+              ParentShowHint = False
               OnClick = NavigateSQLClick
             end
             object NextSQL: TRxSpeedButton
@@ -258,7 +251,7 @@ object MDIChild: TMDIChild
               Enabled = False
               Glyph.Data = {
                 F6000000424DF600000000000000760000002800000010000000100000000100
-                0400000000008000000000000000000000001000000000000000000000000000
+                0400000000008000000000000000000000000000000000000000000000000000
                 80000080000000808000800000008000800080800000C0C0C000808080000000
                 FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00333333333333
                 3333333333333333333333333333333333333333333033333333333333040333
@@ -266,6 +259,7 @@ object MDIChild: TMDIChild
                 0333300000444000003333333044403333333333300000333333333333333333
                 3333333333333333333333333333333333333333333333333333}
               InitPause = 800
+              ParentShowHint = False
               OnClick = NavigateSQLClick
             end
           end
@@ -311,8 +305,7 @@ object MDIChild: TMDIChild
           Height = 82
           Align = alClient
           Ctl3D = False
-          DataSource = DataSource3
-          Font.Charset = DEFAULT_CHARSET
+          DataSource = DataSource2
           Font.Color = clWindowText
           Font.Height = -11
           Font.Name = 'MS Sans Serif'
@@ -320,13 +313,11 @@ object MDIChild: TMDIChild
           ParentCtl3D = False
           ParentFont = False
           TabOrder = 1
-          TitleFont.Charset = DEFAULT_CHARSET
           TitleFont.Color = clHighlight
           TitleFont.Height = -11
           TitleFont.Name = 'MS Sans Serif'
           TitleFont.Style = []
           OnDblClick = GridDblClick
-          RowColor2 = 16776176
         end
         object rxSplitter2: TRxSplitter
           Left = 0
@@ -344,7 +335,7 @@ object MDIChild: TMDIChild
     end
     object Panel9: TPanel
       Left = 0
-      Top = 198
+      Top = 205
       Width = 284
       Height = 20
       Align = alBottom
@@ -615,7 +606,6 @@ object MDIChild: TMDIChild
         Width = 268
         Height = 20
         Align = alClient
-        Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
         Font.Height = -11
         Font.Name = 'MS Sans Serif'
@@ -637,19 +627,17 @@ object MDIChild: TMDIChild
     Top = 3
     object TableListPict: TBooleanField
       Alignment = taCenter
+      Calculated = True
       DisplayWidth = 3
-      FieldKind = fkCalculated
       FieldName = 'Pict'
       ReadOnly = True
       DisplayValues = ' ,1'
-      Calculated = True
     end
     object TableListTABNAME: TStringField
+      Calculated = True
       DisplayWidth = 132
-      FieldKind = fkCalculated
       FieldName = 'TABNAME'
       Size = 132
-      Calculated = True
     end
     object TableListNAME: TStringField
       FieldName = 'NAME'
@@ -675,10 +663,9 @@ object MDIChild: TMDIChild
       Visible = False
     end
     object TableListDELETED: TBooleanField
-      FieldKind = fkCalculated
+      Calculated = True
       FieldName = 'DELETED'
       Visible = False
-      Calculated = True
     end
   end
   object DataSource1: TDataSource
@@ -708,10 +695,9 @@ object MDIChild: TMDIChild
       Size = 31
     end
     object FieldList1TypeName: TStringField
-      FieldKind = fkCalculated
+      Calculated = True
       FieldName = 'TypeName'
       Size = 8
-      Calculated = True
     end
     object FieldList1TYPE: TWordField
       DisplayLabel = 'Type'
@@ -719,16 +705,14 @@ object MDIChild: TMDIChild
       Visible = False
     end
     object FieldList1SubTypeName: TStringField
-      FieldKind = fkCalculated
+      Calculated = True
       FieldName = 'SubTypeName'
       Size = 14
-      Calculated = True
     end
     object FieldList1Required: TBooleanField
-      FieldKind = fkCalculated
+      Calculated = True
       FieldName = 'Required'
       DisplayValues = 'Yes;No'
-      Calculated = True
     end
     object FieldList1SUBTYPE: TWordField
       DisplayLabel = 'SubType'
@@ -822,7 +806,7 @@ object MDIChild: TMDIChild
     Cols = 5
     Picture.Data = {
       07544269746D6170A6020000424DA60200000000000076000000280000005000
-      00000E0000000100040000000000300200000000000000000000100000000000
+      00000E0000000100040000000000300200000000000000000000000000000000
       000000000000000080000080000000808000800000008000800080800000C0C0
       C000808080000000FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFF
       FF00DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD
@@ -844,7 +828,7 @@ object MDIChild: TMDIChild
       DDDDDDDDDDDDDD111DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD
       DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD}
     Left = 4
-    Top = 171
+    Top = 143
   end
   object QuerySession: TSession
     Left = 4
@@ -869,7 +853,6 @@ object MDIChild: TMDIChild
     BeforeClose = BeforeClose
     AfterPost = AfterPost
     RequestLive = True
-    Macros = <>
     Left = 60
     Top = 115
   end
@@ -885,26 +868,32 @@ object MDIChild: TMDIChild
     end
     object N1: TMenuItem
       Caption = '-'
+      ShortCut = 0
     end
     object OpenTableItem: TMenuItem
       Caption = 'OpenTable'
+      ShortCut = 0
       OnClick = OpenTableClick
     end
     object CloseTableItem: TMenuItem
       Caption = 'Close Table'
       Hint = 'Close current table'
+      ShortCut = 0
       OnClick = CloseTableItemClick
     end
     object ShowDeletedItem: TMenuItem
       Caption = 'Show Deleted Records'
+      ShortCut = 0
       OnClick = ShowDeletedItemClick
     end
     object N5: TMenuItem
       Caption = '-'
+      ShortCut = 0
     end
     object CloseItem: TMenuItem
       Caption = 'Close Database'
       Hint = 'Close current database'
+      ShortCut = 0
       OnClick = CloseItemClick
     end
   end
@@ -919,12 +908,12 @@ object MDIChild: TMDIChild
       'Panel2.Height'
       'OpenDialog1.InitialDir'
       'SaveDialog1.InitialDir')
-    StoredValues = <>
     Left = 60
     Top = 3
   end
   object OpenDialog1: TOpenDialog
     DefaultExt = 'sql'
+    FileEditStyle = fsEdit
     FileName = '*.sql'
     Filter = 'SQL files (*.sql)|*.sql|All files (*.*)|*.*'
     Options = [ofHideReadOnly, ofFileMustExist]
@@ -934,6 +923,7 @@ object MDIChild: TMDIChild
   end
   object SaveDialog1: TSaveDialog
     DefaultExt = 'sql'
+    FileEditStyle = fsEdit
     FileName = '*.sql'
     Filter = 'SQL files (*.sql)|*.sql|All files (*.*)|*.*'
     Options = [ofOverwritePrompt, ofHideReadOnly, ofPathMustExist]
@@ -948,6 +938,7 @@ object MDIChild: TMDIChild
       Caption = 'Abort query'
       Enabled = False
       Hint = 'Abort currently running query'
+      ShortCut = 0
       OnClick = CancelQueryClick
     end
   end
@@ -958,36 +949,44 @@ object MDIChild: TMDIChild
     object Undo1: TMenuItem
       Tag = 1
       Caption = '&Undo'
+      ShortCut = 0
       OnClick = PopupSQLMenuClick
     end
     object N2: TMenuItem
       Caption = '-'
+      ShortCut = 0
     end
     object Cut1: TMenuItem
       Tag = 2
       Caption = 'Cu&t'
+      ShortCut = 0
       OnClick = PopupSQLMenuClick
     end
     object Copy1: TMenuItem
       Tag = 3
       Caption = '&Copy'
+      ShortCut = 0
       OnClick = PopupSQLMenuClick
     end
     object Paste1: TMenuItem
       Tag = 4
       Caption = '&Paste'
+      ShortCut = 0
       OnClick = PopupSQLMenuClick
     end
     object N3: TMenuItem
       Caption = '-'
+      ShortCut = 0
     end
     object SelectAll1: TMenuItem
       Tag = 5
       Caption = 'Select &All'
+      ShortCut = 0
       OnClick = PopupSQLMenuClick
     end
     object N4: TMenuItem
       Caption = '-'
+      ShortCut = 0
     end
     object Saveas1: TMenuItem
       Tag = 6
@@ -1004,11 +1003,13 @@ object MDIChild: TMDIChild
     object PriorSQLItem: TMenuItem
       Tag = 9
       Caption = 'Prior SQL'
+      ShortCut = 0
       OnClick = PopupSQLMenuClick
     end
     object NextSQLItem: TMenuItem
       Tag = 10
       Caption = 'Next SQL'
+      ShortCut = 0
       OnClick = PopupSQLMenuClick
     end
     object Runquery1: TMenuItem
@@ -1020,18 +1021,14 @@ object MDIChild: TMDIChild
     object QueryParamItem: TMenuItem
       Tag = 12
       Caption = 'Parameters...'
+      ShortCut = 0
       OnClick = PopupSQLMenuClick
     end
     object Querybuilder1: TMenuItem
       Tag = 11
       Caption = 'Query builder...'
+      ShortCut = 0
       OnClick = PopupSQLMenuClick
     end
-  end
-  object DataSource3: TDataSource
-    DataSet = Query1
-    OnStateChange = DataSource3StateChange
-    Left = 4
-    Top = 143
   end
 end

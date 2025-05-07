@@ -2,21 +2,19 @@
 {                                                       }
 {         Delphi VCL Extensions (RX)                    }
 {                                                       }
-{         Copyright (c) 1995 AO ROSNO                   }
-{         Copyright (c) 1997, 1998 Master-Bank          }
+{         Copyright (c) 2001,2002 SGB Software          }
+{         Copyright (c) 1997, 1998 Fedor Koshevnikov,   }
+{                        Igor Pavluk and Serge Korolev  }
 {                                                       }
-{ Patched by Polaris Software                           }
 {*******************************************************}
 
-unit RxIni;
+unit RXIni;
 
 interface
 
 {$I RX.INC}
 
-uses
-  {$IFNDEF VER80}Windows, Registry, {$ELSE}WinTypes, WinProcs, {$ENDIF}
-  {$IFDEF RX_D16}System.UITypes, {$ENDIF}
+uses {$IFDEF WIN32} Windows, Registry, {$ELSE} WinTypes, WinProcs, {$ENDIF}
   Classes, IniFiles, Graphics;
 
 type
@@ -29,28 +27,22 @@ type
 
   TRxIniFile = class(TIniFile)
   private
-    {$IFDEF RX_D4} // Polaris
-    FListItemName: string;
-    {$ELSE}
-    FListItemName: PString;
-    {$ENDIF}
+    FListItemName: String;
     FOnReadObject: TReadObjectEvent;
     FOnWriteObject: TWriteObjectEvent;
     function GetItemName: string;
     procedure SetItemName(const Value: string);
-    function ReadListParam(const Section: string; Append: Boolean;
-      List: TStrings): TStrings;
+    function ReadListParam(const Section: string; Append: Boolean; List: TStrings): TStrings;
   protected
-    procedure WriteObject(const Section, Item: string; Index: Integer;
-      Obj: TObject); dynamic;
+    procedure WriteObject(const Section, Item: string; Index: Integer; Obj: TObject); dynamic;
     function ReadObject(const Section, Item, Value: string): TObject; dynamic;
   public
     constructor Create(const FileName: string);
     destructor Destroy; override;
     procedure Flush;
-    {$IFDEF VER80}
-    procedure DeleteKey(const Section, Ident: string);
-    {$ENDIF}
+{$IFNDEF WIN32}
+    procedure DeleteKey(const Section, Ident: String);
+{$ENDIF}
     { ini-file read and write methods }
     function ReadClearList(const Section: string; List: TStrings): TStrings;
     function ReadList(const Section: string; List: TStrings): TStrings;
@@ -74,26 +66,24 @@ function FontStylesToString(Styles: TFontStyles): string;
 function FontToString(Font: TFont): string;
 procedure StringToFont(const Str: string; Font: TFont);
 function RectToStr(Rect: TRect): string;
-function StrToRect(const Str: AnsiString; const Def: TRect): TRect;
+function StrToRect(const Str: string; const Def: TRect): TRect;
 function PointToStr(P: TPoint): string;
-function StrToPoint(const Str: AnsiString; const Def: TPoint): TPoint;
+function StrToPoint(const Str: string; const Def: TPoint): TPoint;
 
 function DefProfileName: string;
 function DefLocalProfileName: string;
 
 const
-  idnListItem = 'Item';
+  idnListItem  = 'Item';
 
 implementation
 
-uses
-  SysUtils, Forms{$IFDEF VER80}, Str16{$ENDIF}, {$IFDEF RX_D12}AnsiStrings, {$ENDIF}
-  {$IFDEF RX_D6}RTLConsts, {$ENDIF}RxStrUtils; // Polaris
+Uses SysUtils, Forms, rxStrUtils {$IFNDEF WIN32}, Str16 {$ENDIF};
 
 const
   idnListCount = 'Count';
   idnDefString = #255#255;
-  Lefts = ['[', '{', '('];
+  Lefts  = ['[', '{', '('];
   Rights = [']', '}', ')'];
 
 { Utilities routines }
@@ -131,7 +121,7 @@ begin
   with Font do
     Result := Format('%s,%d,%s,%d,%s,%d', [Name, Size,
       FontStylesToString(Style), Ord(Pitch), ColorToString(Color),
-        {$IFDEF RX_D3}Charset{$ELSE}0{$ENDIF}]);
+      {$IFDEF RX_D3} Charset {$ELSE} 0 {$ENDIF}]);
 end;
 
 type
@@ -151,8 +141,7 @@ begin
   try
     Pos := 1;
     I := 0;
-    while Pos <= Length(Str) do
-    begin
+    while Pos <= Length(Str) do begin
       Inc(I);
       S := Trim(ExtractSubstr(Str, Pos, Delims));
       case I of
@@ -161,9 +150,9 @@ begin
         3: Font.Style := StringToFontStyles(S);
         4: Font.Pitch := TFontPitch(StrToIntDef(S, Ord(Font.Pitch)));
         5: Font.Color := StringToColor(S);
-        {$IFDEF RX_D3}
+{$IFDEF RX_D3}
         6: Font.Charset := TFontCharset(StrToIntDef(S, Font.Charset));
-        {$ENDIF}
+{$ENDIF}
       end;
     end;
   finally
@@ -178,50 +167,34 @@ begin
     Result := Format('[%d,%d,%d,%d]', [Left, Top, Right, Bottom]);
 end;
 
-function StrToRect(const Str: AnsiString; const Def: TRect): TRect;
+function StrToRect(const Str: string; const Def: TRect): TRect;
 var
-  S: AnsiString;
+  S: string;
   Temp: string[10];
   I: Integer;
 begin
   Result := Def;
   S := Str;
-  if (S[1] in Lefts) and (S[Length(S)] in Rights) then
-  begin
+  if (S[1] in Lefts) and (S[Length(S)] in Rights) then begin
     Delete(S, 1, 1); SetLength(S, Length(S) - 1);
   end;
-  {$IFDEF RX_D12}
-  I := AnsiStrings.PosEx(',', S);
-  {$ELSE}
   I := Pos(',', S);
-  {$ENDIF}
-  if I > 0 then
-  begin
+  if I > 0 then begin
     Temp := Trim(Copy(S, 1, I - 1));
-    Result.Left := StrToIntDef(string(Temp), Def.Left);
+    Result.Left := StrToIntDef(Temp, Def.Left);
     Delete(S, 1, I);
-    {$IFDEF RX_D12}
-    I := AnsiStrings.PosEx(',', S);
-    {$ELSE}
     I := Pos(',', S);
-    {$ENDIF}
-    if I > 0 then
-    begin
+    if I > 0 then begin
       Temp := Trim(Copy(S, 1, I - 1));
-      Result.Top := StrToIntDef(string(Temp), Def.Top);
+      Result.Top := StrToIntDef(Temp, Def.Top);
       Delete(S, 1, I);
-      {$IFDEF RX_D12}
-      I := AnsiStrings.PosEx(',', S);
-      {$ELSE}
       I := Pos(',', S);
-      {$ENDIF}
-      if I > 0 then
-      begin
+      if I > 0 then begin
         Temp := Trim(Copy(S, 1, I - 1));
-        Result.Right := StrToIntDef(string(Temp), Def.Right);
+        Result.Right := StrToIntDef(Temp, Def.Right);
         Delete(S, 1, I);
         Temp := Trim(S);
-        Result.Bottom := StrToIntDef(string(Temp), Def.Bottom);
+        Result.Bottom := StrToIntDef(Temp, Def.Bottom);
       end;
     end;
   end;
@@ -229,34 +202,27 @@ end;
 
 function PointToStr(P: TPoint): string;
 begin
-  with P do
-    Result := Format('[%d,%d]', [X, Y]);
+  with P do Result := Format('[%d,%d]', [X, Y]);
 end;
 
-function StrToPoint(const Str: AnsiString; const Def: TPoint): TPoint;
+function StrToPoint(const Str: string; const Def: TPoint): TPoint;
 var
-  S: AnsiString;
+  S: string;
   Temp: string[10];
   I: Integer;
 begin
   Result := Def;
   S := Str;
-  if (S[1] in Lefts) and (S[Length(Str)] in Rights) then
-  begin
+  if (S[1] in Lefts) and (S[Length(Str)] in Rights) then begin
     Delete(S, 1, 1); SetLength(S, Length(S) - 1);
   end;
-  {$IFDEF RX_D12}
-  I := AnsiStrings.PosEx(',', S);
-  {$ELSE}
   I := Pos(',', S);
-  {$ENDIF}
-  if I > 0 then
-  begin
+  if I > 0 then begin
     Temp := Trim(Copy(S, 1, I - 1));
-    Result.X := StrToIntDef(string(Temp), Def.X);
+    Result.X := StrToIntDef(Temp, Def.X);
     Delete(S, 1, I);
     Temp := Trim(S);
-    Result.Y := StrToIntDef(string(Temp), Def.Y);
+    Result.Y := StrToIntDef(Temp, Def.Y);
   end;
 end;
 
@@ -265,46 +231,39 @@ end;
 constructor TRxIniFile.Create(const FileName: string);
 begin
   inherited Create(FileName);
-  {$IFDEF RX_D4} // Polaris
-  FListItemName := idnListItem;
-  {$ELSE}
-  FListItemName := NewStr(idnListItem);
-  {$ENDIF}
+  FListItemName :=idnListItem;
   FOnReadObject := nil;
   FOnWriteObject := nil;
 end;
 
 destructor TRxIniFile.Destroy;
 begin
-  {$IFNDEF RX_D4} // Polaris
-  DisposeStr(FListItemName);
-  {$ENDIF}
+  //if (FListItemName <> nil) and (FListItemName^ <> '') then Dispose(FListItemName);
   inherited Destroy;
 end;
 
 procedure TRxIniFile.Flush;
 var
-  {$IFNDEF VER80}
+{$IFDEF WIN32}
   CFileName: array[0..MAX_PATH] of WideChar;
-  {$ELSE}
+{$ELSE}
   CFileName: array[0..127] of Char;
-  {$ENDIF}
+{$ENDIF}
 begin
-  {$IFNDEF VER80}
-  if (Win32Platform = VER_PLATFORM_WIN32_NT) then
+{$IFDEF WIN32}
+  if (Win32Platform = VER_PLATFORM_WIN32_NT) then 
     WritePrivateProfileStringW(nil, nil, nil, StringToWideChar(FileName,
       CFileName, MAX_PATH))
   else
     WritePrivateProfileString(nil, nil, nil, PChar(FileName));
-  {$ELSE}
+{$ELSE}
   WritePrivateProfileString(nil, nil, nil, StrPLCopy(CFileName,
     FileName, SizeOf(CFileName) - 1));
-  {$ENDIF}
+{$ENDIF}
 end;
 
-{$IFDEF VER80}
-
-procedure TRxIniFile.DeleteKey(const Section, Ident: string);
+{$IFNDEF WIN32}
+procedure TRxIniFile.DeleteKey(const Section, Ident: String);
 var
   CSection: array[0..127] of Char;
   CIdent: array[0..127] of Char;
@@ -318,20 +277,12 @@ end;
 
 function TRxIniFile.GetItemName: string;
 begin
-  {$IFDEF RX_D4} // Polaris
   Result := FListItemName;
-  {$ELSE}
-  Result := FListItemName^;
-  {$ENDIF}
 end;
 
 procedure TRxIniFile.SetItemName(const Value: string);
 begin
-  {$IFDEF RX_D4} // Polaris
   FListItemName := Value;
-  {$ELSE}
-  AssignStr(FListItemName, Value);
-  {$ENDIF}
 end;
 
 procedure TRxIniFile.WriteObject(const Section, Item: string; Index: Integer;
@@ -352,8 +303,7 @@ var
 begin
   EraseSection(Section);
   WriteInteger(Section, idnListCount, List.Count);
-  for I := 0 to List.Count - 1 do
-  begin
+  for I := 0 to List.Count - 1 do begin
     WriteString(Section, ListItemName + IntToStr(I), List[I]);
     WriteObject(Section, ListItemName + IntToStr(I), I, List.Objects[I]);
   end;
@@ -367,11 +317,9 @@ var
 begin
   Result := List;
   IniCount := ReadInteger(Section, idnListCount, -1);
-  if IniCount >= 0 then
-  begin
+  if IniCount >= 0 then begin
     if not Append then List.Clear;
-    for I := 0 to IniCount - 1 do
-    begin
+    for I := 0 to IniCount - 1 do begin
       AssString := ReadString(Section, ListItemName + IntToStr(I), idnDefString);
       if AssString <> idnDefString then
         List.AddObject(AssString, ReadObject(Section, ListItemName +
@@ -408,7 +356,7 @@ end;
 
 function TRxIniFile.ReadRect(const Section, Ident: string; const Default: TRect): TRect;
 begin
-  Result := StrToRect(AnsiString(ReadString(Section, Ident, RectToStr(Default))), Default);
+  Result := StrToRect(ReadString(Section, Ident, RectToStr(Default)), Default);
 end;
 
 procedure TRxIniFile.WriteRect(const Section, Ident: string; const Value: TRect);
@@ -418,7 +366,7 @@ end;
 
 function TRxIniFile.ReadPoint(const Section, Ident: string; const Default: TPoint): TPoint;
 begin
-  Result := StrToPoint(AnsiString(ReadString(Section, Ident, PointToStr(Default))), Default);
+  Result := StrToPoint(ReadString(Section, Ident, PointToStr(Default)), Default);
 end;
 
 procedure TRxIniFile.WritePoint(const Section, Ident: string; const Value: TPoint);

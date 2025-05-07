@@ -3,9 +3,9 @@ unit PageDemo;
 interface
 
 uses
-  SysUtils, Windows, Messages, Classes, Graphics, Controls,
+  SysUtils, WinTypes, WinProcs, Messages, Classes, Graphics, Controls,
   Forms, Dialogs, StdCtrls, DBCtrls, DBTables, DB, Mask, ExtCtrls, Grids,
-  DBGrids, RXDBCtrl, RxQuery, RxPlacemnt, RxToolEdit, RxPageMngr, RXCtrls,
+  DBGrids, RXDBCtrl, RxQuery, Placemnt, ToolEdit, PageMngr, RXCtrls,
   RxDBComb;
 
 type
@@ -149,7 +149,7 @@ type
 
 implementation
 
-uses RxDBUtils, RxBdeUtils;
+uses DBUtils, BdeUtils;
 
 {$R *.DFM}
 

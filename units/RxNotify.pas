@@ -2,9 +2,12 @@
 {                                                       }
 {         Delphi VCL Extensions (RX)                    }
 {                                                       }
-{         Copyright (c) 1998 Master-Bank                }
+{         Copyright (c) 2001,2002 SGB Software          }
+{         Copyright (c) 1997, 1998 Fedor Koshevnikov,   }
+{                        Igor Pavluk and Serge Korolev  }
 {                                                       }
 {*******************************************************}
+
 
 unit RxNotify;
 
@@ -12,10 +15,9 @@ interface
 
 {$I RX.INC}
 
-{$IFNDEF VER80}
+{$IFDEF WIN32}
 
-uses
-  Windows, SysUtils, Classes, Messages, ExtCtrls;
+uses Windows, SysUtils, Classes, Messages, ExtCtrls;
 
 type
   TFileChangeFilter = (fnFileName, fnDirName, fnAttributes, fnSize,
@@ -93,20 +95,19 @@ type
 function CreateNotifyThread(const FolderName: string; WatchSubtree: Boolean;
   Filter: TFileChangeFilters): TNotifyThread;
 
-{$ENDIF}
+{$ENDIF WIN32}
 
 implementation
 
-{$IFNDEF VER80}
+{$IFDEF WIN32}
 
-uses
-  Forms, RxVCLUtils, RxFileUtil;
+uses Forms, VCLUtils, FileUtil;
 
 {$IFNDEF RX_D3}
 const
-  FILE_NOTIFY_CHANGE_LAST_ACCESS = $00000020;
-  FILE_NOTIFY_CHANGE_CREATION = $00000040;
-  {$ENDIF}
+  FILE_NOTIFY_CHANGE_LAST_ACCESS  = $00000020;
+  FILE_NOTIFY_CHANGE_CREATION     = $00000040;
+{$ENDIF}
 
 { TNotifyThread }
 
@@ -127,16 +128,12 @@ begin
   Filters := 0;
   for I := Low(TFileChangeFilter) to High(TFileChangeFilter) do
     if I in Filter then Filters := Filters or NotifyFilters[I];
-  if WatchSubtree then
-    Subtree := 1
-  else
-    Subtree := 0;
+  if WatchSubtree then Subtree := 1 else Subtree := 0;
   FNotifyHandle := FindFirstChangeNotification(PChar(FolderName),
     Bool(Subtree), Filters);
   if FNotifyHandle <> INVALID_HANDLE_VALUE then
     FEvent := CreateEvent(nil, BOOL(1), BOOL(0), nil)
-  else
-    FLastError := GetLastError;
+  else FLastError := GetLastError;
   inherited Create(False);
 end;
 
@@ -183,11 +180,9 @@ begin
     Handles[1] := FEvent;
     case WaitForMultipleObjects(2, PWOHandleArray(@Handles), False, INFINITE) of
       WAIT_OBJECT_0: { notification }
-        if not Terminated then
-        begin
+        if not Terminated then begin
           DoChange;
-          if not FindNextChangeNotification(FNotifyHandle) then
-          begin
+          if not FindNextChangeNotification(FNotifyHandle) then begin
             FLastError := GetLastError;
             Break;
           end;
@@ -248,8 +243,7 @@ begin
   except
     if csDesigning in ComponentState then
       Application.HandleException(Self)
-    else
-      raise;
+    else raise;
   end;
 end;
 
@@ -260,12 +254,10 @@ end;
 
 procedure TRxFolderMonitor.SetActive(Value: Boolean);
 begin
-  if (csReading in ComponentState) then
-  begin
+  if (csReading in ComponentState) then begin
     if Value then FStreamedActive := True;
   end
-  else if Active <> Value then
-  begin
+  else if Active <> Value then begin
     ResetNotifyThread(Value);
   end;
 end;
@@ -275,8 +267,7 @@ var
   SaveFilter: TFileChangeFilters;
   IsActive: Boolean;
 begin
-  if FFilter <> Value then
-  begin
+  if FFilter <> Value then begin
     SaveFilter := FFilter;
     IsActive := Active;
     FFilter := Value;
@@ -296,8 +287,7 @@ end;
 
 procedure TRxFolderMonitor.SetMonitorSubtree(Value: Boolean);
 begin
-  if FMonitorSubtree <> Value then
-  begin
+  if FMonitorSubtree <> Value then begin
     FMonitorSubtree := Value;
     ResetNotifyThread(Active);
   end;
@@ -305,8 +295,7 @@ end;
 
 procedure TRxFolderMonitor.SetFolderName(const Value: string);
 begin
-  if FFolderName <> Value then
-  begin
+  if FFolderName <> Value then begin
     FFolderName := Value;
     ResetNotifyThread(Active);
   end;
@@ -315,13 +304,10 @@ end;
 procedure TRxFolderMonitor.FreeNotifyThread;
 begin
   if FNotifyThread <> nil then
-    with FNotifyThread do
-    begin
+    with FNotifyThread do begin
       OnChange := nil;
-      if FFinished then
-        Free
-      else
-      begin
+      if FFinished then Free
+      else begin
         FreeOnTerminate := True;
         Terminate;
       end;
@@ -332,8 +318,7 @@ end;
 procedure TRxFolderMonitor.ResetNotifyThread(Activate: Boolean);
 begin
   FreeNotifyThread;
-  if Activate and DirExists(FFolderName) then
-  begin
+  if Activate and DirExists(FFolderName) then begin
     FNotifyThread := CreateNotifyThread(FolderName, MonitorSubtree, Filter);
     FNotifyThread.OnChange := ThreadNotification;
   end;
@@ -343,18 +328,15 @@ function TRxFolderMonitor.GetDelayTime: Cardinal;
 begin
   if FDelayTimer <> nil then
     Result := FDelayTimer.Interval
-  else
-    Result := FDelayTime;
+  else Result := FDelayTime;
 end;
 
 procedure TRxFolderMonitor.SetDelayTime(Value: Cardinal);
 begin
-  if (FDelayTimer <> nil) then
-  begin
+  if (FDelayTimer <> nil) then begin
     if Value > 0 then
       FDelayTimer.Interval := Value
-    else
-    begin
+    else begin
       FDelayTimer.OnTimer := nil;
       FDelayTimer.Free;
       FDelayTimer := nil;
@@ -367,11 +349,9 @@ procedure TRxFolderMonitor.ThreadNotification(Sender: TObject);
 begin
   if FDelayTime <= 0 then
     Changed
-  else if FDelayTimer = nil then
-  begin
+  else if FDelayTimer = nil then begin
     FDelayTimer := TTimer.Create(Self);
-    with FDelayTimer do
-    begin
+    with FDelayTimer do begin
       Interval := FDelayTime;
       OnTimer := Timer;
       Enabled := True;
@@ -391,6 +371,6 @@ begin
   if Assigned(FOnChange) then FOnChange(Self);
 end;
 
-{$ENDIF}
+{$ENDIF WIN32}
 
 end.

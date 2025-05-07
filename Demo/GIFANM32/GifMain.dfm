@@ -1,9 +1,10 @@
 object AnimatorForm: TAnimatorForm
   Left = 207
   Top = 110
-  Width = 400
-  Height = 453
+  AutoScroll = False
   BorderIcons = [biSystemMenu, biMinimize]
+  ClientHeight = 421
+  ClientWidth = 366
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -116,7 +117,7 @@ object AnimatorForm: TAnimatorForm
   object SpeedBar: TSpeedBar
     Left = 0
     Top = 0
-    Width = 392
+    Width = 366
     Height = 31
     ParentFont = True
     BoundLines = [blBottom]
@@ -310,7 +311,7 @@ object AnimatorForm: TAnimatorForm
     Top = 40
     Width = 191
     Height = 357
-    ActivePage = AnimationTab
+    ActivePage = OptionsTab
     TabOrder = 6
     object OptionsTab: TTabSheet
       Caption = 'Options'
@@ -331,7 +332,6 @@ object AnimatorForm: TAnimatorForm
         FocusControl = ThumbnailsBox
         ShadowSize = 0
         ShowFocus = True
-        Transparent = True
         OnMouseDown = CheckLabelMouseDown
       end
       object AlwaysOnTopLabel: TRxLabel
@@ -343,7 +343,6 @@ object AnimatorForm: TAnimatorForm
         FocusControl = AlwaysOnTop
         ShadowSize = 0
         ShowFocus = True
-        Transparent = True
         OnMouseDown = CheckLabelMouseDown
       end
       object ColorDepthCombo: TComboBox
@@ -352,7 +351,7 @@ object AnimatorForm: TAnimatorForm
         Width = 153
         Height = 21
         Style = csDropDownList
-        ItemHeight = 0
+        ItemHeight = 13
         TabOrder = 1
         OnChange = ColorDepthComboChange
         Items.Strings = (
@@ -497,12 +496,12 @@ object AnimatorForm: TAnimatorForm
       object LoopLbl: TRxLabel
         Left = 27
         Top = 167
-        Width = 74
-        Height = 13
+        Width = 75
+        Height = 14
         Caption = '&Repeat Count: '
+        Enabled = False
         FocusControl = RepeatCnt
         ShadowSize = 0
-        Transparent = True
       end
       object TrailingComment: TMemo
         Left = 4
@@ -510,7 +509,7 @@ object AnimatorForm: TAnimatorForm
         Width = 176
         Height = 96
         ScrollBars = ssVertical
-        TabOrder = 4
+        TabOrder = 1
         OnChange = CommentChange
       end
       object BackColor: TComboEdit
@@ -526,16 +525,26 @@ object AnimatorForm: TAnimatorForm
         TabOrder = 0
         OnButtonClick = BackColorButtonClick
       end
-      object RepeatCnt: TRxSpinEdit
+      object RepeatCntBtn: TUpDown
+        Left = 161
+        Top = 163
+        Width = 15
+        Height = 21
+        Associate = RepeatCnt
+        Enabled = False
+        Max = 30000
+        TabOrder = 2
+      end
+      object RepeatCnt: TEdit
         Left = 106
         Top = 163
-        Width = 67
+        Width = 55
         Height = 21
-        ButtonKind = bkStandard
-        Decimal = 0
-        MaxValue = 30000.000000000000000000
+        CharCase = ecUpperCase
+        Enabled = False
         MaxLength = 5
-        TabOrder = 2
+        TabOrder = 3
+        Text = '0'
         OnChange = LoopChange
       end
       object LoopBox: TCheckBox
@@ -544,7 +553,7 @@ object AnimatorForm: TAnimatorForm
         Width = 97
         Height = 17
         Caption = '&Looping'
-        TabOrder = 1
+        TabOrder = 4
         OnClick = LoopChange
       end
       object RepeatForever: TCheckBox
@@ -554,7 +563,7 @@ object AnimatorForm: TAnimatorForm
         Height = 17
         Caption = 'Repeat &Forever'
         Enabled = False
-        TabOrder = 3
+        TabOrder = 5
         OnClick = LoopChange
       end
     end
@@ -651,7 +660,6 @@ object AnimatorForm: TAnimatorForm
         Enabled = False
         FocusControl = TransColor
         ShadowSize = 0
-        Transparent = True
       end
       object FrameComment: TMemo
         Left = 1
@@ -659,41 +667,68 @@ object AnimatorForm: TAnimatorForm
         Width = 180
         Height = 71
         ScrollBars = ssVertical
-        TabOrder = 6
+        TabOrder = 9
         OnChange = CommentChange
       end
-      object ImageLeft: TRxSpinEdit
+      object ImageLeft: TEdit
         Left = 108
         Top = 60
-        Width = 69
+        Width = 55
         Height = 21
-        ButtonKind = bkStandard
-        Decimal = 0
-        MaxValue = 32767.000000000000000000
+        CharCase = ecUpperCase
+        MaxLength = 5
         TabOrder = 0
+        Text = '0'
         OnChange = TopLeftChange
       end
-      object ImageTop: TRxSpinEdit
+      object ImageLeftBtn: TUpDown
+        Left = 163
+        Top = 60
+        Width = 15
+        Height = 21
+        Associate = ImageLeft
+        Max = 32767
+        TabOrder = 1
+      end
+      object ImageTop: TEdit
         Left = 108
         Top = 88
-        Width = 69
+        Width = 55
         Height = 21
-        ButtonKind = bkStandard
-        Decimal = 0
-        MaxValue = 32767.000000000000000000
-        TabOrder = 1
+        CharCase = ecUpperCase
+        MaxLength = 5
+        TabOrder = 2
+        Text = '0'
         OnChange = TopLeftChange
       end
-      object DelayTime: TRxSpinEdit
+      object ImageTopBtn: TUpDown
+        Left = 163
+        Top = 88
+        Width = 15
+        Height = 21
+        Associate = ImageTop
+        Max = 32767
+        TabOrder = 3
+      end
+      object DelayTime: TEdit
         Left = 108
         Top = 116
-        Width = 69
+        Width = 55
         Height = 21
-        ButtonKind = bkStandard
-        Decimal = 0
-        MaxValue = 32767.000000000000000000
-        TabOrder = 2
+        CharCase = ecUpperCase
+        MaxLength = 10
+        TabOrder = 4
+        Text = '0'
         OnChange = DelayTimeChange
+      end
+      object DelayTimeBtn: TUpDown
+        Left = 163
+        Top = 116
+        Width = 15
+        Height = 21
+        Associate = DelayTime
+        Max = 32767
+        TabOrder = 5
       end
       object DisposalCombo: TComboBox
         Left = 6
@@ -701,8 +736,8 @@ object AnimatorForm: TAnimatorForm
         Width = 171
         Height = 21
         Style = csDropDownList
-        ItemHeight = 0
-        TabOrder = 3
+        ItemHeight = 13
+        TabOrder = 6
         OnChange = DisposalComboChange
         Items.Strings = (
           'Undefined'
@@ -720,7 +755,7 @@ object AnimatorForm: TAnimatorForm
         GlyphKind = gkEllipsis
         ButtonWidth = 17
         NumGlyphs = 1
-        TabOrder = 5
+        TabOrder = 8
         OnButtonClick = TransColorButtonClick
       end
       object TransBox: TCheckBox
@@ -729,7 +764,7 @@ object AnimatorForm: TAnimatorForm
         Width = 99
         Height = 17
         Caption = 'Transparency  '
-        TabOrder = 4
+        TabOrder = 7
         OnClick = TransBoxClick
       end
     end

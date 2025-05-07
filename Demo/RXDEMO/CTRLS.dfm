@@ -10,10 +10,11 @@ object ControlsForm: TControlsForm
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
-  Font.Name = 'Tahoma'
+  Font.Name = 'MS Sans Serif'
   Font.Style = []
   FormStyle = fsMDIChild
   OldCreateOrder = True
+  Position = poDefaultPosOnly
   ShowHint = True
   Visible = True
   OnClose = FormClose
@@ -31,7 +32,7 @@ object ControlsForm: TControlsForm
     TabFont.Charset = DEFAULT_CHARSET
     TabFont.Color = clBtnText
     TabFont.Height = -11
-    TabFont.Name = 'Tahoma'
+    TabFont.Name = 'MS Sans Serif'
     TabFont.Style = []
     TabOrder = 0
     object TTabPage
@@ -47,20 +48,21 @@ object ControlsForm: TControlsForm
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clBlue
         Font.Height = -11
-        Font.Name = 'Tahoma'
+        Font.Name = 'MS Sans Serif'
         Font.Style = []
         ParentFont = False
         TabOrder = 0
         object Label1: TLabel
           Left = 8
           Top = 16
-          Width = 211
+          Width = 225
           Height = 13
+          AutoSize = False
           Caption = 'Allows to choose color from a drop-down list'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ParentFont = False
         end
@@ -81,7 +83,7 @@ object ControlsForm: TControlsForm
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ParentFont = False
           TabOrder = 0
@@ -97,7 +99,7 @@ object ControlsForm: TControlsForm
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ParentFont = False
           State = cbChecked
@@ -114,33 +116,35 @@ object ControlsForm: TControlsForm
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clBlue
         Font.Height = -11
-        Font.Name = 'Tahoma'
+        Font.Name = 'MS Sans Serif'
         Font.Style = []
         ParentFont = False
         TabOrder = 1
         object Label2: TLabel
           Left = 8
           Top = 16
-          Width = 208
+          Width = 229
           Height = 13
+          AutoSize = False
           Caption = 'Allows to choose font from a drop-down list'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = [fsUnderline]
           ParentFont = False
         end
         object Label3: TLabel
           Left = 8
           Top = 64
-          Width = 30
+          Width = 41
           Height = 13
+          AutoSize = False
           Caption = 'Show:'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ParentFont = False
         end
@@ -152,7 +156,7 @@ object ControlsForm: TControlsForm
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ParentFont = False
           TabOrder = 0
@@ -167,7 +171,7 @@ object ControlsForm: TControlsForm
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ParentFont = False
           TabOrder = 1
@@ -182,7 +186,7 @@ object ControlsForm: TControlsForm
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ItemHeight = 13
           ParentFont = False
@@ -203,7 +207,7 @@ object ControlsForm: TControlsForm
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clBlue
         Font.Height = -11
-        Font.Name = 'Tahoma'
+        Font.Name = 'MS Sans Serif'
         Font.Style = []
         ParentFont = False
         TabOrder = 2
@@ -225,26 +229,28 @@ object ControlsForm: TControlsForm
         object Label4: TLabel
           Left = 8
           Top = 16
-          Width = 177
+          Width = 217
           Height = 13
+          AutoSize = False
           Caption = 'Slider with customizable look and feel'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = [fsUnderline]
           ParentFont = False
         end
         object Label5: TLabel
           Left = 104
           Top = 32
-          Width = 58
+          Width = 73
           Height = 13
+          AutoSize = False
           Caption = '&Orientation:'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ParentFont = False
         end
@@ -258,20 +264,21 @@ object ControlsForm: TControlsForm
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ParentFont = False
         end
         object Label7: TLabel
           Left = 104
           Top = 116
-          Width = 41
+          Width = 53
           Height = 13
+          AutoSize = False
           Caption = 'O&ptions:'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ParentFont = False
         end
@@ -285,7 +292,7 @@ object ControlsForm: TControlsForm
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ParentFont = False
         end
@@ -422,7 +429,7 @@ object ControlsForm: TControlsForm
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ItemHeight = 13
           ParentFont = False
@@ -442,7 +449,7 @@ object ControlsForm: TControlsForm
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ParentFont = False
           State = cbChecked
@@ -459,7 +466,7 @@ object ControlsForm: TControlsForm
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ParentFont = False
           State = cbChecked
@@ -475,7 +482,7 @@ object ControlsForm: TControlsForm
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ItemHeight = 13
           ParentFont = False
@@ -495,46 +502,49 @@ object ControlsForm: TControlsForm
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clBlue
         Font.Height = -11
-        Font.Name = 'Tahoma'
+        Font.Name = 'MS Sans Serif'
         Font.Style = []
         ParentFont = False
         TabOrder = 3
         object Label9: TLabel
           Left = 8
           Top = 16
-          Width = 176
+          Width = 225
           Height = 13
+          AutoSize = False
           Caption = 'Switch control with customizable look'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = [fsUnderline]
           ParentFont = False
         end
         object Label10: TLabel
           Left = 112
           Top = 32
-          Width = 26
+          Width = 37
           Height = 13
+          AutoSize = False
           Caption = 'Te&xt:'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clBlack
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ParentFont = False
         end
         object Label11: TLabel
           Left = 112
           Top = 76
-          Width = 60
+          Width = 73
           Height = 13
+          AutoSize = False
           Caption = 'Looks like in:'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clBlack
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ParentFont = False
         end
@@ -686,7 +696,7 @@ object ControlsForm: TControlsForm
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ParentColor = False
           ParentFont = False
@@ -705,7 +715,7 @@ object ControlsForm: TControlsForm
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ItemHeight = 13
           ParentFont = False
@@ -727,7 +737,7 @@ object ControlsForm: TControlsForm
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ItemHeight = 13
           ParentFont = False
@@ -746,7 +756,7 @@ object ControlsForm: TControlsForm
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ParentFont = False
           TabOrder = 3
@@ -767,20 +777,20 @@ object ControlsForm: TControlsForm
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clBlue
         Font.Height = -11
-        Font.Name = 'Tahoma'
+        Font.Name = 'MS Sans Serif'
         Font.Style = []
         ParentFont = False
         TabOrder = 0
         object Label13: TLabel
           Left = 9
           Top = 14
-          Width = 203
+          Width = 197
           Height = 13
           Caption = 'Edit Box with a button (for special actions)'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = [fsUnderline]
           ParentFont = False
           WordWrap = True
@@ -794,7 +804,7 @@ object ControlsForm: TControlsForm
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           GlyphKind = gkEllipsis
           NumGlyphs = 1
@@ -812,22 +822,23 @@ object ControlsForm: TControlsForm
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clBlue
         Font.Height = -11
-        Font.Name = 'Tahoma'
+        Font.Name = 'MS Sans Serif'
         Font.Style = []
         ParentFont = False
         TabOrder = 1
         object Label14: TLabel
           Left = 8
           Top = 16
-          Width = 223
-          Height = 26
+          Width = 225
+          Height = 33
+          AutoSize = False
           Caption = 
             'Provide masked typing and brings up calendar or calculator on bu' +
             'tton click'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = [fsUnderline]
           ParentFont = False
           WordWrap = True
@@ -841,7 +852,7 @@ object ControlsForm: TControlsForm
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           NumGlyphs = 2
           ParentFont = False
@@ -857,7 +868,7 @@ object ControlsForm: TControlsForm
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           NumGlyphs = 2
           ParentFont = False
@@ -873,20 +884,20 @@ object ControlsForm: TControlsForm
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clBlue
         Font.Height = -11
-        Font.Name = 'Tahoma'
+        Font.Name = 'MS Sans Serif'
         Font.Style = []
         ParentFont = False
         TabOrder = 2
         object Label15: TLabel
           Left = 8
           Top = 14
-          Width = 163
+          Width = 161
           Height = 13
           Caption = 'Direct typing or call to OpenDialog'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = [fsUnderline]
           ParentFont = False
           WordWrap = True
@@ -901,7 +912,7 @@ object ControlsForm: TControlsForm
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           NumGlyphs = 1
           ParentFont = False
@@ -917,20 +928,21 @@ object ControlsForm: TControlsForm
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clBlue
         Font.Height = -11
-        Font.Name = 'Tahoma'
+        Font.Name = 'MS Sans Serif'
         Font.Style = []
         ParentFont = False
         TabOrder = 3
         object Label16: TLabel
           Left = 8
           Top = 16
-          Width = 112
+          Width = 165
           Height = 13
+          AutoSize = False
           Caption = 'Direct typing or Browse'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = [fsUnderline]
           ParentFont = False
         end
@@ -943,7 +955,7 @@ object ControlsForm: TControlsForm
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           NumGlyphs = 1
           ParentFont = False
@@ -959,20 +971,20 @@ object ControlsForm: TControlsForm
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clBlue
         Font.Height = -11
-        Font.Name = 'Tahoma'
+        Font.Name = 'MS Sans Serif'
         Font.Style = []
         ParentFont = False
         TabOrder = 4
         object Label17: TLabel
           Left = 8
           Top = 14
-          Width = 161
+          Width = 157
           Height = 13
           Caption = 'Edit Box for moneys and numbers'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = [fsUnderline]
           ParentFont = False
           WordWrap = True
@@ -987,7 +999,7 @@ object ControlsForm: TControlsForm
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ParentFont = False
         end
@@ -1001,7 +1013,7 @@ object ControlsForm: TControlsForm
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ParentFont = False
           TabOrder = 0
@@ -1014,7 +1026,7 @@ object ControlsForm: TControlsForm
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ParentFont = False
           TabOrder = 1
@@ -1030,7 +1042,7 @@ object ControlsForm: TControlsForm
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ParentFont = False
           TabOrder = 2
@@ -1046,72 +1058,76 @@ object ControlsForm: TControlsForm
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clBlue
         Font.Height = -11
-        Font.Name = 'Tahoma'
+        Font.Name = 'MS Sans Serif'
         Font.Style = []
         ParentFont = False
         TabOrder = 5
         object Label18: TLabel
           Left = 8
           Top = 16
-          Width = 88
+          Width = 109
           Height = 13
+          AutoSize = False
           Caption = 'Label with shadow'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = [fsUnderline]
           ParentFont = False
         end
         object rxLabel1: TRxLabel
           Left = 8
           Top = 36
-          Width = 80
+          Width = 82
           Height = 13
           Caption = 'Shadowed Label'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ParentFont = False
         end
         object Label23: TLabel
           Left = 120
           Top = 12
-          Width = 70
+          Width = 101
           Height = 13
+          AutoSize = False
           Caption = 'Shadow Color:'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ParentFont = False
         end
         object Label24: TLabel
           Left = 120
           Top = 52
-          Width = 82
+          Width = 117
           Height = 13
+          AutoSize = False
           Caption = 'Shadow Position:'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ParentFont = False
         end
         object Label25: TLabel
           Left = 120
           Top = 100
-          Width = 64
+          Width = 81
           Height = 13
+          AutoSize = False
           Caption = 'Shadow Size:'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ParentFont = False
         end
@@ -1124,7 +1140,7 @@ object ControlsForm: TControlsForm
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ParentFont = False
           TabOrder = 0
@@ -1139,7 +1155,7 @@ object ControlsForm: TControlsForm
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ItemHeight = 13
           ParentFont = False
@@ -1159,7 +1175,7 @@ object ControlsForm: TControlsForm
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           MaxValue = 15
           MinValue = 0
@@ -1177,7 +1193,7 @@ object ControlsForm: TControlsForm
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ParentFont = False
           TabOrder = 3
@@ -1193,20 +1209,20 @@ object ControlsForm: TControlsForm
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clBlue
         Font.Height = -11
-        Font.Name = 'Tahoma'
+        Font.Name = 'MS Sans Serif'
         Font.Style = []
         ParentFont = False
         TabOrder = 6
         object Label19: TLabel
           Left = 8
           Top = 14
-          Width = 169
+          Width = 168
           Height = 13
           Caption = 'Edit Box with Up and Down buttons'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = [fsUnderline]
           ParentFont = False
           WordWrap = True
@@ -1221,7 +1237,7 @@ object ControlsForm: TControlsForm
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ParentFont = False
         end
@@ -1235,7 +1251,7 @@ object ControlsForm: TControlsForm
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ParentFont = False
         end
@@ -1247,7 +1263,7 @@ object ControlsForm: TControlsForm
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ParentFont = False
           TabOrder = 0
@@ -1261,7 +1277,7 @@ object ControlsForm: TControlsForm
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ItemHeight = 13
           ParentFont = False
@@ -1279,7 +1295,7 @@ object ControlsForm: TControlsForm
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           MaxValue = 100
           MinValue = 0
@@ -1304,15 +1320,16 @@ object ControlsForm: TControlsForm
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clBlue
         Font.Height = -11
-        Font.Name = 'Tahoma'
+        Font.Name = 'MS Sans Serif'
         Font.Style = []
         ParentFont = False
         TabOrder = 0
         object Label26: TLabel
           Left = 8
           Top = 16
-          Width = 466
-          Height = 26
+          Width = 481
+          Height = 33
+          AutoSize = False
           Caption = 
             'Line or bar separating two controls. Controls can be horizontall' +
             'y or vertically resized by dragging the splitter. Two splitters ' +
@@ -1320,7 +1337,7 @@ object ControlsForm: TControlsForm
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = [fsUnderline]
           ParentFont = False
           WordWrap = True
@@ -1328,26 +1345,28 @@ object ControlsForm: TControlsForm
         object Label27: TLabel
           Left = 4
           Top = 53
-          Width = 23
+          Width = 29
           Height = 13
+          AutoSize = False
           Caption = 'Disk:'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ParentFont = False
         end
         object Label28: TLabel
           Left = 196
           Top = 56
-          Width = 55
+          Width = 77
           Height = 13
+          AutoSize = False
           Caption = 'Quick View:'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ParentFont = False
         end
@@ -1379,7 +1398,7 @@ object ControlsForm: TControlsForm
               Font.Charset = DEFAULT_CHARSET
               Font.Color = clWindowText
               Font.Height = -11
-              Font.Name = 'Tahoma'
+              Font.Name = 'MS Sans Serif'
               Font.Style = []
               ItemHeight = 16
               ParentFont = False
@@ -1406,7 +1425,7 @@ object ControlsForm: TControlsForm
               Font.Charset = DEFAULT_CHARSET
               Font.Color = clWindowText
               Font.Height = -11
-              Font.Name = 'Tahoma'
+              Font.Name = 'MS Sans Serif'
               Font.Style = []
               ItemHeight = 13
               ParentFont = False
@@ -1423,7 +1442,7 @@ object ControlsForm: TControlsForm
             Font.Charset = DEFAULT_CHARSET
             Font.Color = clWindowText
             Font.Height = -11
-            Font.Name = 'Tahoma'
+            Font.Name = 'MS Sans Serif'
             Font.Style = []
             Lines.Strings = (
               '')
@@ -1452,7 +1471,7 @@ object ControlsForm: TControlsForm
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ParentFont = False
           TabOrder = 1
@@ -1472,20 +1491,21 @@ object ControlsForm: TControlsForm
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clBlue
         Font.Height = -11
-        Font.Name = 'Tahoma'
+        Font.Name = 'MS Sans Serif'
         Font.Style = []
         ParentFont = False
         TabOrder = 0
         object Label30: TLabel
           Left = 8
           Top = 16
-          Width = 47
+          Width = 61
           Height = 13
+          AutoSize = False
           Caption = 'Animation'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = [fsUnderline]
           ParentFont = False
         end
@@ -1697,39 +1717,42 @@ object ControlsForm: TControlsForm
         object Label31: TLabel
           Left = 104
           Top = 40
-          Width = 37
+          Width = 53
           Height = 13
+          AutoSize = False
           Caption = 'Picture:'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ParentFont = False
         end
         object Label32: TLabel
           Left = 104
           Top = 80
-          Width = 42
+          Width = 49
           Height = 13
+          AutoSize = False
           Caption = 'Interval:'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ParentFont = False
         end
         object Label33: TLabel
           Left = 164
           Top = 80
-          Width = 48
+          Width = 61
           Height = 13
+          AutoSize = False
           Caption = 'Picture #:'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ParentFont = False
         end
@@ -2395,7 +2418,7 @@ object ControlsForm: TControlsForm
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ItemHeight = 13
           ParentFont = False
@@ -2416,7 +2439,7 @@ object ControlsForm: TControlsForm
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ParentFont = False
           TabOrder = 0
@@ -2430,7 +2453,7 @@ object ControlsForm: TControlsForm
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           Increment = 10
           MaxValue = 0
@@ -2448,7 +2471,7 @@ object ControlsForm: TControlsForm
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           MaxValue = 0
           MinValue = 0
@@ -2466,7 +2489,7 @@ object ControlsForm: TControlsForm
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ParentFont = False
           TabOrder = 1
@@ -2482,20 +2505,21 @@ object ControlsForm: TControlsForm
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clBlue
         Font.Height = -11
-        Font.Name = 'Tahoma'
+        Font.Name = 'MS Sans Serif'
         Font.Style = []
         ParentFont = False
         TabOrder = 1
         object Label34: TLabel
           Left = 8
           Top = 16
-          Width = 211
+          Width = 233
           Height = 13
+          AutoSize = False
           Caption = 'ListBox with horizontal scrollbar if necessary'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = [fsUnderline]
           ParentFont = False
         end
@@ -2507,7 +2531,7 @@ object ControlsForm: TControlsForm
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ItemHeight = 13
           Items.Strings = (
@@ -2516,7 +2540,6 @@ object ControlsForm: TControlsForm
             'Long Item Long Item ')
           ParentFont = False
           TabOrder = 0
-          ScrollWidth = 108
         end
         object Button5: TButton
           Left = 16
@@ -2527,7 +2550,7 @@ object ControlsForm: TControlsForm
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ParentFont = False
           TabOrder = 1
@@ -2543,52 +2566,55 @@ object ControlsForm: TControlsForm
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clBlue
         Font.Height = -11
-        Font.Name = 'Tahoma'
+        Font.Name = 'MS Sans Serif'
         Font.Style = []
         ParentFont = False
         TabOrder = 2
         object Label35: TLabel
           Left = 8
           Top = 16
-          Width = 25
+          Width = 65
           Height = 13
+          AutoSize = False
           Caption = 'Clock'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = [fsUnderline]
           ParentFont = False
         end
         object Label36: TLabel
           Left = 128
           Top = 12
-          Width = 28
+          Width = 41
           Height = 13
+          AutoSize = False
           Caption = 'Style:'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ParentFont = False
         end
         object Label37: TLabel
           Left = 128
           Top = 84
-          Width = 31
+          Width = 45
           Height = 13
+          AutoSize = False
           Caption = 'Alarm:'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ParentFont = False
         end
         object rxClock1: TRxClock
-          Left = 7
-          Top = 35
+          Left = 6
+          Top = 32
           Width = 115
           Height = 111
           AlarmHour = 12
@@ -2598,13 +2624,13 @@ object ControlsForm: TControlsForm
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -19
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ParentFont = False
           OnAlarm = rxClock1Alarm
         end
         object ComboBox8: TComboBox
-          Left = 129
+          Left = 128
           Top = 28
           Width = 99
           Height = 21
@@ -2612,7 +2638,7 @@ object ControlsForm: TControlsForm
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ItemHeight = 13
           ParentFont = False
@@ -2623,7 +2649,7 @@ object ControlsForm: TControlsForm
             'Analog')
         end
         object Button3: TButton
-          Left = 129
+          Left = 128
           Top = 54
           Width = 99
           Height = 25
@@ -2631,7 +2657,7 @@ object ControlsForm: TControlsForm
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ParentFont = False
           TabOrder = 2
@@ -2640,13 +2666,13 @@ object ControlsForm: TControlsForm
         object CheckBox6: TCheckBox
           Left = 128
           Top = 100
-          Width = 100
+          Width = 101
           Height = 17
           Caption = 'On'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ParentFont = False
           TabOrder = 3
@@ -2655,12 +2681,12 @@ object ControlsForm: TControlsForm
         object SpinEdit5: TSpinEdit
           Left = 128
           Top = 120
-          Width = 35
+          Width = 33
           Height = 22
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           MaxValue = 24
           MinValue = 0
@@ -2672,12 +2698,12 @@ object ControlsForm: TControlsForm
         object SpinEdit6: TSpinEdit
           Left = 160
           Top = 120
-          Width = 35
+          Width = 33
           Height = 22
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           MaxValue = 59
           MinValue = 0
@@ -2687,14 +2713,14 @@ object ControlsForm: TControlsForm
           OnChange = SpinEdit6Change
         end
         object SpinEdit7: TSpinEdit
-          Left = 193
+          Left = 192
           Top = 120
-          Width = 35
+          Width = 33
           Height = 22
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           MaxValue = 59
           MinValue = 0
@@ -2713,46 +2739,49 @@ object ControlsForm: TControlsForm
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clBlue
         Font.Height = -11
-        Font.Name = 'Tahoma'
+        Font.Name = 'MS Sans Serif'
         Font.Style = []
         ParentFont = False
         TabOrder = 3
         object Label38: TLabel
           Left = 8
           Top = 16
-          Width = 25
+          Width = 65
           Height = 13
+          AutoSize = False
           Caption = 'Dices'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = [fsUnderline]
           ParentFont = False
         end
         object Label39: TLabel
           Left = 120
           Top = 104
-          Width = 42
+          Width = 53
           Height = 13
+          AutoSize = False
           Caption = 'Interval:'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ParentFont = False
         end
         object Label40: TLabel
           Left = 180
           Top = 104
-          Width = 30
+          Width = 57
           Height = 13
+          AutoSize = False
           Caption = 'Value:'
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ParentFont = False
         end
@@ -2775,7 +2804,7 @@ object ControlsForm: TControlsForm
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           ParentFont = False
           TabOrder = 1
@@ -2789,7 +2818,7 @@ object ControlsForm: TControlsForm
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           Increment = 10
           MaxValue = 0
@@ -2807,7 +2836,7 @@ object ControlsForm: TControlsForm
           Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
-          Font.Name = 'Tahoma'
+          Font.Name = 'MS Sans Serif'
           Font.Style = []
           MaxValue = 6
           MinValue = 1
@@ -2825,6 +2854,8 @@ object ControlsForm: TControlsForm
     Font.Height = -13
     Font.Name = 'System'
     Font.Style = []
+    MinFontSize = 0
+    MaxFontSize = 0
     Left = 438
     Top = 1
   end

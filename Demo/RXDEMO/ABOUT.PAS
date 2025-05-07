@@ -1,11 +1,10 @@
 unit About;
 
 interface
-{$I ..\units\RX.INC}
+
 uses
-  SysUtils, WinTypes, WinProcs, Messages, Classes, Graphics, Controls, Types,
-  {$IFDEF RX_D16}System.UITypes,{$ENDIF}
-  Forms, Dialogs, StdCtrls, Buttons, RXCtrls, ExtCtrls, RxAnimate;
+  SysUtils, WinTypes, WinProcs, Messages, Classes, Graphics, Controls,
+  Forms, Dialogs, StdCtrls, Buttons, RXCtrls, ExtCtrls, Animate;
 
 type
   TAboutForm = class(TForm)
@@ -25,8 +24,6 @@ type
     procedure SecretPanel1DblClick(Sender: TObject);
     procedure LabelMouseEnter(Sender: TObject);
     procedure LabelClick(Sender: TObject);
-    procedure SecretPanel1PaintClient(Sender: TObject; Canvas: TCanvas;
-      Rect: TRect);
   private
     { Private declarations }
   public
@@ -37,13 +34,13 @@ procedure RxWebSite;
 
 implementation
 
-uses RxConst, ShellAPI, RxVCLUtils;
+uses RxConst, ShellAPI;
 
 {$R *.DFM}
 
-procedure RxWebSite;
+procedure RxWebSite; 
 begin
-  ShellExecute(Application.Handle, nil, 'http://www.rxlib.com', nil,
+  ShellExecute(Application.Handle, nil, 'http://rx.demo.ru', nil,
     nil, SW_SHOWNOACTIVATE);
 end;
 
@@ -81,14 +78,6 @@ end;
 procedure TAboutForm.LabelClick(Sender: TObject);
 begin
   RxWebSite;
-end;
-
-procedure TAboutForm.SecretPanel1PaintClient(Sender: TObject;
-  Canvas: TCanvas; Rect: TRect);
-begin
-  if SecretPanel1.Active then
-    GradientFillRect(Canvas, Rect, clSilver, clGray, fdBottomToTop, 64)
-  else Canvas.FillRect(Rect);
 end;
 
 end.

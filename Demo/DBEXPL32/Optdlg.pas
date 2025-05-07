@@ -13,8 +13,8 @@ interface
 
 uses
   SysUtils, WinTypes, WinProcs, Messages, Classes, Graphics, Controls,
-  Forms, Dialogs, StdCtrls, ExtCtrls, TabNotBk, RxPlacemnt, DB, RxDBLists,
-  RXLookup, Mask, RxCurrEdit, ComCtrls, DBTables, RxToolEdit;
+  Forms, Dialogs, StdCtrls, ExtCtrls, TabNotBk, Placemnt, DB, DBLists,
+  RXLookup, Mask, CurrEdit, ComCtrls, DBTables, ToolEdit;
 
 type
   TOptionsDialog = class(TForm)
@@ -96,7 +96,7 @@ type
 
 implementation
 
-uses Consts, IniFiles, RxVCLUtils, RxDBUtils, Options, Main, DBCbRest, RxBdeUtils;
+uses Consts, IniFiles, VCLUtils, DBUtils, Options, Main, DBCbRest, BdeUtils;
 
 {$R *.DFM}
 

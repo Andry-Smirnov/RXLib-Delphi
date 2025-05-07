@@ -2,10 +2,12 @@
 {                                                       }
 {         Delphi VCL Extensions (RX)                    }
 {                                                       }
-{         Copyright (c) 1998 Master-Bank                }
+{         Copyright (c) 2001,2002 SGB Software          }
+{         Copyright (c) 1997, 1998 Fedor Koshevnikov,   }
+{                        Igor Pavluk and Serge Korolev  }
 {                                                       }
-{ Patched by Polaris Software                           }
 {*******************************************************}
+
 
 unit RxDsgn;
 
@@ -13,20 +15,15 @@ unit RxDsgn;
 
 interface
 
-uses
-  {$IFNDEF VER80}Windows, {$ELSE}WinTypes, {$ENDIF}Classes, SysUtils,
-  Controls, Graphics, ExtCtrls, Menus, Forms,
-  {$IFDEF RX_D6}DesignIntf, DesignEditors{$ELSE}DsgnIntf{$ENDIF}; // Polaris
+uses {$IFDEF WIN32} Windows, {$ELSE} WinTypes, {$ENDIF} Classes, SysUtils,
+  RTLConsts, DesignIntf, DesignEditors, VCLEditors, Controls, Graphics, ExtCtrls, Menus, Forms;
 
 type
-  {$IFNDEF RX_D4}
+{$IFNDEF RX_D4}
   IDesigner = TDesigner;
   IFormDesigner = TFormDesigner;
-  {$ENDIF}
+{$ENDIF}
 
-  {$IFNDEF RX_D5}
-  TDesignerSelectionList = TComponentList;
-  {$ENDIF}
 
 { TFilenameProperty }
 
@@ -67,13 +64,13 @@ type
 
 implementation
 
-uses Consts, Dialogs, RxResConst, RxFileUtil, RxVCLUtils, RxPrgrss;
+uses Consts, Dialogs, RxCConst, FileUtil, VclUtils, RxPrgrss;
 
 { TFilenameProperty }
 
 function TFilenameProperty.GetFilter: string;
 begin
-  Result := RxLoadStr(SDefaultFilter);
+  Result := LoadStr(SDefaultFilter);
 end;
 
 procedure TFilenameProperty.Edit;
@@ -97,7 +94,7 @@ end;
 
 function TFilenameProperty.GetAttributes: TPropertyAttributes;
 begin
-  Result := [paDialog{$IFNDEF VER80}, paRevertable{$ENDIF}];
+  Result := [paDialog {$IFDEF WIN32}, paRevertable {$ENDIF}];
 end;
 
 { TDirnameProperty }
@@ -113,7 +110,7 @@ end;
 
 function TDirnameProperty.GetAttributes: TPropertyAttributes;
 begin
-  Result := [paDialog{$IFNDEF VER80}, paRevertable{$ENDIF}];
+  Result := [paDialog {$IFDEF WIN32}, paRevertable {$ENDIF}];
 end;
 
 { TProgressControlProperty }
@@ -122,11 +119,11 @@ procedure TProgressControlProperty.CheckComponent(const AName: string);
 var
   Component: TComponent;
 begin
-  {$IFNDEF VER80}
+{$IFDEF WIN32}
   Component := Designer.GetComponent(AName);
-  {$ELSE}
+{$ELSE}
   Component := Designer.Form.FindComponent(AName);
-  {$ENDIF}
+{$ENDIF}
   if (Component <> nil) and (Component is TControl) and
     SupportsProgressControl(TControl(Component)) and Assigned(FProc) then
     FProc(AName);
@@ -157,8 +154,7 @@ begin
   Values := TStringList.Create;
   try
     GetValueList(Values);
-    for I := 0 to Values.Count - 1 do
-      Proc(Values[I]);
+    for I := 0 to Values.Count - 1 do Proc(Values[I]);
   finally
     Values.Free;
   end;

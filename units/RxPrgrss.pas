@@ -2,9 +2,12 @@
 {                                                       }
 {         Delphi VCL Extensions (RX)                    }
 {                                                       }
-{         Copyright (c) 1997 Master-Bank                }
+{         Copyright (c) 2001,2002 SGB Software          }
+{         Copyright (c) 1997, 1998 Fedor Koshevnikov,   }
+{                        Igor Pavluk and Serge Korolev  }
 {                                                       }
 {*******************************************************}
+
 
 unit RxPrgrss;
 
@@ -12,35 +15,28 @@ interface
 
 {$I RX.INC}
 
-uses
-  SysUtils, Classes, Controls;
+uses SysUtils, Classes, Controls;
 
 procedure RegisterProgressControl(AClass: TControlClass; const MaxPropName,
   MinPropName, ProgressPropName: string);
 procedure UnRegisterProgressControl(AClass: TControlClass);
 function SupportsProgressControl(Control: TControl): Boolean;
 
-procedure SetProgressMax(Control: TControl; MaxValue: LongInt);
-procedure SetProgressMin(Control: TControl; MinValue: LongInt);
-procedure SetProgressValue(Control: TControl; ProgressValue: LongInt);
+procedure SetProgressMax(Control: TControl; MaxValue: Longint);
+procedure SetProgressMin(Control: TControl; MinValue: Longint);
+procedure SetProgressValue(Control: TControl; ProgressValue: Longint);
 
 implementation
 
 {$DEFINE USE_GAUGE}
-{$IFNDEF VER80}
-{$IFDEF USE_PROGRESSBAR}
-{$UNDEF USE_GAUGE}
-{$ENDIF}
+{$IFDEF WIN32}
+  {$IFDEF USE_PROGRESSBAR}
+    {$UNDEF USE_GAUGE}
+  {$ENDIF}
 {$ENDIF}
 
-uses
-   TypInfo,
-   {$IFNDEF VER80}
-     {$IFDEF USE_GAUGE}Gauges, {$ENDIF}
-   ComCtrls;
-   {$ELSE}
-   Gauges;
-   {$ENDIF}
+uses TypInfo, {$IFDEF WIN32} {$IFDEF USE_GAUGE} Gauges, {$ENDIF} ComCtrls;
+  {$ELSE} Gauges; {$ENDIF}
 
 { TProgressList }
 
@@ -64,26 +60,25 @@ type
     function FindClass(AClass: TControlClass): Integer;
     procedure Remove(AClass: TControlClass);
     function SetControlProperty(Control: TControl; Prop: TProgressProp;
-      Value: LongInt): Boolean;
+      Value: Longint): Boolean;
   end;
 
 constructor TProgressList.Create;
 begin
   inherited Create;
-  {$IFNDEF VER80}
+{$IFDEF WIN32}
   Add(TProgressBar, 'Max', 'Min', 'Position');
-  {$ENDIF}
-  {$IFDEF USE_GAUGE}
+{$ENDIF}
+{$IFDEF USE_GAUGE}
   Add(TGauge, 'MaxValue', 'MinValue', 'Progress');
-  {$ENDIF}
+{$ENDIF}
 end;
 
 destructor TProgressList.Destroy;
 var
   I: Integer;
 begin
-  for I := 0 to Count - 1 do
-    Dispose(PProgressData(Items[I]));
+  for I := 0 to Count - 1 do Dispose(PProgressData(Items[I]));
   inherited Destroy;
 end;
 
@@ -93,12 +88,11 @@ var
   NewRec: PProgressData;
 begin
   New(NewRec);
-  with NewRec^ do
-  begin
+  with NewRec^ do begin
     ControlClass := AClass;
-    MaxProperty := AnsiString(MaxPropName);
-    MinProperty := AnsiString(MinPropName);
-    ProgressProperty := AnsiString(ProgressPropName);
+    MaxProperty := MaxPropName;
+    MinProperty := MinPropName;
+    ProgressProperty := ProgressPropName;
   end;
   inherited Add(NewRec);
 end;
@@ -107,8 +101,7 @@ function TProgressList.FindClass(AClass: TControlClass): Integer;
 var
   P: PProgressData;
 begin
-  for Result := Count - 1 downto 0 do
-  begin
+  for Result := Count - 1 downto 0 do begin
     P := PProgressData(Items[Result]);
     if AClass.InheritsFrom(P^.ControlClass) then Exit;
   end;
@@ -120,11 +113,9 @@ var
   I: Integer;
   P: PProgressData;
 begin
-  for I := Count - 1 downto 0 do
-  begin
+  for I := Count - 1 downto 0 do begin
     P := PProgressData(Items[I]);
-    if P^.ControlClass.InheritsFrom(AClass) then
-    begin
+    if P^.ControlClass.InheritsFrom(AClass) then begin
       Dispose(P);
       Delete(I);
     end;
@@ -132,27 +123,25 @@ begin
 end;
 
 function TProgressList.SetControlProperty(Control: TControl;
-  Prop: TProgressProp; Value: LongInt): Boolean;
+  Prop: TProgressProp; Value: Longint): Boolean;
 var
   PropInfo: PPropInfo;
   I: Integer;
-  PropName: AnsiString;
+  PropName: string;
 begin
   Result := False;
-  if (Control <> nil) then
-  begin
+  if (Control <> nil) then begin
     I := FindClass(TControlClass(Control.ClassType));
-    if I >= 0 then
-    begin
+    if I >= 0 then begin
       case Prop of
         ppMax: PropName := PProgressData(Items[I])^.MaxProperty;
         ppMin: PropName := PProgressData(Items[I])^.MinProperty;
-      else {ppProgress}
-        PropName := PProgressData(Items[I])^.ProgressProperty;
+        else {ppProgress}
+          PropName := PProgressData(Items[I])^.ProgressProperty;
       end;
-      PropInfo := GetPropInfo(Control.ClassInfo, string(PropName));
+      PropInfo := GetPropInfo(Control.ClassInfo, PropName);
       if (PropInfo <> nil) and (PropInfo^.PropType^.Kind in
-        [tkInteger, tkFloat{$IFNDEF VER80}, tkVariant{$ENDIF}]) then
+        [tkInteger, tkFloat {$IFDEF WIN32}, tkVariant {$ENDIF}]) then
       begin
         SetOrdProp(Control, PropInfo, Value);
         Result := True;
@@ -174,8 +163,7 @@ function SupportsProgressControl(Control: TControl): Boolean;
 begin
   if Control <> nil then
     Result := GetProgressList.FindClass(TControlClass(Control.ClassType)) >= 0
-  else
-    Result := False;
+  else Result := False;
 end;
 
 procedure RegisterProgressControl(AClass: TControlClass; const MaxPropName,
@@ -189,23 +177,22 @@ begin
   if ProgressList <> nil then ProgressList.Remove(AClass);
 end;
 
-procedure SetProgressMax(Control: TControl; MaxValue: LongInt);
+procedure SetProgressMax(Control: TControl; MaxValue: Longint);
 begin
   GetProgressList.SetControlProperty(Control, ppMax, MaxValue);
 end;
 
-procedure SetProgressMin(Control: TControl; MinValue: LongInt);
+procedure SetProgressMin(Control: TControl; MinValue: Longint);
 begin
   GetProgressList.SetControlProperty(Control, ppMin, MinValue);
 end;
 
-procedure SetProgressValue(Control: TControl; ProgressValue: LongInt);
+procedure SetProgressValue(Control: TControl; ProgressValue: Longint);
 begin
   GetProgressList.SetControlProperty(Control, ppProgress, ProgressValue);
 end;
 
-{$IFDEF VER80}
-
+{$IFNDEF WIN32}
 procedure Finalize; far;
 begin
   ProgressList.Free;
@@ -213,10 +200,10 @@ end;
 {$ENDIF}
 
 initialization
-  {$IFNDEF VER80}
+{$IFDEF WIN32}
 finalization
   ProgressList.Free;
-  {$ELSE}
+{$ELSE}
   AddExitProc(Finalize);
-  {$ENDIF}
+{$ENDIF}
 end.

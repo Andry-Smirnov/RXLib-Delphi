@@ -3,20 +3,18 @@ object StrEditDlg: TStrEditDlg
   Top = 107
   Width = 487
   Height = 322
-  Color = clBtnFace
-  Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   Font.Style = []
-  OldCreateOrder = True
+  Position = poDefaultPosOnly
   ShowHint = True
   OnCreate = FormCreate
   PixelsPerInch = 96
   TextHeight = 13
   object Panel1: TPanel
     Left = 0
-    Top = 257
+    Top = 264
     Width = 479
     Height = 31
     Align = alBottom
@@ -40,7 +38,7 @@ object StrEditDlg: TStrEditDlg
         OnClick = OkBtnClick
         Glyph.Data = {
           46010000424D460100000000000076000000280000001C0000000D0000000100
-          040000000000D000000000000000000000001000000000000000000000000000
+          040000000000D000000000000000000000000000000000000000000000000000
           80000080000000808000800000008000800080800000C0C0C000808080000000
           FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00333333333333
           33333333333333330000333333333333333333F3333333330000333303333333
@@ -65,7 +63,7 @@ object StrEditDlg: TStrEditDlg
         TabOrder = 1
         Glyph.Data = {
           46010000424D460100000000000076000000280000001C0000000D0000000100
-          040000000000D000000000000000000000001000000000000000000000000000
+          040000000000D000000000000000000000000000000000000000000000000000
           80000080000000808000800000008000800080800000C0C0C000808080000000
           FF0000FF000000FFFF00FF000000FF00FF00FFFF0000FFFFFF00333333333333
           3333333333333333000033333333333333333FF33333FF330000333003333300
@@ -138,7 +136,6 @@ object StrEditDlg: TStrEditDlg
         Width = 77
         Height = 17
         Caption = 'Text only'
-        Checked = True
         State = cbChecked
         TabOrder = 1
         OnClick = PlainTextCheckClick
@@ -149,7 +146,7 @@ object StrEditDlg: TStrEditDlg
     Left = 0
     Top = 26
     Width = 479
-    Height = 231
+    Height = 238
     Align = alClient
     BevelOuter = bvNone
     BorderWidth = 10
@@ -158,10 +155,11 @@ object StrEditDlg: TStrEditDlg
       Left = 10
       Top = 10
       Width = 459
-      Height = 211
+      Height = 218
       DataSource = DataSource
       Align = alClient
       PlainText = True
+      ScrollBars = ssBoth
       TabOrder = 0
       OnChange = MemoChange
       OnKeyDown = MemoKeyDown
@@ -169,6 +167,7 @@ object StrEditDlg: TStrEditDlg
   end
   object OpenDialog: TOpenDialog
     DefaultExt = 'TXT'
+    FileEditStyle = fsEdit
     Filter = 
       'Text files (*.TXT)|*.TXT|RichText files (*.*)|*.RTF|All files (*' +
       '.*)|*.*'
@@ -179,6 +178,7 @@ object StrEditDlg: TStrEditDlg
   end
   object SaveDialog: TSaveDialog
     DefaultExt = 'TXT'
+    FileEditStyle = fsEdit
     Filter = 
       'Text files (*.TXT)|*.TXT|RichText files (*.*)|*.RTF|All files (*' +
       '.*)|*.*'
@@ -197,7 +197,6 @@ object StrEditDlg: TStrEditDlg
     MinMaxInfo.MinTrackWidth = 360
     StoredProps.Strings = (
       'Memo.PlainText')
-    StoredValues = <>
     Left = 48
     Top = 40
   end

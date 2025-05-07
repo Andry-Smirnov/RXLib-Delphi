@@ -11,7 +11,7 @@ unit FiltDlg;
 interface
 
 uses Messages, WinTypes, WinProcs, SysUtils, Classes, Graphics, Forms,
-  Controls, StdCtrls, Buttons, ExtCtrls, RxPlacemnt, RxMRUList;
+  Controls, StdCtrls, Buttons, ExtCtrls, Placemnt, MRUList;
 
 type
   TFilterDialog = class(TForm)
@@ -37,7 +37,7 @@ function ShowFilterDialog(var Filter: string; X, Y: Integer): Boolean;
 
 implementation
 
-uses {$IFNDEF VER80} BDE, {$ELSE} DbiTypes, {$ENDIF} RxAppUtils;
+uses {$IFDEF WIN32} BDE, {$ELSE} DbiTypes, {$ENDIF} AppUtils;
 
 {$R *.DFM}
 
@@ -67,7 +67,7 @@ end;
 procedure TFilterDialog.FormCreate(Sender: TObject);
 begin
   FilterEdit.MaxLength := DBIMAXTBLNAMELEN;
-{$IFNDEF VER80}
+{$IFDEF WIN32}
   UpCaseBox.Visible := True;
   BorderStyle := bsToolWindow;
 {$ENDIF}
@@ -81,7 +81,7 @@ end;
 procedure TFilterDialog.FilterEditChange(Sender: TObject);
 var
   SelStart, SelEnd: Integer;
-{$IFDEF VER80}
+{$IFNDEF WIN32}
   Res: LongInt;
 {$ENDIF}
 begin
@@ -89,7 +89,7 @@ begin
     FUpdating := True;
     try
       if FilterEdit.HandleAllocated then begin
-{$IFNDEF VER80}
+{$IFDEF WIN32}
         SendMessage(FilterEdit.Handle, CB_GETEDITSEL, Integer(@SelStart),
           Integer(@SelEnd));
 {$ELSE}
@@ -101,7 +101,7 @@ begin
       FilterEdit.Text := AnsiUpperCase(FilterEdit.Text);
       if FilterEdit.HandleAllocated then begin
         SendMessage(FilterEdit.Handle, CB_SETEDITSEL, 0,
-{$IFNDEF VER80}
+{$IFDEF WIN32}
           MakeLParam(SelStart, SelEnd));
 {$ELSE}
           MakeLong(SelStart, SelEnd));

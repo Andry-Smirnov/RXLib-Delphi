@@ -2,44 +2,26 @@
 {                                                       }
 {         Delphi VCL Extensions (RX)                    }
 {                                                       }
-{         Copyright (c) 1997, 1998 Master-Bank          }
+{         Copyright (c) 2001,2002 SGB Software          }
+{         Copyright (c) 1997, 1998 Fedor Koshevnikov,   }
+{                        Igor Pavluk and Serge Korolev  }
 {                                                       }
-{ Patched by Polaris Software                           }
 {*******************************************************}
+
 
 unit RxGIF;
 
 interface
 
 {$I RX.INC}
-{$IFDEF RX_D6}
-{$WARN SYMBOL_PLATFORM OFF}  // Polaris
-{$ENDIF}
 
-uses
-{$IFDEF VER80}
-  WinTypes,
-  WinProcs,
-{$ELSE}
-  Windows,
-{$ENDIF}
-{$IFDEF RX_D6}
-  Types,
-{$ENDIF}
-{$IFDEF RX_D16}
-  System.UITypes,
-{$ENDIF}
-  SysUtils,
-  Classes,
-  Graphics,
-  RxGraph;
-
+uses Windows, RTLConsts, SysUtils, Classes, Graphics, RxGraph;
 
 const
   RT_GIF = 'GIF'; { GIF Resource Type }
 
-
 type
+
 {$IFNDEF RX_D3}
 
   TProgressStage = (psStarting, psRunning, psEnding);
@@ -122,7 +104,7 @@ type
   protected
     procedure AssignTo(Dest: TPersistent); override;
     procedure Draw(ACanvas: TCanvas; const ARect: TRect); override;
-{$IFNDEF VER80}
+{$IFDEF WIN32}
     function Equals(Graphic: TGraphic): Boolean; override;
 {$ENDIF}
     function GetEmpty: Boolean; override;
@@ -285,14 +267,13 @@ var
 const
   GIFLoadCorrupted: Boolean = True;
 
-function GIFVersionName(Version: TGIFVersion): AnsiString;
+function GIFVersionName(Version: TGIFVersion): string;
 procedure rxgif_dummy;
 
 implementation
 
-uses Consts, {$IFDEF VER80} RxStr16, {$ENDIF} RxVCLUtils, RxAniFile, RxConst, RxStrUtils,
-  {$IFDEF RX_D17} AnsiStrings, {$ENDIF}
-  RxMaxMin, RxResConst {$IFDEF RX_D6} , RTLConsts {$ENDIF}; // Polaris
+uses Consts, {$IFNDEF WIN32} Str16, {$ENDIF} VclUtils, AniFile, RxConst,
+  MaxMin, RxGConst;
 
 {$R-}
 
@@ -301,7 +282,7 @@ begin
 end;
 
 procedure GifError(const Msg: string);
-{$IFNDEF VER80}
+{$IFDEF WIN32}
   function ReturnAddr: Pointer;
   asm
           MOV     EAX,[EBP+4]
@@ -341,16 +322,16 @@ end;
 
 const
   GIFSignature = 'GIF';
-  GIFVersionStr: array[TGIFVersion] of PAnsiChar = (#0#0#0, '87a', '89a');
+  GIFVersionStr: array[TGIFVersion] of PChar = (#0#0#0, '87a', '89a');
 
-function GIFVersionName(Version: TGIFVersion): AnsiString;
+function GIFVersionName(Version: TGIFVersion): string;
 begin
-  Result := AnsiString({$IFDEF RX_D18}AnsiStrings.{$ENDIF}StrPas(GIFVersionStr[Version]));
+  Result := StrPas(GIFVersionStr[Version]);
 end;
 
 const
   CODE_TABLE_SIZE = 4096;
-{$IFNDEF VER80}
+{$IFDEF WIN32}
   HASH_TABLE_SIZE = 17777;
 {$ELSE}
   HASH_TABLE_SIZE = MaxListSize - $10;
@@ -400,7 +381,7 @@ begin
       Result := I;
       Exit;
     end;
-  GifError(RxLoadStr(SWrongGIFColors));
+  GifError(LoadStr(SWrongGIFColors));
 end;
 
 function ColorsToPixelFormat(Colors: Word): TPixelFormat;
@@ -456,8 +437,8 @@ end;
 
 type
   TGIFHeader = packed record
-    Signature: array[0..2] of AnsiChar; { contains 'GIF' }
-    Version: array[0..2] of AnsiChar;   { '87a' or '89a' }
+    Signature: array[0..2] of Char; { contains 'GIF' }
+    Version: array[0..2] of Char;   { '87a' or '89a' }
   end;
 
   TScreenDescriptor = packed record
@@ -831,7 +812,7 @@ begin
               Corrupted := True;
               MinCodeSize := Max(2, Min(MinCodeSize, 9));
             end
-            else GifError(RxLoadStr(SBadGIFCodeSize));
+            else GifError(LoadStr(SBadGIFCodeSize));
           end;
           { Initial read context }
           ReadCtxt.Inx := 0;
@@ -891,7 +872,7 @@ begin
                     Corrupted := True;
                     Break;
                   end
-                  else GifError(RxLoadStr(SGIFDecodeError));
+                  else GifError(LoadStr(SGIFDecodeError));
                 end;
                 OutCode^[OutCount] := Suffix^[CurCode];
                 Inc(OutCount);
@@ -1521,7 +1502,7 @@ begin
     1: ColorCount := 2;
     4: ColorCount := 16;
     8: ColorCount := 256;
-    else GifError(RxLoadStr(SGIFEncodeError));
+    else GifError(LoadStr(SGIFEncodeError));
   end;
   FInterlaced := False;
   FillColorTable(FImage.FColorMap, PRGBPalette(Pal)^, ColorCount);
@@ -1555,7 +1536,7 @@ var
   Method: TMappingMethod;
   Mem: TMemoryStream;
 begin
-  if not Assigned(FBitmap) or FBitmap.Empty then GifError(RxLoadStr(SNoGIFData));
+  if not Assigned(FBitmap) or FBitmap.Empty then GifError(LoadStr(SNoGIFData));
   if not (GetBitmapPixelFormat(FBitmap) in [pf1bit, pf4bit, pf8bit]) then
   begin
     if FGrayscale then Method := mmGrayscale
@@ -1615,7 +1596,7 @@ procedure TGIFFrame.SaveToBitmapStream(Stream: TMemoryStream);
       1: Result := pf1bit;
       2..4: Result := pf4bit;
       5..8: Result := pf8bit;
-      else GifError(RxLoadStr(SWrongGIFColors));
+      else GifError(LoadStr(SWrongGIFColors));
     end;
   end;
 
@@ -1950,7 +1931,7 @@ begin
   end;
 end;
 
-{$IFNDEF VER80}
+{$IFDEF WIN32}
 function TGIFImage.Equals(Graphic: TGraphic): Boolean;
 begin
   Result := (Graphic is TGIFImage) and
@@ -2273,26 +2254,26 @@ end;
 procedure TGIFImage.ReadSignature(Stream: TStream);
 var
   I: TGIFVersion;
-  S: AnsiString;
+  S: string[3];
 begin
   FVersion := gvUnknown;
   SetLength(S, 3);
   Stream.Read(S[1], 3);
-  if AnsiCompareText(GIFSignature, string(S)) <> 0 then GifError(RxLoadStr(SGIFVersion));
+  if CompareText(GIFSignature, S) <> 0 then GifError(LoadStr(SGIFVersion));
   SetLength(S, 3);
   Stream.Read(S[1], 3);
   for I := Low(TGIFVersion) to High(TGIFVersion) do
-    if AnsiCompareText(string(S), string({$IFDEF RX_D18}AnsiStrings.{$ENDIF}StrPas(GIFVersionStr[I]))) = 0 then begin
+    if CompareText(S, StrPas(GIFVersionStr[I])) = 0 then begin
       FVersion := I;
       Break;
     end;
-  if FVersion = gvUnknown then GifError(RxLoadStr(SGIFVersion));
+  if FVersion = gvUnknown then GifError(LoadStr(SGIFVersion));
 end;
 
 procedure TGIFImage.ReadStream(Size: Longint; Stream: TStream;
   ForceDecode: Boolean);
 var
-  SeparatorChar: AnsiChar;
+  SeparatorChar: Char;
   NewItem: TGIFFrame;
   Extensions: TList;
   ScreenDesc: TScreenDescriptor;
@@ -2326,16 +2307,16 @@ var
   function ReadDataBlock(Stream: TStream): TStrings;
   var
     BlockSize: Byte;
-    S: AnsiString;
+    S: string;
   begin
-    Result := TStringList.Create;
+    Result := TStringlist.Create;
     try
       repeat
         Stream.Read(BlockSize, SizeOf(Byte));
         if BlockSize <> 0 then begin
           SetLength(S, BlockSize);
           Stream.Read(S[1], BlockSize);
-          Result.Add(string(S));
+          Result.Add(S);
         end;
       until (BlockSize = 0) or (Stream.Position >= Stream.Size);
     except
@@ -2374,21 +2355,21 @@ var
           Stream.Read(FExtRec.APPE, SizeOf(TAppExtension));
           FData := ReadDataBlock(Stream);
         end
-        else GifError(Format(RxLoadStr(SUnrecognizedGIFExt), [ExtensionLabel]));
+        else GifError(Format(LoadStr(SUnrecognizedGIFExt), [ExtensionLabel]));
     except
       Result.Free;
       raise;
     end;
   end;
 
-  function ReadSeparator(Stream: TStream): AnsiChar;
+  function ReadSeparator(Stream: TStream): Char;
   begin
     Result := #0;
     while (Stream.Size > Stream.Position) and (Result = #0) do
-      Stream.Read(Result, SizeOf(Result));
+      Stream.Read(Result, SizeOf(Byte));
   end;
 
-  function ReadExtensionBlock(Stream: TStream; var SeparatorChar: AnsiChar): TList;
+  function ReadExtensionBlock(Stream: TStream; var SeparatorChar: Char): TList;
   var
     NewExt: TExtension;
   begin
@@ -2446,7 +2427,7 @@ begin
         ReadScreenDescriptor(Data);
         ReadGlobalColorMap(Data);
         SeparatorChar := ReadSeparator(Data);
-        while not CharInSet(SeparatorChar, [CHR_TRAILER, #0]) and not
+        while not (SeparatorChar in [CHR_TRAILER, #0]) and not
           (Data.Position >= Data.Size) do
         begin
           Extensions := ReadExtensionBlock(Data, SeparatorChar);
@@ -2469,7 +2450,7 @@ begin
                 SeparatorChar := ReadSeparator(Data);
               end
               else SeparatorChar := CHR_TRAILER;
-              if not CharInSet(SeparatorChar, [CHR_EXT_INTRODUCER,
+              if not (SeparatorChar in [CHR_EXT_INTRODUCER,
                 CHR_IMAGE_SEPARATOR, CHR_TRAILER]) then
               begin
                 SeparatorChar := #0;
@@ -2494,7 +2475,7 @@ begin
               FreeExtensions(Extensions);
             end;
           end
-          else if not CharInSet(SeparatorChar, [CHR_TRAILER, #0]) then
+          else if not (SeparatorChar in [CHR_TRAILER, #0]) then
             GifError(ResStr(SReadError));
         end;
       end;
@@ -2566,17 +2547,17 @@ end;
 
 procedure TGIFImage.SetHeight(Value: Integer);
 begin
-  GifError(RxLoadStr(SChangeGIFSize));
+  GifError(LoadStr(SChangeGIFSize));
 end;
 
 procedure TGIFImage.SetWidth(Value: Integer);
 begin
-  GifError(RxLoadStr(SChangeGIFSize));
+  GifError(LoadStr(SChangeGIFSize));
 end;
 
 procedure TGIFImage.WriteStream(Stream: TStream; WriteSize: Boolean);
 var
-  Separator: AnsiChar;
+  Separator: Char;
   Temp: Byte;
   FrameNo: Integer;
   Frame: TGIFFrame;
@@ -2627,11 +2608,11 @@ var
   procedure WriteDataBlock(Stream: TStream; Data: TStrings);
   var
     I: Integer;
-    S: AnsiString;
+    S: string;
     BlockSize: Byte;
   begin
     for I := 0 to Data.Count - 1 do begin
-      S := AnsiString(Data[I]);
+      S := Data[I];
       BlockSize := Min(Length(S), 255);
       if BlockSize > 0 then begin
         Stream.Write(BlockSize, SizeOf(Byte));
@@ -2647,13 +2628,13 @@ var
     I: Integer;
     Ext: TExtension;
     ExtensionLabel: Byte;
-    SeparateChar: AnsiChar;
+    SeparateChar: Char;
   begin
     SeparateChar := CHR_EXT_INTRODUCER;
     for I := 0 to Extensions.Count - 1 do begin
       Ext := TExtension(Extensions[I]);
       if Ext <> nil then begin
-        Stream.Write(SeparateChar, SizeOf(SeparateChar));
+        Stream.Write(SeparateChar, SizeOf(Byte));
         ExtensionLabel := ExtLabels[Ext.FExtType];
         Stream.Write(ExtensionLabel, SizeOf(Byte));
         case Ext.FExtType of
@@ -2678,7 +2659,7 @@ var
   end;
 
 begin
-  if FItems.Count = 0 then GifError(RxLoadStr(SNoGIFData));
+  if FItems.Count = 0 then GifError(LoadStr(SNoGIFData));
   EncodeFrames(False);
   Mem := TMemoryStream.Create;
   try
@@ -2738,7 +2719,7 @@ procedure TGIFImage.Grayscale(ForceEncoding: Boolean);
 var
   I: Integer;
 begin
-  if FItems.Count = 0 then GifError(RxLoadStr(SNoGIFData));
+  if FItems.Count = 0 then GifError(LoadStr(SNoGIFData));
   for I := 0 to FItems.Count - 1 do
     Frames[I].GrayscaleImage(ForceEncoding);
   if FBackgroundColor <> clNone then begin
@@ -2781,7 +2762,7 @@ initialization
   CF_GIF := RegisterClipboardFormat('GIF Image');
   RegisterClasses([TGIFFrame, TGIFImage]);
 {$IFDEF USE_RX_GIF}
-  TPicture.RegisterFileFormat('gif', RxLoadStr(SGIFImage), TGIFImage);
+  TPicture.RegisterFileFormat('gif', LoadStr(SGIFImage), TGIFImage);
   TPicture.RegisterClipboardFormat(CF_GIF, TGIFImage);
  {$IFDEF RX_D3}
 finalization

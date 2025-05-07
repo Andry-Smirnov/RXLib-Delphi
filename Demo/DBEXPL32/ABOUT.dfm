@@ -4,7 +4,7 @@ object AboutDlg: TAboutDlg
   BorderIcons = []
   BorderStyle = bsDialog
   Caption = 'About RX Database Explorer'
-  ClientHeight = 134
+  ClientHeight = 132
   ClientWidth = 337
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -91,7 +91,7 @@ object AboutDlg: TAboutDlg
       'I.Pavluk'
       ''
       #169' 1995, 1996 AO ROSNO'
-      #169' 1997, 1998 Master-Bank')
+      #169' 1997 Master-Bank')
     TextStyle = bvLowered
     BevelOuter = bvNone
     Font.Charset = DEFAULT_CHARSET
@@ -131,9 +131,9 @@ object AboutDlg: TAboutDlg
     object Label3: TLabel
       Left = 6
       Top = 34
-      Width = 182
+      Width = 188
       Height = 13
-      Caption = 'Copyright '#169' 1995, 1996 AO ROSNO   '
+      Caption = 'Copyright '#169' 1995, 1996 AO ROSNO     '
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
@@ -157,9 +157,9 @@ object AboutDlg: TAboutDlg
     object Label2: TLabel
       Left = 6
       Top = 49
-      Width = 182
+      Width = 146
       Height = 13
-      Caption = 'Copyright '#169' 1997, 1998 Master-Bank  '
+      Caption = 'Copyright '#169' 1997 Master-Bank'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
@@ -175,6 +175,7 @@ object AboutDlg: TAboutDlg
     Height = 24
     Cancel = True
     Caption = 'OK'
+    Default = True
     ModalResult = 1
     TabOrder = 1
   end

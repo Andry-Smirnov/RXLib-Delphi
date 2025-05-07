@@ -2,30 +2,25 @@
 {                                                       }
 {         Delphi VCL Extensions (RX)                    }
 {                                                       }
-{         Copyright (c) 1995, 1996 AO ROSNO             }
-{         Copyright (c) 1997, 1998 Master-Bank          }
+{         Copyright (c) 2001,2002 SGB Software          }
+{         Copyright (c) 1997, 1998 Fedor Koshevnikov,   }
+{                        Igor Pavluk and Serge Korolev  }
 {                                                       }
-{ Patched by Polaris Software                           }
 {*******************************************************}
 
-unit RxDBCtrl;
+
+unit RXDBCtrl;
 
 {$I RX.INC}
 {$R-}
 
 interface
 
-uses
-  {$IFNDEF VER80}
-  Windows, Registry,
-  {$ELSE}
-  WinTypes, WinProcs, DbiTypes, DbiProcs, ObjStr,
-  {$ENDIF}
-  Messages, Classes, Controls, Forms, Grids, Graphics, Buttons, Menus,
-  StdCtrls, Mask, IniFiles, RxToolEdit, DB, DBGrids,
-  {$IFNDEF RX_D3}DBTables, {$ENDIF}
-  {$IFDEF RX_D6}Types, {$ENDIF} {$IFDEF RX_D16}System.UITypes, {$ENDIF}
-  RxPlacemnt, RxDateUtil, DBCtrls, RxCtrls, RxCurrEdit;
+uses 
+  Windows, Registry, Variants, Messages, Classes, Controls, Forms, Grids, Graphics, Buttons, Menus,
+  StdCtrls, Mask, IniFiles, ToolEdit, DB, DBGrids, 
+  {$IFNDEF RX_D3} DBTables, {$ENDIF}
+  Placemnt, DateUtil, DBCtrls, RxCtrls, CurrEdit;
 
 { TRxDBGrid }
 
@@ -33,82 +28,74 @@ const
   DefRxGridOptions = [dgEditing, dgTitles, dgIndicator, dgColumnResize,
     dgColLines, dgRowLines, dgConfirmDelete, dgCancelOnExit];
 
-  {$IFDEF RX_V110}
-  {$IFDEF CBUILDER}
+{$IFDEF RX_V110}
+ {$IFDEF CBUILDER}
   {$NODEFINE DefRxGridOptions}
-  {$ENDIF}
-  {$ENDIF}
+ {$ENDIF}
+{$ENDIF}
 
 type
-  {$IFDEF RX_D12}
-  TBookmarkType = TBookmark;
-  {$ELSE}
-  TBookmarkType = TBookmarkStr;
-  {$ENDIF}
-
-  TTitleClickEvent = procedure(Sender: TObject; ACol: LongInt;
+  TTitleClickEvent = procedure (Sender: TObject; ACol: Longint;
     Field: TField) of object;
-  TCheckTitleBtnEvent = procedure(Sender: TObject; ACol: LongInt;
+  TCheckTitleBtnEvent = procedure (Sender: TObject; ACol: Longint;
     Field: TField; var Enabled: Boolean) of object;
-  TGetCellParamsEvent = procedure(Sender: TObject; Field: TField;
+  TGetCellParamsEvent = procedure (Sender: TObject; Field: TField;
     AFont: TFont; var Background: TColor; Highlight: Boolean) of object;
   TSortMarker = (smNone, smDown, smUp);
-  TGetBtnParamsEvent = procedure(Sender: TObject; Field: TField;
+  TGetBtnParamsEvent = procedure (Sender: TObject; Field: TField;
     AFont: TFont; var Background: TColor; var SortMarker: TSortMarker;
     IsDown: Boolean) of object;
-  TGetCellPropsEvent = procedure(Sender: TObject; Field: TField;
+  TGetCellPropsEvent = procedure (Sender: TObject; Field: TField;
     AFont: TFont; var Background: TColor) of object; { obsolete }
-  TDBEditShowEvent = procedure(Sender: TObject; Field: TField;
+  TDBEditShowEvent = procedure (Sender: TObject; Field: TField;
     var AllowEdit: Boolean) of object;
 
-  {$IFDEF VER80}
+{$IFNDEF WIN32}
   TBookmarkList = class
   private
     FList: THugeList;
     FGrid: TCustomDBGrid;
     FCache: TBookmark;
-    FCacheIndex: LongInt;
+    FCacheIndex: Longint;
     FCacheFind: Boolean;
     FLinkActive: Boolean;
-    function GetCount: LongInt;
+    function GetCount: Longint;
     function GetCurrentRowSelected: Boolean;
-    function GetItem(Index: LongInt): TBookmark;
+    function GetItem(Index: Longint): TBookmark;
     procedure SetCurrentRowSelected(Value: Boolean);
     procedure ListChanged;
   protected
     function CurrentRow: TBookmark;
-    function Compare(const Item1, Item2: TBookmark): LongInt;
+    function Compare(const Item1, Item2: TBookmark): Longint;
     procedure LinkActive(Value: Boolean);
   public
     constructor Create(AGrid: TCustomDBGrid);
     destructor Destroy; override;
-    procedure Clear; { free all bookmarks }
+    procedure Clear;  { free all bookmarks }
     procedure Delete; { delete all selected rows from dataset }
-    function Find(const Item: TBookmark; var Index: LongInt): Boolean;
-    function IndexOf(const Item: TBookmark): LongInt;
+    function Find(const Item: TBookmark; var Index: Longint): Boolean;
+    function IndexOf(const Item: TBookmark): Longint;
     function Refresh: Boolean; { drop orphaned bookmarks; True = orphans found }
-    property Count: LongInt read GetCount;
+    property Count: Longint read GetCount;
     property CurrentRowSelected: Boolean read GetCurrentRowSelected
       write SetCurrentRowSelected;
-    property Items[Index: LongInt]: TBookmark read GetItem; default;
+    property Items[Index: Longint]: TBookmark read GetItem; default;
   end;
-  {$ENDIF}
+{$ENDIF}
 
   TRxDBGrid = class(TDBGrid)
   private
-    FAutoAppend: Boolean; // Polaris
-    FSizingIndex, FSizingOfs: Integer; // Polaris
     FShowGlyphs: Boolean;
     FDefaultDrawing: Boolean;
     FMultiSelect: Boolean;
     FSelecting: Boolean;
     FClearSelection: Boolean;
     FTitleButtons: Boolean;
-    {$IFNDEF VER80}
+{$IFDEF WIN32}
     FPressedCol: TColumn;
-    {$ELSE}
-    FPressedCol: LongInt;
-    {$ENDIF}
+{$ELSE}
+    FPressedCol: Longint;
+{$ENDIF}
     FPressed: Boolean;
     FTracking: Boolean;
     FSwapButtons: Boolean;
@@ -125,17 +112,13 @@ type
     FOnTitleBtnClick: TTitleClickEvent;
     FOnShowEditor: TDbEditShowEvent;
     FOnTopLeftChanged: TNotifyEvent;
-    {$IFNDEF VER80}
-    FSelectionAnchor: TBookmarkType;
-    {$ELSE}
+{$IFDEF WIN32}
+    FSelectionAnchor: TBookmarkStr;
+{$ELSE}
     FSelectionAnchor: TBookmark;
     FBookmarks: TBookmarkList;
     FOnColumnMoved: TMovedEvent;
-    {$ENDIF}
-    FRowColorsUse: Boolean;
-    FRowColors: array[0..1] of TColor;
-    procedure SetRowColorsUse(Value: Boolean);
-    procedure SetRowColor(Index: Integer; Value: TColor);
+{$ENDIF}
     function GetImageIndex(Field: TField): Integer;
     procedure SetShowGlyphs(Value: Boolean);
     procedure SetRowsHeight(Value: Integer);
@@ -149,92 +132,92 @@ type
     procedure StopTracking;
     procedure TrackButton(X, Y: Integer);
     function ActiveRowSelected: Boolean;
-    function GetSelCount: LongInt;
+    function GetSelCount: Longint;
     procedure InternalSaveLayout(IniFile: TObject; const Section: string);
     procedure InternalRestoreLayout(IniFile: TObject; const Section: string);
-    {$IFNDEF VER80}
+{$IFDEF WIN32}
     procedure SaveColumnsLayout(IniFile: TObject; const Section: string);
     procedure RestoreColumnsLayout(IniFile: TObject; const Section: string);
     function GetOptions: TDBGridOptions;
     procedure SetOptions(Value: TDBGridOptions);
-    function GetMasterColumn(ACol, ARow: LongInt): TColumn;
-    {$ELSE}
+    function GetMasterColumn(ACol, ARow: Longint): TColumn;
+{$ELSE}
     function GetFixedColor: TColor;
     procedure SetFixedColor(Value: TColor);
     function GetIndicatorOffset: Byte;
-    {$ENDIF}
+{$ENDIF}
     function GetTitleOffset: Byte;
     procedure SetFixedCols(Value: Integer);
     function GetFixedCols: Integer;
-    {$IFDEF RX_D4}
+{$IFDEF RX_D4}
     function CalcLeftColumn: Integer;
-    {$ENDIF}
+{$ENDIF}
     procedure WMChar(var Msg: TWMChar); message WM_CHAR;
     procedure WMCancelMode(var Message: TMessage); message WM_CANCELMODE;
-    {$IFNDEF VER80}
+{$IFDEF WIN32}
     procedure WMRButtonUp(var Message: TWMMouse); message WM_RBUTTONUP;
-    {$ENDIF}
+{$ENDIF}
   protected
     function AcquireFocus: Boolean;
     function CanEditShow: Boolean; override;
     function CreateEditor: TInplaceEdit; override;
-    procedure DoTitleClick(ACol: LongInt; AField: TField); dynamic;
-    procedure CheckTitleButton(ACol, ARow: LongInt; var Enabled: Boolean); dynamic;
-    procedure DrawCell(ACol, ARow: LongInt; ARect: TRect; AState: TGridDrawState); override;
-    procedure DrawDataCell(const Rect: TRect; Field: TField; State: TGridDrawState); override; { obsolete from Delphi 2.0 }
+    procedure DoTitleClick(ACol: Longint; AField: TField); dynamic;
+    procedure CheckTitleButton(ACol, ARow: Longint; var Enabled: Boolean); dynamic;
+    procedure DrawCell(ACol, ARow: Longint; ARect: TRect; AState: TGridDrawState); override;
+    procedure DrawDataCell(const Rect: TRect; Field: TField;
+      State: TGridDrawState); override; { obsolete from Delphi 2.0 }
     procedure EditChanged(Sender: TObject); dynamic;
-    procedure GetCellProps(Field: TField; AFont: TFont; var Background: TColor; Highlight: Boolean); dynamic;
-    function HighlightCell(DataCol, DataRow: Integer; const Value: string; AState: TGridDrawState): Boolean; override;
+    procedure GetCellProps(Field: TField; AFont: TFont; var Background: TColor;
+      Highlight: Boolean); dynamic;
+    function HighlightCell(DataCol, DataRow: Integer; const Value: string;
+      AState: TGridDrawState): Boolean; override;
     procedure KeyDown(var Key: Word; Shift: TShiftState); override;
     procedure KeyPress(var Key: Char); override;
     procedure SetColumnAttributes; override;
-    procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); override;
+    procedure MouseDown(Button: TMouseButton; Shift: TShiftState;
+      X, Y: Integer); override;
     procedure MouseMove(Shift: TShiftState; X, Y: Integer); override;
-    procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); override;
-    {$IFDEF RX_D4}
+    procedure MouseUp(Button: TMouseButton; Shift: TShiftState;
+      X, Y: Integer); override;
+{$IFDEF RX_D4}
     function DoMouseWheelDown(Shift: TShiftState; MousePos: TPoint): Boolean; override;
     function DoMouseWheelUp(Shift: TShiftState; MousePos: TPoint): Boolean; override;
-    {$ENDIF}
+{$ENDIF}
     procedure Scroll(Distance: Integer); override;
     procedure LayoutChanged; override;
     procedure TopLeftChanged; override;
-    {$IFNDEF VER80}
+{$IFDEF WIN32}
     procedure DrawColumnCell(const Rect: TRect; DataCol: Integer;
       Column: TColumn; State: TGridDrawState); override;
     procedure ColWidthsChanged; override;
-    {$ELSE}
-    procedure ColumnMoved(FromIndex, ToIndex: LongInt); override;
+{$ELSE}
+    procedure ColumnMoved(FromIndex, ToIndex: Longint); override;
     procedure LinkActive(Value: Boolean); override;
-    {$ENDIF}
+{$ENDIF}
     procedure Paint; override;
-    {$IFDEF RX_D4} // Polaris
-    procedure CalcSizingState(X, Y: Integer; var State: TGridState;
-      var Index: LongInt; var SizingPos, SizingOfs: Integer;
-      var FixedInfo: TGridDrawInfo); override;
-    {$ENDIF} // Polaris
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    procedure DefaultDataCellDraw(const Rect: TRect; Field: TField; State: TGridDrawState);
+    procedure DefaultDataCellDraw(const Rect: TRect; Field: TField;
+      State: TGridDrawState);
     procedure DisableScroll;
     procedure EnableScroll;
     function ScrollDisabled: Boolean;
-    procedure MouseToCell(X, Y: Integer; var ACol, ARow: LongInt);
+    procedure MouseToCell(X, Y: Integer; var ACol, ARow: Longint);
     procedure SaveLayout(IniFile: TIniFile);
     procedure RestoreLayout(IniFile: TIniFile);
     procedure SelectAll;
     procedure UnselectAll;
     procedure ToggleRowSelection;
-    procedure GotoSelection(Index: LongInt);
-    {$IFNDEF VER80}
+    procedure GotoSelection(Index: Longint);
+{$IFDEF WIN32}
     procedure SaveLayoutReg(IniFile: TRegIniFile);
     procedure RestoreLayoutReg(IniFile: TRegIniFile);
-    procedure SetGridColumnWidthsByContent(const GoToFirst: Boolean = False);
     property SelectedRows;
-    {$ELSE}
+{$ELSE}
     property SelectedRows: TBookmarkList read FBookmarks;
-    {$ENDIF}
-    property SelCount: LongInt read GetSelCount;
+{$ENDIF WIN32}
+    property SelCount: Longint read GetSelCount;
     property Canvas;
     property Col;
     property InplaceEditor;
@@ -242,29 +225,34 @@ type
     property Row;
     property VisibleRowCount;
     property VisibleColCount;
-    property IndicatorOffset{$IFDEF VER80}: Byte read GetIndicatorOffset{$ENDIF};
+    property IndicatorOffset {$IFNDEF WIN32}: Byte read GetIndicatorOffset {$ENDIF};
     property TitleOffset: Byte read GetTitleOffset;
   published
-    property AutoAppend: Boolean read FAutoAppend write FAutoAppend default True; // Polaris
-    {$IFNDEF VER80}
-    property Options: TDBGridOptions read GetOptions write SetOptions default DefRxGridOptions;
-    {$ELSE}
-    property FixedColor: TColor read GetFixedColor write SetFixedColor default clBtnFace; { fix Delphi 1.0 bug }
+{$IFDEF WIN32}
+    property Options: TDBGridOptions read GetOptions write SetOptions
+      default DefRxGridOptions;
+{$ELSE}
+    property FixedColor: TColor read GetFixedColor write SetFixedColor
+      default clBtnFace; { fix Delphi 1.0 bug }
     property Options default DefRxGridOptions;
-    {$ENDIF}
+{$ENDIF}
     property FixedCols: Integer read GetFixedCols write SetFixedCols default 0;
-    property ClearSelection: Boolean read FClearSelection write FClearSelection default True;
-    property DefaultDrawing: Boolean read FDefaultDrawing write FDefaultDrawing default True;
+    property ClearSelection: Boolean read FClearSelection write FClearSelection
+      default True;
+    property DefaultDrawing: Boolean read FDefaultDrawing write FDefaultDrawing
+      default True;
     property IniStorage: TFormPlacement read GetStorage write SetStorage;
-    property MultiSelect: Boolean read FMultiSelect write SetMultiSelect default False;
-    property RowColorsUse: Boolean read FRowColorsUse write SetRowColorsUse default False;
-    property RowColor1: TColor index 0 read FRowColors[0] write SetRowColor default clInfoBk;
-    property RowColor2: TColor index 1 read FRowColors[1] write SetRowColor default{$IFDEF RX_D6}clSkyBlue{$ELSE}clWhite{$ENDIF};
-    property ShowGlyphs: Boolean read FShowGlyphs write SetShowGlyphs default True;
-    property TitleButtons: Boolean read FTitleButtons write SetTitleButtons default False;
-    property RowsHeight: Integer read GetRowsHeight write SetRowsHeight stored False; { obsolete, for backward compatibility only }
+    property MultiSelect: Boolean read FMultiSelect write SetMultiSelect
+      default False;
+    property ShowGlyphs: Boolean read FShowGlyphs write SetShowGlyphs
+      default True;
+    property TitleButtons: Boolean read FTitleButtons write SetTitleButtons
+      default False;
+    property RowsHeight: Integer read GetRowsHeight write SetRowsHeight
+      stored False; { obsolete, for backward compatibility only }
     property OnCheckButton: TCheckTitleBtnEvent read FOnCheckButton write FOnCheckButton;
-    property OnGetCellProps: TGetCellPropsEvent read FOnGetCellProps write FOnGetCellProps; { obsolete }
+    property OnGetCellProps: TGetCellPropsEvent read FOnGetCellProps
+      write FOnGetCellProps; { obsolete }
     property OnGetCellParams: TGetCellParamsEvent read FOnGetCellParams write FOnGetCellParams;
     property OnGetBtnParams: TGetBtnParamsEvent read FOnGetBtnParams write FOnGetBtnParams;
     property OnEditChange: TNotifyEvent read FOnEditChange write FOnEditChange;
@@ -272,19 +260,19 @@ type
     property OnTitleBtnClick: TTitleClickEvent read FOnTitleBtnClick write FOnTitleBtnClick;
     property OnKeyPress: TKeyPressEvent read FOnKeyPress write FOnKeyPress;
     property OnTopLeftChanged: TNotifyEvent read FOnTopLeftChanged write FOnTopLeftChanged;
-    {$IFDEF VER80}
+{$IFNDEF WIN32}
     property OnColumnMoved: TMovedEvent read FOnColumnMoved write FOnColumnMoved;
-    {$ENDIF}
-    {$IFDEF RX_D5}
+{$ENDIF}
+{$IFDEF RX_D5}
     property OnContextPopup;
-    {$ENDIF}
+{$ENDIF}
     property OnMouseDown;
     property OnMouseMove;
     property OnMouseUp;
-    {$IFDEF RX_D4}
+{$IFDEF RX_D4}
     property OnMouseWheelDown;
     property OnMouseWheelUp;
-    {$ENDIF}
+{$ENDIF}
   end;
 
 { TRxDBComboEdit }
@@ -292,9 +280,9 @@ type
   TRxDBComboEdit = class(TCustomComboEdit)
   private
     FDataLink: TFieldDataLink;
-    {$IFNDEF VER80}
+{$IFDEF WIN32}
     FCanvas: TControlCanvas;
-    {$ENDIF}
+{$ENDIF}
     FFocused: Boolean;
     procedure DataChange(Sender: TObject);
     procedure EditingChange(Sender: TObject);
@@ -310,10 +298,10 @@ type
     procedure WMPaste(var Message: TMessage); message WM_PASTE;
     procedure CMEnter(var Message: TCMEnter); message CM_ENTER;
     procedure CMExit(var Message: TCMExit); message CM_EXIT;
-    {$IFNDEF VER80}
+{$IFDEF WIN32}
     procedure CMGetDataLink(var Message: TMessage); message CM_GETDATALINK;
     procedure WMPaint(var Message: TWMPaint); message WM_PAINT;
-    {$ENDIF}
+{$ENDIF}
   protected
     procedure Change; override;
     function EditCanModify: Boolean; override;
@@ -327,17 +315,14 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    {$IFDEF RX_D4}
+{$IFDEF RX_D4}
     function ExecuteAction(Action: TBasicAction): Boolean; override;
     function UpdateAction(Action: TBasicAction): Boolean; override;
     function UseRightToLeftAlignment: Boolean; override;
-    {$ENDIF}
+{$ENDIF}
     property Button;
     property Field: TField read GetField;
   published
-//Polaris
-    property Align;
-
     property AutoSelect;
     property BorderStyle;
     property ButtonHint;
@@ -357,19 +342,19 @@ type
     property Glyph;
     property ButtonWidth;
     property HideSelection;
-    {$IFDEF RX_D4}
+{$IFDEF RX_D4}
     property Anchors;
     property BiDiMode;
     property Constraints;
     property DragKind;
     property ParentBiDiMode;
-    {$ENDIF}
-    {$IFNDEF VER80}
-    {$IFNDEF VER90}
+{$ENDIF}
+{$IFDEF WIN32}
+  {$IFNDEF VER90}
     property ImeMode;
     property ImeName;
-    {$ENDIF}
-    {$ENDIF}
+  {$ENDIF}
+{$ENDIF}
     property MaxLength;
     property NumGlyphs;
     property ParentColor;
@@ -397,27 +382,26 @@ type
     property OnMouseDown;
     property OnMouseMove;
     property OnMouseUp;
-    {$IFNDEF VER80}
+{$IFDEF WIN32}
     property OnStartDrag;
-    {$ENDIF}
-    {$IFDEF RX_D5}
+{$ENDIF}
+{$IFDEF RX_D5}
     property OnContextPopup;
-    {$ENDIF}
-    {$IFDEF RX_D4}
+{$ENDIF}
+{$IFDEF RX_D4}
     property OnEndDock;
     property OnStartDock;
-    {$ENDIF}
+{$ENDIF}
   end;
 
 { TDBDateEdit }
 
   TDBDateEdit = class(TCustomDateEdit)
   private
-    FInReset: Boolean; // Polaris
     FDataLink: TFieldDataLink;
-    {$IFNDEF VER80}
+{$IFDEF WIN32}
     FCanvas: TControlCanvas;
-    {$ENDIF}
+{$ENDIF}
     procedure DataChange(Sender: TObject);
     procedure EditingChange(Sender: TObject);
     function GetDataField: string;
@@ -432,14 +416,14 @@ type
     procedure WMPaste(var Message: TMessage); message WM_PASTE;
     procedure CMEnter(var Message: TCMEnter); message CM_ENTER;
     procedure CMExit(var Message: TCMExit); message CM_EXIT;
-    {$IFNDEF VER80}
+{$IFDEF WIN32}
     procedure CMGetDataLink(var Message: TMessage); message CM_GETDATALINK;
     procedure WMPaint(var Message: TWMPaint); message WM_PAINT;
-    {$ENDIF}
+{$ENDIF}
   protected
-    {$IFNDEF VER80}
+{$IFDEF WIN32}
     procedure AcceptValue(const Value: Variant); override;
-    {$ENDIF}
+{$ENDIF}
     procedure ApplyDate(Value: TDateTime); override;
     function GetReadOnly: Boolean; override;
     procedure Change; override;
@@ -449,28 +433,17 @@ type
     procedure Notification(AComponent: TComponent;
       Operation: TOperation); override;
     procedure Reset; override;
-
-// Polaris
-    procedure SetDate(Value: TDateTime); override;
-    function IsValidDate(Value: TDateTime): Boolean;
-// Polaris
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure UpdateMask; override;
-    {$IFDEF RX_D4}
+{$IFDEF RX_D4}
     function ExecuteAction(Action: TBasicAction): Boolean; override;
     function UpdateAction(Action: TBasicAction): Boolean; override;
     function UseRightToLeftAlignment: Boolean; override;
-    {$ENDIF}
+{$ENDIF}
     property Field: TField read GetField;
   published
-// Polaris
-    property DateAutoBetween;
-    property MinDate;
-    property MaxDate;
-    property Align;
-// Polaris
     property CalendarHints;
     property DataField: string read GetDataField write SetDataField;
     property DataSource: TDataSource read GetDataSource write SetDataSource;
@@ -495,19 +468,19 @@ type
     property Glyph;
     property ButtonWidth;
     property HideSelection;
-    {$IFDEF RX_D4}
+{$IFDEF RX_D4}
     property Anchors;
     property BiDiMode;
     property Constraints;
     property DragKind;
     property ParentBiDiMode;
-    {$ENDIF}
-    {$IFNDEF VER80}
-    {$IFNDEF VER90}
+{$ENDIF}
+{$IFDEF WIN32}
+  {$IFNDEF VER90}
     property ImeMode;
     property ImeName;
-    {$ENDIF}
-    {$ENDIF}
+  {$ENDIF}
+{$ENDIF}
     property MaxLength;
     property NumGlyphs;
     property ParentColor;
@@ -541,16 +514,16 @@ type
     property OnMouseDown;
     property OnMouseMove;
     property OnMouseUp;
-    {$IFNDEF VER80}
+{$IFDEF WIN32}
     property OnStartDrag;
-    {$ENDIF}
-    {$IFDEF RX_D5}
+{$ENDIF}
+{$IFDEF RX_D5}
     property OnContextPopup;
-    {$ENDIF}
-    {$IFDEF RX_D4}
+{$ENDIF}
+{$IFDEF RX_D4}
     property OnEndDock;
     property OnStartDock;
-    {$ENDIF}
+{$ENDIF}
   end;
 
 { TRxDBCalcEdit }
@@ -559,16 +532,6 @@ type
   private
     FDataLink: TFieldDataLink;
     FDefaultParams: Boolean;
-
-    //Polaris
-    FLEmptyIsNull: Boolean;
-    FEmptyIsNull: Boolean;
-    procedure SetEmptyIsNull(Value: Boolean);
-    function GetZeroEmpty: Boolean;
-    procedure SetZeroEmpty(Value: Boolean);
-    function StoreEmptyIsNull: Boolean;
-    //Polaris
-
     procedure DataChange(Sender: TObject);
     procedure EditingChange(Sender: TObject);
     function GetDataField: string;
@@ -581,21 +544,18 @@ type
     procedure UpdateFieldData(Sender: TObject);
     procedure WMCut(var Message: TMessage); message WM_CUT;
     procedure WMPaste(var Message: TMessage); message WM_PASTE;
-//Polaris procedure CMEnter(var Message: TCMEnter); message CM_ENTER;
+    procedure CMEnter(var Message: TCMEnter); message CM_ENTER;
     procedure CMExit(var Message: TCMExit); message CM_EXIT;
-    {$IFNDEF VER80}
+{$IFDEF WIN32}
     procedure CMGetDataLink(var Message: TMessage); message CM_GETDATALINK;
-    {$ENDIF}
+{$ENDIF}
   protected
-    {$IFNDEF VER80}
+{$IFDEF WIN32}
     procedure AcceptValue(const Value: Variant); override;
     function GetDisplayText: string; override;
-    {$ENDIF}
+{$ENDIF}
     function GetReadOnly: Boolean; override;
     procedure Change; override;
-
-    procedure DataChanged; override; //Polaris
-
     function EditCanModify: Boolean; override;
     function IsValidChar(Key: Char): Boolean; override;
     procedure KeyDown(var Key: Word; Shift: TShiftState); override;
@@ -604,27 +564,18 @@ type
       Operation: TOperation); override;
     procedure Reset; override;
     procedure UpdatePopup; override;
-
-//Polaris
-    procedure Loaded; override;
-//Polaris
-
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     procedure UpdateFieldParams;
-    {$IFDEF RX_D4}
+{$IFDEF RX_D4}
     function ExecuteAction(Action: TBasicAction): Boolean; override;
     function UpdateAction(Action: TBasicAction): Boolean; override;
     function UseRightToLeftAlignment: Boolean; override;
-    {$ENDIF}
+{$ENDIF}
     property Field: TField read GetField;
     property Value;
   published
-//Polaris
-    property Align;
-    property DecimalPlaceRound;
-
     property DataField: string read GetDataField write SetDataField;
     property DataSource: TDataSource read GetDataSource write SetDataSource;
     property DefaultParams: Boolean read FDefaultParams write SetDefaultParams default False;
@@ -651,19 +602,19 @@ type
     property Glyph;
     property ButtonWidth;
     property HideSelection;
-    {$IFDEF RX_D4}
+{$IFDEF RX_D4}
     property Anchors;
     property BiDiMode;
     property Constraints;
     property DragKind;
     property ParentBiDiMode;
-    {$ENDIF}
-    {$IFNDEF VER80}
-    {$IFNDEF VER90}
+{$ENDIF}
+{$IFDEF WIN32}
+  {$IFNDEF VER90}
     property ImeMode;
     property ImeName;
-    {$ENDIF}
-    {$ENDIF}
+  {$ENDIF}
+{$ENDIF}
     property MaxLength;
     property MaxValue;
     property MinValue;
@@ -678,10 +629,7 @@ type
     property TabOrder;
     property TabStop;
     property Visible;
-//Polaris
-    property EmptyIsNull: Boolean read FEmptyIsNull write SetEmptyIsNull stored StoreEmptyIsNull;
-    property ZeroEmpty: Boolean read GetZeroEmpty write SetZeroEmpty default True;
-//Polaris
+    property ZeroEmpty;
     property OnButtonClick;
     property OnChange;
     property OnClick;
@@ -697,23 +645,23 @@ type
     property OnMouseDown;
     property OnMouseMove;
     property OnMouseUp;
-    {$IFNDEF VER80}
+{$IFDEF WIN32}
     property OnStartDrag;
-    {$ENDIF}
-    {$IFDEF RX_D5}
+{$ENDIF}
+{$IFDEF RX_D5}
     property OnContextPopup;
-    {$ENDIF}
-    {$IFDEF RX_D4}
+{$ENDIF}
+{$IFDEF RX_D4}
     property OnEndDock;
     property OnStartDock;
-    {$ENDIF}
+{$ENDIF}
   end;
 
 { TDBStatusLabel }
 
   TGetStringEvent = function(Sender: TObject): string of object;
   TDataValueEvent = procedure(Sender: TObject; DataSet: TDataSet;
-    var Value: LongInt) of object;
+    var Value: Longint) of object;
   TDBLabelStyle = (lsState, lsRecordNo, lsRecordSize);
   TGlyphAlign = glGlyphLeft..glGlyphRight;
   TDBStatusKind = dsInactive..dsCalcFields;
@@ -722,11 +670,7 @@ type
   TDBStatusLabel = class(TRxCustomLabel)
   private
     FDataLink: TDataLink;
-    {$IFDEF RX_D4} // Polaris
-    FDataSetName: string;
-    {$ELSE}
-    FDataSetName: PString;
-    {$ENDIF}
+    FDataSetName: String;
     FStyle: TDBLabelStyle;
     FEditColor: TColor;
     FCalcCount: Boolean;
@@ -734,8 +678,8 @@ type
     FGlyph: TBitmap;
     FCell: TBitmap;
     FGlyphAlign: TGlyphAlign;
-    FRecordCount: LongInt;
-    FRecordNo: LongInt;
+    FRecordCount: Longint;
+    FRecordNo: Longint;
     FShowOptions: TDBLabelOptions;
     FOnGetDataName: TGetStringEvent;
     FOnGetRecNo: TDataValueEvent;
@@ -789,13 +733,13 @@ type
     property DragCursor;
     property DragMode;
     property Font;
-    {$IFDEF RX_D4}
+{$IFDEF RX_D4}
     property Anchors;
     property BiDiMode;
     property Constraints;
     property DragKind;
     property ParentBiDiMode;
-    {$ENDIF}
+{$ENDIF}
     property ParentColor;
     property ParentFont;
     property ParentShowHint;
@@ -820,25 +764,29 @@ type
     property OnMouseUp;
     property OnMouseEnter;
     property OnMouseLeave;
-    {$IFNDEF VER80}
+{$IFDEF WIN32}
     property OnStartDrag;
-    {$ENDIF}
-    {$IFDEF RX_D5}
+{$ENDIF}
+{$IFDEF RX_D5}
     property OnContextPopup;
-    {$ENDIF}
-    {$IFDEF RX_D4}
+{$ENDIF}
+{$IFDEF RX_D4}
     property OnEndDock;
     property OnStartDock;
-    {$ENDIF}
+{$ENDIF}
   end;
 
 implementation
 
-uses SysUtils, Dialogs, ExtCtrls, DbConsts, {$IFDEF RX_D5}RxAppUtils{$ELSE}AppUtils{$ENDIF}, RxVCLUtils, // Alex
-  RxDBUtils, {$IFNDEF RX_D3}BdeUtils, {$ENDIF}RxPickDate, RxCalc, RxMaxMin, RxResConst, // Polaris
-  {$IFDEF RX_D6}Variants, {$ENDIF}RxStrUtils; // Polaris
+uses SysUtils, rxStrUtils, Dialogs, ExtCtrls, DbConsts, AppUtils, VCLUtils,
+  DbUtils, {$IFNDEF RX_D3} BdeUtils, {$ENDIF} PickDate, RxCalc, MaxMin,
+  RxDConst;
 
-{$R *.RES}
+{$IFDEF WIN32}
+  {$R *.R32}
+{$ELSE}
+  {$R *.R16}
+{$ENDIF}
 
 type
   TGridPicture = (gpBlob, gpMemo, gpPicture, gpOle, gpObject, gpData,
@@ -846,17 +794,16 @@ type
 
 const
   GridBmpNames: array[TGridPicture] of PChar =
-  ('DBG_BLOB', 'DBG_MEMO', 'DBG_PICT', 'DBG_OLE', 'DBG_OBJECT', 'DBG_DATA',
-    'DBG_NOTEMPTY', 'DBG_SMDOWN', 'DBG_SMUP');
+    ('DBG_BLOB', 'DBG_MEMO', 'DBG_PICT', 'DBG_OLE', 'DBG_OBJECT', 'DBG_DATA',
+     'DBG_NOTEMPTY', 'DBG_SMDOWN', 'DBG_SMUP');
   GridBitmaps: array[TGridPicture] of TBitmap =
-  (nil, nil, nil, nil, nil, nil, nil, nil, nil);
+    (nil, nil, nil, nil, nil, nil, nil, nil, nil);
   bmMultiDot = 'DBG_MSDOT';
   bmMultiArrow = 'DBG_MSARROW';
 
 function GetGridBitmap(BmpType: TGridPicture): TBitmap;
 begin
-  if GridBitmaps[BmpType] = nil then
-  begin
+  if GridBitmaps[BmpType] = nil then begin
     GridBitmaps[BmpType] := TBitmap.Create;
     GridBitmaps[BmpType].Handle := LoadBitmap(HInstance, GridBmpNames[BmpType]);
   end;
@@ -867,19 +814,17 @@ procedure DestroyLocals; far;
 var
   I: TGridPicture;
 begin
-  for I := Low(TGridPicture) to High(TGridPicture) do
-    GridBitmaps[I].Free;
+  for I := Low(TGridPicture) to High(TGridPicture) do GridBitmaps[I].Free;
 end;
 
-procedure GridInvalidateRow(Grid: TRxDBGrid; Row: LongInt);
+procedure GridInvalidateRow(Grid: TRxDBGrid; Row: Longint);
 var
-  I: LongInt;
+  I: Longint;
 begin
-  for I := 0 to Grid.ColCount - 1 do
-    Grid.InvalidateCell(I, Row);
+  for I := 0 to Grid.ColCount - 1 do Grid.InvalidateCell(I, Row);
 end;
 
-{$IFDEF VER80}
+{$IFNDEF WIN32}
 
 { TBookmarkList }
 
@@ -899,17 +844,16 @@ end;
 
 procedure TBookmarkList.Clear;
 var
-  I: LongInt;
+  I: Longint;
 begin
   if FList.Count = 0 then Exit;
-  for I := FList.Count - 1 downto 0 do
-    StrDispose(FList[I]);
+  for I := FList.Count - 1 downto 0 do StrDispose(FList[I]);
   FList.Clear;
   ListChanged;
   FGrid.Invalidate;
 end;
 
-function TBookmarkList.Compare(const Item1, Item2: TBookmark): LongInt;
+function TBookmarkList.Compare(const Item1, Item2: TBookmark): Longint;
 begin
   Result := BookmarksCompare(TRxDBGrid(FGrid).Datalink.Dataset,
     Item1, Item2);
@@ -923,7 +867,7 @@ end;
 
 function TBookmarkList.GetCurrentRowSelected: Boolean;
 var
-  Index: LongInt;
+  Index: Longint;
   Row: TBookmark;
 begin
   Row := CurrentRow;
@@ -934,13 +878,12 @@ begin
   end;
 end;
 
-function TBookmarkList.Find(const Item: TBookmark; var Index: LongInt): Boolean;
+function TBookmarkList.Find(const Item: TBookmark; var Index: Longint): Boolean;
 var
-  L, H, I, C: LongInt;
+  L, H, I, C: Longint;
   P: PChar;
 begin
-  if (Compare(Item, FCache) = 0) and (FCacheIndex >= 0) then
-  begin
+  if (Compare(Item, FCache) = 0) and (FCacheIndex >= 0) then begin
     Index := FCacheIndex;
     Result := FCacheFind;
     Exit;
@@ -948,17 +891,13 @@ begin
   Result := False;
   L := 0;
   H := FList.Count - 1;
-  while L <= H do
-  begin
+  while L <= H do begin
     I := (L + H) shr 1;
     C := Compare(TBookmark(FList[I]), Item);
-    if C < 0 then
-      L := I + 1
-    else
-    begin
+    if C < 0 then L := I + 1
+    else begin
       H := I - 1;
-      if C = 0 then
-      begin
+      if C = 0 then begin
         Result := True;
         L := I;
       end;
@@ -968,8 +907,7 @@ begin
   StrDispose(FCache);
   FCache := nil;
   P := PChar(Item);
-  if P <> nil then
-  begin
+  if P <> nil then begin
     Dec(P, 2);
     FCache := StrAlloc(Word(Pointer(P)^));
     Move(Item^, FCache^, Word(Pointer(P)^));
@@ -978,17 +916,17 @@ begin
   FCacheFind := Result;
 end;
 
-function TBookmarkList.GetCount: LongInt;
+function TBookmarkList.GetCount: Longint;
 begin
   Result := FList.Count;
 end;
 
-function TBookmarkList.GetItem(Index: LongInt): TBookmark;
+function TBookmarkList.GetItem(Index: Longint): TBookmark;
 begin
   Result := TBookmark(FList[Index]);
 end;
 
-function TBookmarkList.IndexOf(const Item: TBookmark): LongInt;
+function TBookmarkList.IndexOf(const Item: TBookmark): Longint;
 begin
   if not Find(Item, Result) then Result := -1;
 end;
@@ -1001,16 +939,13 @@ end;
 
 procedure TBookmarkList.Delete;
 var
-  I: LongInt;
+  I: Longint;
 begin
-  with TRxDBGrid(FGrid).Datalink.Dataset do
-  begin
+  with TRxDBGrid(FGrid).Datalink.Dataset do begin
     DisableControls;
     try
-      for I := FList.Count - 1 downto 0 do
-      begin
-        if FList[I] <> nil then
-        begin
+      for I := FList.Count - 1 downto 0 do begin
+        if FList[I] <> nil then begin
           GotoBookmark(TBookmark(FList[I]));
           Delete;
           StrDispose(FList[I]);
@@ -1026,15 +961,14 @@ end;
 
 function TBookmarkList.Refresh: Boolean;
 var
-  I: LongInt;
+  I: Longint;
 begin
   Result := False;
   with TRxDBGrid(FGrid).DataLink.Dataset do
   try
     CheckBrowseMode;
     for I := FList.Count - 1 downto 0 do
-      if DbiSetToBookmark(Handle, Pointer(FList[I])) <> 0 then
-      begin
+      if DbiSetToBookmark(Handle, Pointer(FList[I])) <> 0 then begin
         Result := True;
         StrDispose(FList[I]);
         FList.Delete(I);
@@ -1048,18 +982,16 @@ end;
 
 procedure TBookmarkList.SetCurrentRowSelected(Value: Boolean);
 var
-  Index: LongInt;
+  Index: Longint;
   Current: TBookmark;
 begin
   Current := CurrentRow;
   Index := 0;
-  if (Current = nil) or (Find(Current, Index) = Value) then
-  begin
+  if (Current = nil) or (Find(Current, Index) = Value) then begin
     if Current <> nil then StrDispose(Current);
     Exit;
   end;
-  if Value then
-  begin
+  if Value then begin
     try
       FList.Insert(Index, Current);
     except
@@ -1067,10 +999,8 @@ begin
       raise;
     end;
   end
-  else
-  begin
-    if (Index < FList.Count) and (Index >= 0) then
-    begin
+  else begin
+    if (Index < FList.Count) and (Index >= 0) then begin
       StrDispose(FList[Index]);
       FList.Delete(Index);
     end;
@@ -1088,7 +1018,7 @@ begin
   FCacheIndex := -1;
 end;
 
-{$ENDIF}
+{$ENDIF WIN32}
 
 type
   TBookmarks = class(TBookmarkList);
@@ -1101,24 +1031,21 @@ var
 begin
   inherited Create(AOwner);
   inherited DefaultDrawing := False;
-  FRowColors[0] := clInfoBk;
-  FRowColors[1] := {$IFDEF RX_D6}clSkyBlue{$ELSE}clWhite{$ENDIF};
-  FRowColorsUse := False;
   Options := DefRxGridOptions;
   Bmp := TBitmap.Create;
   try
     Bmp.Handle := LoadBitmap(hInstance, bmMultiDot);
-    {$IFNDEF VER80}
+{$IFDEF WIN32}
     FMsIndicators := TImageList.CreateSize(Bmp.Width, Bmp.Height);
-    {$ELSE}
+{$ELSE}
     FMsIndicators := TImageList.Create(Bmp.Width, Bmp.Height);
     Bmp.Monochrome := False;
-    {$ENDIF}
+{$ENDIF}
     FMsIndicators.AddMasked(Bmp, clWhite);
     Bmp.Handle := LoadBitmap(hInstance, bmMultiArrow);
-    {$IFDEF VER80}
+{$IFNDEF WIN32}
     Bmp.Monochrome := False;
-    {$ENDIF}
+{$ENDIF}
     FMsIndicators.AddMasked(Bmp, clWhite);
   finally
     Bmp.Free;
@@ -1129,22 +1056,21 @@ begin
   FShowGlyphs := True;
   FDefaultDrawing := True;
   FClearSelection := True;
-  {$IFDEF VER80}
+{$IFNDEF WIN32}
   FBookmarks := TBookmarkList.Create(Self);
   FPressedCol := -1;
-  {$ENDIF}
-  FAutoAppend := True; // Polaris
+{$ENDIF}
 end;
 
 destructor TRxDBGrid.Destroy;
 begin
   FIniLink.Free;
-  {$IFDEF VER80}
+{$IFNDEF WIN32}
   if FSelectionAnchor <> nil then StrDispose(FSelectionAnchor);
   FSelectionAnchor := nil;
   FBookmarks.Free;
   FBookmarks := nil;
-  {$ENDIF}
+{$ENDIF}
   FMsIndicators.Free;
   inherited Destroy;
 end;
@@ -1155,10 +1081,8 @@ var
   AOnSetText: TFieldSetTextEvent;
 begin
   Result := -1;
-  if FShowGlyphs and Assigned(Field) then
-  begin
-    if (not ReadOnly) and Field.CanModify then
-    begin
+  if FShowGlyphs and Assigned(Field) then begin
+    if (not ReadOnly) and Field.CanModify then begin
       { Allow editing of memo fields if OnSetText and OnGetText
         events are assigned }
       AOnGetText := Field.OnGetText;
@@ -1169,47 +1093,46 @@ begin
       ftBytes, ftVarBytes, ftBlob: Result := Ord(gpBlob);
       ftMemo: Result := Ord(gpMemo);
       ftGraphic: Result := Ord(gpPicture);
-      {$IFNDEF VER80}
+{$IFDEF WIN32}
       ftTypedBinary: Result := Ord(gpBlob);
       ftFmtMemo: Result := Ord(gpMemo);
       ftParadoxOle, ftDBaseOle: Result := Ord(gpOle);
-      {$ENDIF}
-      {$IFDEF RX_D3}
+{$ENDIF}
+{$IFDEF RX_D3}
       ftCursor: Result := Ord(gpData);
-      {$ENDIF}
-      {$IFDEF RX_D4}
+{$ENDIF}
+{$IFDEF RX_D4}
       ftReference, ftDataSet: Result := Ord(gpData);
-      {$ENDIF}
-      {$IFDEF RX_D5}
+{$ENDIF}
+{$IFDEF RX_D5}
       ftOraClob: Result := Ord(gpMemo);
       ftOraBlob: Result := Ord(gpBlob);
-      {$ENDIF}
+{$ENDIF}
     end;
   end;
 end;
 
 function TRxDBGrid.ActiveRowSelected: Boolean;
 var
-  {$IFNDEF VER80}
+{$IFDEF WIN32}
   Index: Integer;
-  {$ELSE}
-  Index: LongInt;
+{$ELSE}
+  Index: Longint;
   Bookmark: TBookmark;
-  {$ENDIF}
+{$ENDIF}
 begin
   Result := False;
-  if MultiSelect and Datalink.Active then
-  begin
-    {$IFNDEF VER80}
+  if MultiSelect and Datalink.Active then begin
+{$IFDEF WIN32}
     Result := SelectedRows.Find(Datalink.DataSet.Bookmark, Index);
-    {$ELSE}
+{$ELSE}
     Bookmark := Datalink.Dataset.GetBookmark;
     try
       Result := SelectedRows.Find(Bookmark, Index);
     finally
       StrDispose(Bookmark);
     end;
-    {$ENDIF}
+{$ENDIF}
   end;
 end;
 
@@ -1224,34 +1147,29 @@ end;
 procedure TRxDBGrid.ToggleRowSelection;
 begin
   if MultiSelect and Datalink.Active then
-    with SelectedRows do
-      CurrentRowSelected := not CurrentRowSelected;
+    with SelectedRows do CurrentRowSelected := not CurrentRowSelected;
 end;
 
-function TRxDBGrid.GetSelCount: LongInt;
+function TRxDBGrid.GetSelCount: Longint;
 begin
   if MultiSelect and (Datalink <> nil) and Datalink.Active then
     Result := SelectedRows.Count
-  else
-    Result := 0;
+  else Result := 0;
 end;
 
 procedure TRxDBGrid.SelectAll;
 var
   ABookmark: TBookmark;
 begin
-  if MultiSelect and DataLink.Active then
-  begin
-    with Datalink.Dataset do
-    begin
-      if (Bof and Eof) then Exit;
+  if MultiSelect and DataLink.Active then begin
+    with Datalink.Dataset do begin
+      if (BOF and EOF) then Exit;
       DisableControls;
       try
         ABookmark := GetBookmark;
         try
           First;
-          while not Eof do
-          begin
+          while not EOF do begin
             SelectedRows.CurrentRowSelected := True;
             Next;
           end;
@@ -1271,59 +1189,54 @@ end;
 
 procedure TRxDBGrid.UnselectAll;
 begin
-  if MultiSelect then
-  begin
+  if MultiSelect then begin
     SelectedRows.Clear;
     FSelecting := False;
   end;
 end;
 
-procedure TRxDBGrid.GotoSelection(Index: LongInt);
+procedure TRxDBGrid.GotoSelection(Index: Longint);
 begin
   if MultiSelect and DataLink.Active and (Index < SelectedRows.Count) and
     (Index >= 0) then
-    {$IFDEF RX_D25} //Rad Studio 10.2 Tokyo
-    Datalink.DataSet.GotoBookmark(SelectedRows[Index]);
-    {$ELSE}
     Datalink.DataSet.GotoBookmark(Pointer(SelectedRows[Index]));
-    {$ENDIF}
 end;
 
-{$IFDEF VER80}
+{$IFNDEF WIN32}
 function TRxDBGrid.GetIndicatorOffset: Byte;
 begin
   Result := 0;
   if dgIndicator in Options then Inc(Result);
 end;
-{$ENDIF}
+{$ENDIF WIN32}
 
 procedure TRxDBGrid.LayoutChanged;
 var
-  ACol: LongInt;
+  ACol: Longint;
 begin
   ACol := Col;
   inherited LayoutChanged;
   if Datalink.Active and (FixedCols > 0) then
-    {$IFDEF RX_D4}
+{$IFDEF RX_D4}
     Col := Min(Max(CalcLeftColumn, ACol), ColCount - 1);
-  {$ELSE}
+{$ELSE}
     Col := Min(Max(inherited FixedCols, ACol), ColCount - 1);
-  {$ENDIF}
+{$ENDIF}
 end;
 
-{$IFNDEF VER80}
+{$IFDEF WIN32}
 procedure TRxDBGrid.ColWidthsChanged;
 var
-  ACol: LongInt;
+  ACol: Longint;
 begin
   ACol := Col;
   inherited ColWidthsChanged;
   if Datalink.Active and (FixedCols > 0) then
-    {$IFDEF RX_D4}
+{$IFDEF RX_D4}
     Col := Min(Max(CalcLeftColumn, ACol), ColCount - 1);
-  {$ELSE}
+{$ELSE}
     Col := Min(Max(inherited FixedCols, ACol), ColCount - 1);
-  {$ENDIF}
+{$ENDIF}
 end;
 {$ENDIF}
 
@@ -1337,26 +1250,23 @@ function TRxDBGrid.GetTitleOffset: Byte;
 {$IFDEF RX_D4}
 var
   I, J: Integer;
-  {$ENDIF}
+{$ENDIF}
 begin
   Result := 0;
-  if dgTitles in Options then
-  begin
+  if dgTitles in Options then begin
     Result := 1;
-    {$IFDEF RX_D4}
+{$IFDEF RX_D4}
     if (Datalink <> nil) and (Datalink.Dataset <> nil) and
       Datalink.Dataset.ObjectView then
     begin
-      for I := 0 to Columns.Count - 1 do
-      begin
-        if Columns[I].Showing then
-        begin
+      for I := 0 to Columns.Count - 1 do begin
+        if Columns[I].Showing then begin
           J := Columns[I].Depth;
           if J >= Result then Result := J + 1;
         end;
       end;
     end;
-    {$ENDIF}
+{$ENDIF}
   end;
 end;
 
@@ -1382,51 +1292,14 @@ begin
   FFixedCols := FixCount - IndicatorOffset;
 end;
 
-procedure TRxDBGrid.SetGridColumnWidthsByContent(const GoToFirst: Boolean);
-const
-  DEFBORDER = 10;
-var
-  tmp, n: Integer;
-  lmax: array [Byte] of Integer;
-begin
-  DataSource.DataSet.DisableControls;
-  try
-    Canvas.Font := Font;
-    for n := 0 to Columns.Count - 1 do
-      //if columns[n].visible then
-      lmax[n] := Canvas.TextWidth(Fields[n].FieldName) + DEFBORDER;
-    DataSource.DataSet.First;
-    while not DataSource.DataSet.EOF do
-    begin
-      for n := 0 to Columns.Count - 1 do
-      begin
-        //if columns[n].visible then begin
-        tmp := Canvas.TextWidth(Trim(Columns[n].Field.DisplayText)) + DEFBORDER;
-        if tmp > lmax[n] then lmax[n] := tmp;
-        //end; { if }
-      end; {for}
-      DataSource.DataSet.Next;
-    end; { while }
-    if GoToFirst then
-      DataSource.DataSet.First;
-    for n := 0 to Columns.Count - 1 do
-      if lmax[n] > 0 then
-        Columns[n].Width := lmax[n];
-  finally
-    DataSource.DataSet.EnableControls;
-  end;
-end;
-
 function TRxDBGrid.GetFixedCols: Integer;
 begin
-  if DataLink.Active then
-    Result := inherited FixedCols - IndicatorOffset
-  else
-    Result := FFixedCols;
+  if DataLink.Active then Result := inherited FixedCols - IndicatorOffset
+  else Result := FFixedCols;
 end;
 
 {$IFDEF RX_D4}
- function TRxDBGrid.CalcLeftColumn: Integer;
+function TRxDBGrid.CalcLeftColumn: Integer;
 begin
   Result := FixedCols + IndicatorOffset;
   while (Result < ColCount) and (ColWidths[Result] <= 0) do
@@ -1440,8 +1313,7 @@ var
 
   procedure ClearSelections;
   begin
-    if FMultiSelect then
-    begin
+    if FMultiSelect then begin
       if FClearSelection then SelectedRows.Clear;
       FSelecting := False;
     end;
@@ -1450,61 +1322,55 @@ var
   procedure DoSelection(Select: Boolean; Direction: Integer);
   var
     AddAfter: Boolean;
-    {$IFDEF VER80}
+{$IFNDEF WIN32}
     CurRow: TBookmark;
-    {$ENDIF}
+{$ENDIF}
   begin
     AddAfter := False;
-    {$IFNDEF VER80}
+{$IFDEF WIN32}
     BeginUpdate;
     try
-      {$ENDIF}
+{$ENDIF}
       if MultiSelect and DataLink.Active then
-        if Select and (ssShift in Shift) then
-        begin
-          if not FSelecting then
-          begin
-            {$IFDEF VER80}
+        if Select and (ssShift in Shift) then begin
+          if not FSelecting then begin
+{$IFNDEF WIN32}
             if FSelectionAnchor <> nil then StrDispose(FSelectionAnchor);
-            {$ENDIF}
+{$ENDIF}
             FSelectionAnchor := TBookmarks(SelectedRows).CurrentRow;
             SelectedRows.CurrentRowSelected := True;
             FSelecting := True;
             AddAfter := True;
           end
-          else
-            with TBookmarks(SelectedRows) do
-            begin
-              {$IFNDEF VER80}
-              AddAfter := Compare(CurrentRow, FSelectionAnchor) <> -Direction;
-              {$ELSE}
-              CurRow := CurrentRow;
-              try
-                AddAfter := Compare(CurRow, FSelectionAnchor) <> -Direction;
-              finally
-                StrDispose(CurRow);
-              end;
-              {$ENDIF}
-              if not AddAfter then CurrentRowSelected := False;
-            end
+          else with TBookmarks(SelectedRows) do begin
+{$IFDEF WIN32}
+            AddAfter := Compare(CurrentRow, FSelectionAnchor) <> -Direction;
+{$ELSE}
+            CurRow := CurrentRow;
+            try
+              AddAfter := Compare(CurRow, FSelectionAnchor) <> -Direction;
+            finally
+              StrDispose(CurRow);
+            end;
+{$ENDIF}
+            if not AddAfter then CurrentRowSelected := False;
+          end
         end
-        else
-          ClearSelections;
+        else ClearSelections;
       if Direction <> 0 then Datalink.DataSet.MoveBy(Direction);
       if AddAfter then SelectedRows.CurrentRowSelected := True;
-      {$IFNDEF VER80}
+{$IFDEF WIN32}
     finally
       EndUpdate;
     end;
-    {$ENDIF}
+{$ENDIF}
   end;
 
   procedure NextRow(Select: Boolean);
   begin
-    with Datalink.Dataset do
-    begin
+    with Datalink.Dataset do begin
       DoSelection(Select, 1);
-      if AutoAppend and Eof and CanModify and (not ReadOnly) and (dgEditing in Options) then
+      if EOF and CanModify and (not ReadOnly) and (dgEditing in Options) then
         Append;
     end;
   end;
@@ -1521,19 +1387,13 @@ var
     ACol := Col;
     Original := ACol;
     if MultiSelect and DataLink.Active then
-      while True do
-      begin
-        if GoForward then
-          Inc(ACol)
-        else
-          Dec(ACol);
-        if ACol >= ColCount then
-        begin
+      while True do begin
+        if GoForward then Inc(ACol) else Dec(ACol);
+        if ACol >= ColCount then begin
           ClearSelections;
           ACol := IndicatorOffset;
         end
-        else if ACol < IndicatorOffset then
-        begin
+        else if ACol < IndicatorOffset then begin
           ClearSelections;
           ACol := ColCount;
         end;
@@ -1547,13 +1407,12 @@ var
     S: string;
   begin
     if (SelectedRows.Count > 1) then
-      {$IFNDEF VER80}
-      S := {ResStr(} SDeleteMultipleRecordsQuestion {)}
-        {$ELSE}
-      S := {LoadStr(} SDeleteMultipleRecords {)}
-        {$ENDIF}
-    else
-      S := {ResStr(} SDeleteRecordQuestion {)};
+{$IFDEF WIN32}
+      S := ResStr(SDeleteMultipleRecordsQuestion)
+{$ELSE}
+      S := LoadStr(SDeleteMultipleRecords)
+{$ENDIF}
+    else S := ResStr(SDeleteRecordQuestion);
     Result := not (dgConfirmDelete in Options) or
       (MessageDlg(S, mtConfirmation, [mbYes, mbNo], 0) = mrYes);
   end;
@@ -1563,63 +1422,55 @@ begin
   if Assigned(KeyDownEvent) then KeyDownEvent(Self, Key, Shift);
   if not Datalink.Active or not CanGridAcceptKey(Key, Shift) then Exit;
   with Datalink.DataSet do
-    if ssCtrl in Shift then
-    begin
+    if ssCtrl in Shift then begin
       if (Key in [VK_UP, VK_PRIOR, VK_DOWN, VK_NEXT, VK_HOME, VK_END]) then
         ClearSelections;
       case Key of
         VK_LEFT:
-          if FixedCols > 0 then
-          begin
-            {$IFDEF RX_D4}
+          if FixedCols > 0 then begin
+{$IFDEF RX_D4}
             SelectedIndex := CalcLeftColumn - IndicatorOffset;
-            {$ELSE}
+{$ELSE}
             SelectedIndex := FixedCols;
-            {$ENDIF}
+{$ENDIF}
             Exit;
           end;
         VK_DELETE:
           if not ReadOnly and CanModify and not
             IsDataSetEmpty(Datalink.DataSet) then
           begin
-            if DeletePrompt then
-            begin
-              if SelectedRows.Count > 0 then
-                SelectedRows.Delete
-              else
-                Delete;
+            if DeletePrompt then begin
+              if SelectedRows.Count > 0 then SelectedRows.Delete
+              else Delete;
             end;
             Exit;
           end;
       end
     end
-    else
-    begin
+    else begin
       case Key of
         VK_LEFT:
-          if (FixedCols > 0) and not (dgRowSelect in Options) then
-          begin
-            {$IFDEF RX_D4}
+          if (FixedCols > 0) and not (dgRowSelect in Options) then begin
+{$IFDEF RX_D4}
             if SelectedIndex <= CalcLeftColumn - IndicatorOffset then
               Exit;
-            {$ELSE}
+{$ELSE}
             if SelectedIndex <= FFixedCols then Exit;
-            {$ENDIF}
+{$ENDIF}
           end;
         VK_HOME:
           if (FixedCols > 0) and (ColCount <> IndicatorOffset + 1) and
             not (dgRowSelect in Options) then
           begin
-            {$IFDEF RX_D4}
+{$IFDEF RX_D4}
             SelectedIndex := CalcLeftColumn - IndicatorOffset;
-            {$ELSE}
+{$ELSE}
             SelectedIndex := FixedCols;
-            {$ENDIF}
+{$ENDIF}
             Exit;
           end;
       end;
-      if (Datalink.DataSet.State = dsBrowse) then
-      begin
+      if (Datalink.DataSet.State = dsBrowse) then begin
         case Key of
           VK_UP:
             begin
@@ -1633,9 +1484,9 @@ begin
       end;
       if ((Key in [VK_LEFT, VK_RIGHT]) and (dgRowSelect in Options)) or
         ((Key in [VK_HOME, VK_END]) and ((ColCount = IndicatorOffset + 1)
-        or (dgRowSelect in Options))) or (Key in [VK_ESCAPE, VK_NEXT,
-        VK_PRIOR]) or ((Key = VK_INSERT) and (CanModify and
-        (not ReadOnly) and (dgEditing in Options))) then
+          or (dgRowSelect in Options))) or (Key in [VK_ESCAPE, VK_NEXT,
+          VK_PRIOR]) or ((Key = VK_INSERT) and (CanModify and
+          (not ReadOnly) and (dgEditing in Options))) then
         ClearSelections
       else if ((Key = VK_TAB) and not (ssAlt in Shift)) then
         CheckTab(not (ssShift in Shift));
@@ -1646,34 +1497,12 @@ begin
   finally
     OnKeyDown := KeyDownEvent;
   end;
-  if ((Key = VK_NEXT) and not DataLink.DataSet.Eof)
-    or ((Key = VK_PRIOR) and not DataLink.DataSet.Bof) then
-    Invalidate;
 end;
 
 procedure TRxDBGrid.SetShowGlyphs(Value: Boolean);
 begin
-  if FShowGlyphs <> Value then
-  begin
+  if FShowGlyphs <> Value then begin
     FShowGlyphs := Value;
-    Invalidate;
-  end;
-end;
-
-procedure TRxDBGrid.SetRowColor(Index: Integer; Value: TColor);
-begin
-  if FRowColors[Index] <> Value then
-  begin
-    FRowColors[Index] := Value;
-    if FRowColorsUse then Invalidate;
-  end;
-end;
-
-procedure TRxDBGrid.SetRowColorsUse(Value: Boolean);
-begin
-  if FRowColorsUse <> Value then
-  begin
-    FRowColorsUse := Value;
     Invalidate;
   end;
 end;
@@ -1694,14 +1523,13 @@ begin
   Result := DefaultRowHeight;
 end;
 
-{$IFNDEF VER80}
+{$IFDEF WIN32}
+
 function TRxDBGrid.GetOptions: TDBGridOptions;
 begin
   Result := inherited Options;
-  if FMultiSelect then
-    Result := Result + [dgMultiSelect]
-  else
-    Result := Result - [dgMultiSelect];
+  if FMultiSelect then Result := Result + [dgMultiSelect]
+  else Result := Result - [dgMultiSelect];
 end;
 
 procedure TRxDBGrid.SetOptions(Value: TDBGridOptions);
@@ -1740,20 +1568,20 @@ end;
 
 procedure TRxDBGrid.SetFixedColor(Value: TColor);
 begin
-  if FixedColor <> Value then
-  begin
+  if FixedColor <> Value then begin
     inherited TitleColor := Value;
     inherited FixedColor := Value;
     Invalidate;
   end;
 end;
 
-procedure TRxDBGrid.ColumnMoved(FromIndex, ToIndex: LongInt);
+procedure TRxDBGrid.ColumnMoved(FromIndex, ToIndex: Longint);
 begin
   inherited ColumnMoved(FromIndex, ToIndex);
   if Assigned(FOnColumnMoved) then FOnColumnMoved(Self, FromIndex, ToIndex);
 end;
-{$ENDIF}
+
+{$ENDIF WIN32}
 
 procedure TRxDBGrid.Paint;
 begin
@@ -1769,20 +1597,18 @@ end;
 
 procedure TRxDBGrid.SetTitleButtons(Value: Boolean);
 begin
-  if FTitleButtons <> Value then
-  begin
+  if FTitleButtons <> Value then begin
     FTitleButtons := Value;
     Invalidate;
-    {$IFNDEF VER80}
+{$IFDEF WIN32}
     SetOptions(Options);
-    {$ENDIF}
+{$ENDIF}
   end;
 end;
 
 procedure TRxDBGrid.SetMultiSelect(Value: Boolean);
 begin
-  if FMultiSelect <> Value then
-  begin
+  if FMultiSelect <> Value then begin
     FMultiSelect := Value;
     if not Value then SelectedRows.Clear;
   end;
@@ -1830,51 +1656,44 @@ procedure TRxDBGrid.GetCellProps(Field: TField; AFont: TFont;
 var
   AColor, ABack: TColor;
 begin
-  if FRowColorsUse and not Highlight then
-    Background := FRowColors[DataLink.ActiveRecord mod 2];
   if Assigned(FOnGetCellParams) then
     FOnGetCellParams(Self, Field, AFont, Background, Highlight)
-  else if Assigned(FOnGetCellProps) then
-  begin
-    if Highlight then
-    begin
+  else if Assigned(FOnGetCellProps) then begin
+    if Highlight then begin
       AColor := AFont.Color;
       FOnGetCellProps(Self, Field, AFont, ABack);
       AFont.Color := AColor;
     end
-    else
-      FOnGetCellProps(Self, Field, AFont, Background);
+    else FOnGetCellProps(Self, Field, AFont, Background);
   end;
 end;
 
-procedure TRxDBGrid.DoTitleClick(ACol: LongInt; AField: TField);
+procedure TRxDBGrid.DoTitleClick(ACol: Longint; AField: TField);
 begin
   if Assigned(FOnTitleBtnClick) then FOnTitleBtnClick(Self, ACol, AField);
 end;
 
-procedure TRxDBGrid.CheckTitleButton(ACol, ARow: LongInt; var Enabled: Boolean);
+procedure TRxDBGrid.CheckTitleButton(ACol, ARow: Longint; var Enabled: Boolean);
 var
   Field: TField;
 begin
-  if (ACol >= 0) and (ACol < {$IFNDEF VER80}Columns.Count{$ELSE}
-    FieldCount{$ENDIF}) then
+  if (ACol >= 0) and (ACol < {$IFDEF WIN32} Columns.Count {$ELSE}
+    FieldCount {$ENDIF}) then
   begin
-    if Assigned(FOnCheckButton) then
-    begin
-      {$IFNDEF VER80}
+    if Assigned(FOnCheckButton) then begin
+{$IFDEF WIN32}
       Field := Columns[ACol].Field;
-      {$IFDEF RX_D4}
+  {$IFDEF RX_D4}
       if ColumnAtDepth(Columns[ACol], ARow) <> nil then
         Field := ColumnAtDepth(Columns[ACol], ARow).Field;
-      {$ENDIF}
-      {$ELSE}
+  {$ENDIF}
+{$ELSE}
       Field := Fields[ACol];
-      {$ENDIF}
+{$ENDIF}
       FOnCheckButton(Self, ACol, Field, Enabled);
     end;
   end
-  else
-    Enabled := False;
+  else Enabled := False;
 end;
 
 procedure TRxDBGrid.DisableScroll;
@@ -1887,8 +1706,7 @@ type
 
 procedure TRxDBGrid.EnableScroll;
 begin
-  if FDisableCount <> 0 then
-  begin
+  if FDisableCount <> 0 then begin
     Dec(FDisableCount);
     if FDisableCount = 0 then
       THackLink(DataLink).DataSetScrolled(0);
@@ -1904,33 +1722,30 @@ procedure TRxDBGrid.Scroll(Distance: Integer);
 {$IFNDEF RX_D3}
 var
   IndicatorRect: TRect;
-  {$ENDIF}
+{$ENDIF}
 begin
-  Invalidate;
-  if FDisableCount = 0 then
-  begin
+  if FDisableCount = 0 then begin
     inherited Scroll(Distance);
-    {$IFNDEF RX_D3}
+{$IFNDEF RX_D3}
     if (dgIndicator in Options) and HandleAllocated and MultiSelect then
     begin
       IndicatorRect := BoxRect(0, 0, 0, RowCount - 1);
       InvalidateRect(Handle, @IndicatorRect, False);
     end;
-    {$ENDIF}
+{$ENDIF}
   end;
 end;
 
 {$IFDEF RX_D4}
+
 function TRxDBGrid.DoMouseWheelDown(Shift: TShiftState; MousePos: TPoint): Boolean;
 begin
   Result := False;
   if Assigned(OnMouseWheelDown) then
     OnMouseWheelDown(Self, Shift, MousePos, Result);
-  if not Result then
-  begin
+  if not Result then begin
     if not AcquireFocus then Exit;
-    if Datalink.Active then
-    begin
+    if Datalink.Active then begin
       Result := Datalink.DataSet.MoveBy(1) <> 0;
     end;
   end;
@@ -1941,11 +1756,9 @@ begin
   Result := False;
   if Assigned(OnMouseWheelUp) then
     OnMouseWheelUp(Self, Shift, MousePos, Result);
-  if not Result then
-  begin
+  if not Result then begin
     if not AcquireFocus then Exit;
-    if Datalink.Active then
-    begin
+    if Datalink.Active then begin
       Result := Datalink.DataSet.MoveBy(-1) <> 0;
     end;
   end;
@@ -1969,8 +1782,7 @@ end;
 
 procedure TRxDBGrid.StopTracking;
 begin
-  if FTracking then
-  begin
+  if FTracking then begin
     TrackButton(-1, -1);
     FTracking := False;
     MouseCapture := False;
@@ -1986,10 +1798,9 @@ begin
   Cell := MouseCoord(X, Y);
   Offset := TitleOffset;
   NewPressed := PtInRect(Rect(0, 0, ClientWidth, ClientHeight), Point(X, Y)) and
-    (FPressedCol = {$IFNDEF VER80}GetMasterColumn(Cell.X, Cell.Y){$ELSE}
-    Cell.X{$ENDIF}) and (Cell.Y < Offset);
-  if FPressed <> NewPressed then
-  begin
+    (FPressedCol = {$IFDEF WIN32} GetMasterColumn(Cell.X, Cell.Y) {$ELSE}
+    Cell.X {$ENDIF}) and (Cell.Y < Offset);
+  if FPressed <> NewPressed then begin
     FPressed := NewPressed;
     for I := 0 to Offset - 1 do
       GridInvalidateRow(Self, I);
@@ -2004,77 +1815,65 @@ var
   EnableClick: Boolean;
 begin
   if not AcquireFocus then Exit;
-  if (ssDouble in Shift) and (Button = mbLeft) then
-  begin
+  if (ssDouble in Shift) and (Button = mbLeft) then begin
     DblClick;
     Exit;
   end;
   if Sizing(X, Y) then
     inherited MouseDown(Button, Shift, X, Y)
-  else
-  begin
+  else begin
     Cell := MouseCoord(X, Y);
-    {$IFDEF RX_D4}
+{$IFDEF RX_D4}
     if (DragKind = dkDock) and (Cell.X < IndicatorOffset) and
       (Cell.Y < TitleOffset) and (not (csDesigning in ComponentState)) then
     begin
       BeginDrag(False);
       Exit;
     end;
-    {$ENDIF}
+{$ENDIF}
     if FTitleButtons and (Datalink <> nil) and Datalink.Active and
       (Cell.Y < TitleOffset) and (Cell.X >= IndicatorOffset) and
       not (csDesigning in ComponentState) then
     begin
-      if (dgColumnResize in Options) and (Button = mbRight) then
-      begin
+      if (dgColumnResize in Options) and (Button = mbRight) then begin
         Button := mbLeft;
         FSwapButtons := True;
         MouseCapture := True;
       end
-      else if Button = mbLeft then
-      begin
+      else if Button = mbLeft then begin
         EnableClick := True;
         CheckTitleButton(Cell.X - IndicatorOffset, Cell.Y, EnableClick);
-        if EnableClick then
-        begin
+        if EnableClick then begin
           MouseCapture := True;
           FTracking := True;
-          {$IFNDEF VER80}
+{$IFDEF WIN32}
           FPressedCol := GetMasterColumn(Cell.X, Cell.Y);
-          {$ELSE}
+{$ELSE}
           FPressedCol := Cell.X;
-          {$ENDIF}
+{$ENDIF}
           TrackButton(X, Y);
-        end
-        else
-          Beep;
+        end else Beep;
         Exit;
       end;
     end;
-    if (Cell.X < FixedCols + IndicatorOffset) and Datalink.Active then
-    begin
+    if (Cell.X < FixedCols + IndicatorOffset) and Datalink.Active then begin
       if (dgIndicator in Options) then
         inherited MouseDown(Button, Shift, 1, Y)
       else if Cell.Y >= TitleOffset then
         if Cell.Y - Row <> 0 then Datalink.Dataset.MoveBy(Cell.Y - Row);
     end
-    else
-      inherited MouseDown(Button, Shift, X, Y);
+    else inherited MouseDown(Button, Shift, X, Y);
     MouseDownEvent := OnMouseDown;
     if Assigned(MouseDownEvent) then MouseDownEvent(Self, Button, Shift, X, Y);
     if not (((csDesigning in ComponentState) or (dgColumnResize in Options)) and
       (Cell.Y < TitleOffset)) and (Button = mbLeft) then
     begin
       if MultiSelect and Datalink.Active then
-        with SelectedRows do
-        begin
-          Refresh;
+        with SelectedRows do begin
           FSelecting := False;
           if ssCtrl in Shift then
             CurrentRowSelected := not CurrentRowSelected
-          else
-          begin
+          else begin
             Clear;
             if FClearSelection then CurrentRowSelected := True;
           end;
@@ -2093,62 +1892,50 @@ procedure TRxDBGrid.MouseUp(Button: TMouseButton; Shift: TShiftState;
   X, Y: Integer);
 var
   Cell: TGridCoord;
-  ACol: LongInt;
+  ACol: Longint;
   DoClick: Boolean;
 begin
-  if FTracking and {$IFNDEF VER80}(FPressedCol <> nil){$ELSE}
-  (FPressedCol >= 0){$ENDIF} then
+  if FTracking and {$IFDEF WIN32} (FPressedCol <> nil) {$ELSE}
+    (FPressedCol >= 0) {$ENDIF} then
   begin
     Cell := MouseCoord(X, Y);
     DoClick := PtInRect(Rect(0, 0, ClientWidth, ClientHeight), Point(X, Y))
       and (Cell.Y < TitleOffset) and
-      {$IFNDEF VER80}
-    (FPressedCol = GetMasterColumn(Cell.X, Cell.Y));
-    {$ELSE}
-    (Cell.X = FPressedCol);
-    {$ENDIF}
+{$IFDEF WIN32}
+      (FPressedCol = GetMasterColumn(Cell.X, Cell.Y));
+{$ELSE}
+      (Cell.X = FPressedCol);
+{$ENDIF}
     StopTracking;
-    if DoClick then
-    begin
+    if DoClick then begin
       ACol := Cell.X;
       if (dgIndicator in Options) then Dec(ACol);
       if (DataLink <> nil) and DataLink.Active and (ACol >= 0) and
-        (ACol < {$IFNDEF VER80}Columns.Count{$ELSE}FieldCount{$ENDIF}) then
+        (ACol < {$IFDEF WIN32} Columns.Count {$ELSE} FieldCount {$ENDIF}) then
       begin
-        {$IFNDEF VER80}
+{$IFDEF WIN32}
         DoTitleClick(FPressedCol.Index, FPressedCol.Field);
-        {$ELSE}
+{$ELSE}
         DoTitleClick(ACol, Fields[ACol]);
-        {$ENDIF}
+{$ENDIF}
       end;
     end;
   end
-  else if FSwapButtons then
-  begin
+  else if FSwapButtons then begin
     FSwapButtons := False;
     MouseCapture := False;
     if Button = mbRight then Button := mbLeft;
   end;
-  // Polaris
-  if (Button = mbLeft) and (FGridState = gsColSizing) and
-    (FSizingIndex + Byte(not (dgIndicator in Options)) <= FixedCols) then
-  begin
-    ColWidths[FSizingIndex] := X - FSizingOfs - CellRect(FSizingIndex, 0).Left;
-    FGridState := gsNormal;
-    Exit
-  end;
-  // Polaris
   inherited MouseUp(Button, Shift, X, Y);
 end;
 
-{$IFNDEF VER80}
+{$IFDEF WIN32}
 procedure TRxDBGrid.WMRButtonUp(var Message: TWMMouse);
 begin
   if not (FGridState in [gsColMoving, gsRowMoving]) then
     inherited
   else if not (csNoStdEvents in ControlStyle) then
-    with Message do
-      MouseUp(mbRight, KeysToShiftState(Keys), XPos, YPos);
+    with Message do MouseUp(mbRight, KeysToShiftState(Keys), XPos, YPos);
 end;
 {$ENDIF}
 
@@ -2172,10 +1959,8 @@ procedure TRxDBGrid.WMChar(var Msg: TWMChar);
     Form := GetParentForm(Self);
     if (Form <> nil) and TForm(Form).KeyPreview and
       THack(Form).DoKeyPress(Msg) then Exit;
-    with Msg do
-    begin
-      if Assigned(FOnKeyPress) then
-      begin
+    with Msg do begin
+      if Assigned(FOnKeyPress) then begin
         Ch := Char(CharCode);
         FOnKeyPress(Self, Ch);
         CharCode := Word(Ch);
@@ -2186,7 +1971,6 @@ procedure TRxDBGrid.WMChar(var Msg: TWMChar);
   end;
 
 begin
-
   if EditorMode or not DoKeyPress(Msg) then inherited;
 end;
 
@@ -2206,76 +1990,64 @@ begin
   DefaultDrawDataCell(Rect, Field, State);
 end;
 
-{$IFNDEF VER80}
-function TRxDBGrid.GetMasterColumn(ACol, ARow: LongInt): TColumn;
+{$IFDEF WIN32}
+function TRxDBGrid.GetMasterColumn(ACol, ARow: Longint): TColumn;
 begin
   if (dgIndicator in Options) then Dec(ACol, IndicatorOffset);
   if (Datalink <> nil) and Datalink.Active and (ACol >= 0) and
     (ACol < Columns.Count) then
   begin
     Result := Columns[ACol];
-    {$IFDEF RX_D4}
+{$IFDEF RX_D4}
     Result := ColumnAtDepth(Result, ARow);
-    {$ENDIF}
+{$ENDIF}
   end
-  else
-    Result := nil;
+  else Result := nil;
 end;
 {$ENDIF}
 
-procedure TRxDBGrid.DrawCell(ACol, ARow: LongInt; ARect: TRect;
+procedure TRxDBGrid.DrawCell(ACol, ARow: Longint; ARect: TRect;
   AState: TGridDrawState);
 
 {$IFDEF RX_D4}
-
-function CalcTitleRect(Col: TColumn; ARow: Integer; var MasterCol: TColumn): TRect;
+  function CalcTitleRect(Col: TColumn; ARow: Integer; var MasterCol: TColumn): TRect;
     { copied from Inprise's DbGrids.pas }
   var
-    I, J: Integer;
+    I,J: Integer;
     InBiDiMode: Boolean;
     DrawInfo: TGridDrawInfo;
   begin
     MasterCol := ColumnAtDepth(Col, ARow);
     if MasterCol = nil then Exit;
     I := DataToRawColumn(MasterCol.Index);
-    if I >= LeftCol then
-      J := MasterCol.Depth
-    else
-    begin
-      if (FixedCols > 0) and (MasterCol.Index < FixedCols) then
-      begin
+    if I >= LeftCol then J := MasterCol.Depth
+    else begin
+      if (FixedCols > 0) and (MasterCol.Index < FixedCols) then begin
         J := MasterCol.Depth;
       end
-      else
-      begin
+      else begin
         I := LeftCol;
-        if Col.Depth > ARow then
-          J := ARow
-        else
-          J := Col.Depth;
+        if Col.Depth > ARow then J := ARow
+        else J := Col.Depth;
       end;
     end;
     Result := CellRect(I, J);
     InBiDiMode := UseRightToLeftAlignment and (Canvas.CanvasOrientation = coLeftToRight);
-    for I := Col.Index to Columns.Count - 1 do
-    begin
+    for I := Col.Index to Columns.Count - 1 do begin
       if ColumnAtDepth(Columns[I], ARow) <> MasterCol then Break;
-      if not InBiDiMode then
-      begin
+      if not InBiDiMode then begin
         J := CellRect(DataToRawColumn(I), ARow).Right;
         if J = 0 then Break;
         Result.Right := Max(Result.Right, J);
       end
-      else
-      begin
+      else begin
         J := CellRect(DataToRawColumn(I), ARow).Left;
         if J >= ClientWidth then Break;
         Result.Left := J;
       end;
     end;
     J := Col.Depth;
-    if (J <= ARow) and (J < FixedRows - 1) then
-    begin
+    if (J <= ARow) and (J < FixedRows - 1) then begin
       CalcFixedInfo(DrawInfo);
       Result.Bottom := DrawInfo.Vert.FixedBoundary -
         DrawInfo.Vert.EffectiveLineWidth;
@@ -2285,15 +2057,14 @@ function CalcTitleRect(Col: TColumn; ARow: Integer; var MasterCol: TColumn): TRe
   procedure DrawExpandBtn(var TitleRect, TextRect: TRect; InBiDiMode: Boolean;
     Expanded: Boolean); { copied from Inprise's DbGrids.pas }
   const
-    ScrollArrows: array[Boolean, Boolean] of Integer =
-    ((DFCS_SCROLLRIGHT, DFCS_SCROLLLEFT), (DFCS_SCROLLLEFT, DFCS_SCROLLRIGHT));
+    ScrollArrows: array [Boolean, Boolean] of Integer =
+      ((DFCS_SCROLLRIGHT, DFCS_SCROLLLEFT), (DFCS_SCROLLLEFT, DFCS_SCROLLRIGHT));
   var
     ButtonRect: TRect;
     I: Integer;
   begin
     I := GetSystemMetrics(SM_CXHSCROLL);
-    if ((TextRect.Right - TextRect.Left) > I) then
-    begin
+    if ((TextRect.Right - TextRect.Left) > I) then begin
       Dec(TextRect.Right, I);
       ButtonRect := TitleRect;
       ButtonRect.Left := TextRect.Right;
@@ -2316,7 +2087,7 @@ function CalcTitleRect(Col: TColumn; ARow: Integer; var MasterCol: TColumn): TRe
       TitleRect.Right := ButtonRect.Left;
     end;
   end;
-  {$ENDIF RX_D4}
+{$ENDIF RX_D4}
 
 var
   FrameOffs: Byte;
@@ -2326,26 +2097,25 @@ var
   Down: Boolean;
   Bmp: TBitmap;
   SavePen: TColor;
-  OldActive: LongInt;
+  OldActive: Longint;
   MultiSelected: Boolean;
   FixRect: TRect;
   TitleRect, TextRect: TRect;
   AField: TField;
-  {$IFDEF RX_D4}
+{$IFDEF RX_D4}
   MasterCol: TColumn;
   InBiDiMode: Boolean;
-  {$ENDIF}
-  {$IFNDEF VER80}
+{$ENDIF}
+{$IFDEF WIN32}
   DrawColumn: TColumn;
 const
   EdgeFlag: array[Boolean] of UINT = (BDR_RAISEDINNER, BDR_SUNKENINNER);
-  {$ENDIF}
+{$ENDIF}
 begin
-  if (gdFixed in AState) then Canvas.Brush.Color := FixedColor;
   inherited DrawCell(ACol, ARow, ARect, AState);
-  {$IFDEF RX_D4}
+{$IFDEF RX_D4}
   InBiDiMode := Canvas.CanvasOrientation = coRightToLeft;
-  {$ENDIF}
+{$ENDIF}
   if (dgIndicator in Options) and (ACol = 0) and (ARow - TitleOffset >= 0)
     and MultiSelect and (DataLink <> nil) and DataLink.Active and
     (Datalink.DataSet.State = dsBrowse) then
@@ -2356,8 +2126,7 @@ begin
       InflateRect(FixRect, -1, -1);
       FrameOffs := 1;
     end
-    else
-      FrameOffs := 2;
+    else FrameOffs := 2;
     OldActive := DataLink.ActiveRecord;
     try
       Datalink.ActiveRecord := ARow - TitleOffset;
@@ -2365,28 +2134,25 @@ begin
     finally
       Datalink.ActiveRecord := OldActive;
     end;
-    if MultiSelected then
-    begin
-      if (ARow - TitleOffset <> Datalink.ActiveRecord) then
-        Indicator := 0
-      else
-        Indicator := 1; { multiselected and current row }
-      {$IFNDEF VER80}
+    if MultiSelected then begin
+      if (ARow - TitleOffset <> Datalink.ActiveRecord) then Indicator := 0
+      else Indicator := 1;  { multiselected and current row }
+{$IFDEF WIN32}
       FMsIndicators.BkColor := FixedColor;
-      {$ELSE}
+{$ELSE}
       Canvas.Brush.Color := TitleColor;
       Canvas.FillRect(FixRect);
-      {$ENDIF}
+{$ENDIF}
       ALeft := FixRect.Right - FMsIndicators.Width - FrameOffs;
-      {$IFDEF RX_D4}
+{$IFDEF RX_D4}
       if InBiDiMode then Inc(ALeft);
-      {$ENDIF}
+{$ENDIF}
       FMsIndicators.Draw(Self.Canvas, ALeft, (FixRect.Top +
         FixRect.Bottom - FMsIndicators.Height) shr 1, Indicator);
     end;
   end
   else if not (csLoading in ComponentState) and
-    (FTitleButtons{$IFDEF RX_D4} or (FixedCols > 0){$ENDIF}) and
+    (FTitleButtons {$IFDEF RX_D4} or (FixedCols > 0) {$ENDIF}) and
     (gdFixed in AState) and (dgTitles in Options) and (ARow < TitleOffset) then
   begin
     SavePen := Canvas.Pen.Color;
@@ -2395,15 +2161,15 @@ begin
       if (dgIndicator in Options) then Dec(ACol, IndicatorOffset);
       AField := nil;
       SortMarker := smNone;
-      {$IFNDEF VER80}
-      if (Datalink <> nil) and Datalink.Active and (ACol >= 0) and (ACol < Columns.Count) then
+{$IFDEF WIN32}
+      if (Datalink <> nil) and Datalink.Active and (ACol >= 0) and
+        (ACol < Columns.Count) then
       begin
         DrawColumn := Columns[ACol];
         AField := DrawColumn.Field;
       end
-      else
-        DrawColumn := nil;
-      {$IFDEF RX_D4}
+      else DrawColumn := nil;
+{$IFDEF RX_D4}
       if Assigned(DrawColumn) and not DrawColumn.Showing then Exit;
       TitleRect := CalcTitleRect(DrawColumn, ARow, MasterCol);
       if TitleRect.Right < ARect.Right then
@@ -2426,11 +2192,12 @@ begin
         Canvas.MoveTo(TitleRect.Left, TitleRect.Bottom);
         Canvas.LineTo(TitleRect.Right, TitleRect.Bottom);
       end;
-      {$ELSE}
+{$ELSE}
       TitleRect := ARect;
-      {$ENDIF RX_D4}
+{$ENDIF RX_D4}
       Down := FPressed and FTitleButtons and (FPressedCol = DrawColumn);
-      if FTitleButtons or ([dgRowLines, dgColLines] * Options = [dgRowLines, dgColLines]) then
+      if FTitleButtons or ([dgRowLines, dgColLines] * Options =
+        [dgRowLines, dgColLines]) then
       begin
         DrawEdge(Canvas.Handle, TitleRect, EdgeFlag[Down], BF_BOTTOMRIGHT);
         DrawEdge(Canvas.Handle, TitleRect, EdgeFlag[Down], BF_TOPLEFT);
@@ -2438,8 +2205,7 @@ begin
       end;
       Canvas.Font := TitleFont;
       Canvas.Brush.Color := FixedColor;
-      if (DrawColumn <> nil) then
-      begin
+      if (DrawColumn <> nil) then begin
         Canvas.Font := DrawColumn.Title.Font;
         Canvas.Brush.Color := DrawColumn.Title.Color;
       end;
@@ -2449,55 +2215,47 @@ begin
         FOnGetBtnParams(Self, AField, Canvas.Font, BackColor, SortMarker, Down);
         Canvas.Brush.Color := BackColor;
       end;
-      if Down then
-      begin
+      if Down then begin
         Inc(TitleRect.Left); Inc(TitleRect.Top);
       end;
       ARect := TitleRect;
       if (DataLink = nil) or not DataLink.Active then
         Canvas.FillRect(TitleRect)
-      else if (DrawColumn <> nil) then
-      begin
+      else if (DrawColumn <> nil) then begin
         case SortMarker of
           smDown: Bmp := GetGridBitmap(gpMarkDown);
           smUp: Bmp := GetGridBitmap(gpMarkUp);
-        else
-          Bmp := nil;
+          else Bmp := nil;
         end;
-        if Bmp <> nil then
-          Indicator := Bmp.Width + 6
-        else
-          Indicator := 1;
+        if Bmp <> nil then Indicator := Bmp.Width + 6
+        else Indicator := 1;
         TextRect := TitleRect;
-        {$IFDEF RX_D4}
+{$IFDEF RX_D4}
         if DrawColumn.Expandable then
           DrawExpandBtn(TitleRect, TextRect, InBiDiMode, DrawColumn.Expanded);
-        {$ENDIF}
+{$ENDIF}
         with DrawColumn.Title do
           DrawCellText(Self, ACol, ARow, MinimizeText(Caption, Canvas,
             WidthOf(TextRect) - Indicator), TextRect, Alignment, vaCenter
-            {$IFDEF RX_D4}, IsRightToLeft{$ENDIF});
-        if Bmp <> nil then
-        begin
+            {$IFDEF RX_D4}, IsRightToLeft {$ENDIF});
+        if Bmp <> nil then begin
           ALeft := TitleRect.Right - Bmp.Width - 3;
           if Down then Inc(ALeft);
-          {$IFDEF RX_D4}
+{$IFDEF RX_D4}
           if IsRightToLeft then ALeft := TitleRect.Left + 3;
-          {$ENDIF}
+{$ENDIF}
           if (ALeft > TitleRect.Left) and (ALeft + Bmp.Width < TitleRect.Right) then
             DrawBitmapTransparent(Canvas, ALeft, (TitleRect.Bottom +
               TitleRect.Top - Bmp.Height) div 2, Bmp, clFuchsia);
         end;
       end
-        {$ELSE}
-      if not (dgColLines in Options) then
-      begin
+{$ELSE WIN32}
+      if not (dgColLines in Options) then begin
         Canvas.MoveTo(ARect.Right - 1, ARect.Top);
         Canvas.LineTo(ARect.Right - 1, ARect.Bottom);
         Dec(ARect.Right);
       end;
-      if not (dgRowLines in Options) then
-      begin
+      if not (dgRowLines in Options) then begin
         Canvas.MoveTo(ARect.Left, ARect.Bottom - 1);
         Canvas.LineTo(ARect.Right, ARect.Bottom - 1);
         Dec(ARect.Bottom);
@@ -2508,18 +2266,15 @@ begin
       begin
         AField := Fields[ACol];
       end;
-      if Down then
-      begin
-        with ARect do
-        begin
+      if Down then begin
+        with ARect do begin
           Canvas.Pen.Color := clBtnShadow;
           Canvas.PolyLine([Point(Left, Bottom - 1), Point(Left, Top),
             Point(Right, Top)]);
           Inc(Left, 2); Inc(Top, 2);
         end;
       end
-      else
-        Frame3D(Canvas, ARect, clBtnHighlight, clBtnShadow, 1);
+      else Frame3D(Canvas, ARect, clBtnHighlight, clBtnShadow, 1);
       Canvas.Font := TitleFont;
       Canvas.Brush.Color := TitleColor;
       if FTitleButtons and (AField <> nil) and Assigned(FOnGetBtnParams) then
@@ -2530,53 +2285,46 @@ begin
       end;
       if (DataLink = nil) or not DataLink.Active then
         Canvas.FillRect(ARect)
-      else if (AField <> nil) then
-      begin
+      else if (AField <> nil) then begin
         case SortMarker of
           smDown: Bmp := GetGridBitmap(gpMarkDown);
           smUp: Bmp := GetGridBitmap(gpMarkUp);
-        else
-          Bmp := nil;
+          else Bmp := nil;
         end;
-        if Bmp <> nil then
-          Indicator := Bmp.Width + 8
-        else
-          Indicator := 1;
+        if Bmp <> nil then Indicator := Bmp.Width + 8
+        else Indicator := 1;
         DrawCellText(Self, ACol, ARow, MinimizeText(AField.DisplayLabel,
           Canvas, WidthOf(ARect) - Indicator), ARect, taLeftJustify, vaCenter);
-        if Bmp <> nil then
-        begin
+        if Bmp <> nil then begin
           ALeft := ARect.Right - Bmp.Width - 4;
           if Down then Inc(ALeft);
           DrawBitmapTransparent(Canvas, ALeft,
             (ARect.Bottom + ARect.Top - Bmp.Height) div 2, Bmp, clFuchsia);
         end;
       end
-        {$ENDIF}
-      else
-        DrawCellText(Self, ACol, ARow, '', ARect, taLeftJustify, vaCenter);
+{$ENDIF WIN32}
+      else DrawCellText(Self, ACol, ARow, '', ARect, taLeftJustify, vaCenter);
     finally
       Canvas.Pen.Color := SavePen;
     end;
   end
-  else
-  begin
-    {$IFDEF RX_D4}
+  else begin
+{$IFDEF RX_D4}
     Canvas.Font := Self.Font;
-    if (DataLink <> nil) and DataLink.Active and (ACol >= 0) and (ACol < Columns.Count) then
+    if (DataLink <> nil) and DataLink.Active and (ACol >= 0) and
+      (ACol < Columns.Count) then
     begin
       DrawColumn := Columns[ACol];
       if DrawColumn <> nil then Canvas.Font := DrawColumn.Font;
     end;
-    {$ENDIF}
+{$ENDIF}
   end;
 end;
 
-{$IFNDEF VER80}
+{$IFDEF WIN32}
 procedure TRxDBGrid.DrawColumnCell(const Rect: TRect; DataCol: Integer;
   Column: TColumn; State: TGridDrawState);
 {$ELSE}
-
 procedure TRxDBGrid.DrawDataCell(const Rect: TRect; Field: TField;
   State: TGridDrawState);
 {$ENDIF}
@@ -2585,56 +2333,53 @@ var
   NewBackgrnd: TColor;
   Highlight: Boolean;
   Bmp: TBitmap;
-  {$IFNDEF VER80}
+{$IFDEF WIN32}
   Field: TField;
-  {$ENDIF}
+{$ENDIF}
 begin
-  {$IFNDEF VER80}
+{$IFDEF WIN32}
   Field := Column.Field;
-  {$ENDIF}
+{$ENDIF}
   NewBackgrnd := Canvas.Brush.Color;
   Highlight := (gdSelected in State) and ((dgAlwaysShowSelection in Options) or
     Focused);
   GetCellProps(Field, Canvas.Font, NewBackgrnd, Highlight or ActiveRowSelected);
   Canvas.Brush.Color := NewBackgrnd;
-  if FDefaultDrawing then
-  begin
+  if FDefaultDrawing then begin
     I := GetImageIndex(Field);
-    if I >= 0 then
-    begin
+    if I >= 0 then begin
       Bmp := GetGridBitmap(TGridPicture(I));
       Canvas.FillRect(Rect);
       DrawBitmapTransparent(Canvas, (Rect.Left + Rect.Right - Bmp.Width) div 2,
         (Rect.Top + Rect.Bottom - Bmp.Height) div 2, Bmp, clOlive);
-    end
-    else
-      {$IFNDEF VER80}
-      DefaultDrawColumnCell(Rect, DataCol, Column, State);
-    {$ELSE}
-      DefaultDrawDataCell(Rect, Field, State);
-    {$ENDIF}
+    end else
+{$IFDEF WIN32}
+    DefaultDrawColumnCell(Rect, DataCol, Column, State);
+{$ELSE}
+    DefaultDrawDataCell(Rect, Field, State);
+{$ENDIF}
   end;
-  {$IFNDEF VER80}
-  if (Columns.State = csDefault) or not DefaultDrawing or (csDesigning in ComponentState) then
+{$IFDEF WIN32}
+  if Columns.State = csDefault then
     inherited DrawDataCell(Rect, Field, State);
   inherited DrawColumnCell(Rect, DataCol, Column, State);
-  {$ELSE}
+{$ELSE}
   inherited DrawDataCell(Rect, Field, State);
-  {$ENDIF}
+{$ENDIF}
   if FDefaultDrawing and Highlight and not (csDesigning in ComponentState)
     and not (dgRowSelect in Options)
     and (ValidParentForm(Self).ActiveControl = Self) then
     Canvas.DrawFocusRect(Rect);
 end;
 
-{$IFNDEF VER80}
+{$IFDEF WIN32}
 procedure TRxDBGrid.DrawDataCell(const Rect: TRect; Field: TField;
   State: TGridDrawState);
 begin
 end;
 {$ENDIF}
 
-procedure TRxDBGrid.MouseToCell(X, Y: Integer; var ACol, ARow: LongInt);
+procedure TRxDBGrid.MouseToCell(X, Y: Integer; var ACol, ARow: Longint);
 var
   Coord: TGridCoord;
 begin
@@ -2643,22 +2388,19 @@ begin
   ARow := Coord.Y;
 end;
 
-{$IFNDEF VER80}
+{$IFDEF WIN32}
+
 procedure TRxDBGrid.SaveColumnsLayout(IniFile: TObject;
   const Section: string);
 var
   I: Integer;
   S: string;
 begin
-  if Section <> '' then
-    S := Section
-  else
-    S := GetDefaultSection(Self);
+  if Section <> '' then S := Section
+  else S := GetDefaultSection(Self);
   IniEraseSection(IniFile, S);
-  with Columns do
-  begin
-    for I := 0 to Count - 1 do
-    begin
+  with Columns do begin
+    for I := 0 to Count - 1 do begin
       IniWriteString(IniFile, S, Format('%s.%s', [Name, Items[I].FieldName]),
         Format('%d,%d', [Items[I].Index, Items[I].Width]));
     end;
@@ -2675,40 +2417,32 @@ type
   PColumnArray = ^TColumnArray;
   TColumnArray = array[0..0] of TColumnInfo;
 const
-  Delims = [' ', ','];
+  Delims = [' ',','];
 var
   I, J: Integer;
   SectionName, S: string;
   ColumnArray: PColumnArray;
 begin
-  if Section <> '' then
-    SectionName := Section
-  else
-    SectionName := GetDefaultSection(Self);
-  with Columns do
-  begin
+  if Section <> '' then SectionName := Section
+  else SectionName := GetDefaultSection(Self);
+  with Columns do begin
     ColumnArray := AllocMemo(Count * SizeOf(TColumnInfo));
     try
-      for I := 0 to Count - 1 do
-      begin
+      for I := 0 to Count - 1 do begin
         S := IniReadString(IniFile, SectionName,
           Format('%s.%s', [Name, Items[I].FieldName]), '');
         ColumnArray^[I].Column := Items[I];
         ColumnArray^[I].EndIndex := Items[I].Index;
-        if S <> '' then
-        begin
+        if S <> '' then begin
           ColumnArray^[I].EndIndex := StrToIntDef(ExtractWord(1, S, Delims),
             ColumnArray^[I].EndIndex);
           Items[I].Width := StrToIntDef(ExtractWord(2, S, Delims),
             Items[I].Width);
         end;
       end;
-      for I := 0 to Count - 1 do
-      begin
-        for J := 0 to Count - 1 do
-        begin
-          if ColumnArray^[J].EndIndex = I then
-          begin
+      for I := 0 to Count - 1 do begin
+        for J := 0 to Count - 1 do begin
+          if ColumnArray^[J].EndIndex = I then begin
             ColumnArray^[J].Column.Index := ColumnArray^[J].EndIndex;
             Break;
           end;
@@ -2729,39 +2463,35 @@ procedure TRxDBGrid.RestoreLayoutReg(IniFile: TRegIniFile);
 begin
   InternalRestoreLayout(IniFile, '');
 end;
-{$ENDIF}
+
+{$ENDIF WIN32}
 
 procedure TRxDBGrid.InternalSaveLayout(IniFile: TObject;
   const Section: string);
 begin
   if (DataSource <> nil) and (DataSource.DataSet <> nil) then
-    {$IFNDEF VER80}
-    if StoreColumns then
-      SaveColumnsLayout(IniFile, Section)
-    else
-      {$ENDIF}
-      InternalSaveFields(DataSource.DataSet, IniFile, Section);
+{$IFDEF WIN32}
+    if StoreColumns then SaveColumnsLayout(IniFile, Section) else
+{$ENDIF}
+    InternalSaveFields(DataSource.DataSet, IniFile, Section);
 end;
 
 procedure TRxDBGrid.InternalRestoreLayout(IniFile: TObject;
   const Section: string);
 begin
-  if (DataSource <> nil) and (DataSource.DataSet <> nil) then
-  begin
+  if (DataSource <> nil) and (DataSource.DataSet <> nil) then begin
     HandleNeeded;
-    {$IFNDEF VER80}
+{$IFDEF WIN32}
     BeginLayout;
     try
-      if StoreColumns then
-        RestoreColumnsLayout(IniFile, Section)
-      else
-        {$ENDIF}
-        InternalRestoreFields(DataSource.DataSet, IniFile, Section, False);
-      {$IFNDEF VER80}
+      if StoreColumns then RestoreColumnsLayout(IniFile, Section) else
+{$ENDIF}
+      InternalRestoreFields(DataSource.DataSet, IniFile, Section, False);
+{$IFDEF WIN32}
     finally
       EndLayout;
     end;
-    {$ENDIF}
+{$ENDIF}
   end;
 end;
 
@@ -2779,17 +2509,15 @@ procedure TRxDBGrid.IniSave(Sender: TObject);
 var
   Section: string;
 begin
-  if (Name <> '') and (FIniLink.IniObject <> nil) then
-  begin
-    {$IFNDEF VER80}
+  if (Name <> '') and (FIniLink.IniObject <> nil) then begin
+{$IFDEF WIN32}
     if StoreColumns then
-      Section := FIniLink.RootSection + GetDefaultSection(Self)
-    else
-      {$ENDIF}if (FIniLink.RootSection <> '') and (DataSource <> nil) and
-        (DataSource.DataSet <> nil) then
-        Section := FIniLink.RootSection + DataSetSectionName(DataSource.DataSet)
-      else
-        Section := '';
+      Section := FIniLink.RootSection + GetDefaultSection(Self) else
+{$ENDIF}
+    if (FIniLink.RootSection <> '') and (DataSource <> nil) and
+      (DataSource.DataSet <> nil) then
+      Section := FIniLink.RootSection + DataSetSectionName(DataSource.DataSet)
+    else Section := '';
     InternalSaveLayout(FIniLink.IniObject, Section);
   end;
 end;
@@ -2798,52 +2526,18 @@ procedure TRxDBGrid.IniLoad(Sender: TObject);
 var
   Section: string;
 begin
-  if (Name <> '') and (FIniLink.IniObject <> nil) then
-  begin
-    {$IFNDEF VER80}
+  if (Name <> '') and (FIniLink.IniObject <> nil) then begin
+{$IFDEF WIN32}
     if StoreColumns then
-      Section := FIniLink.RootSection + GetDefaultSection(Self)
-    else
-      {$ENDIF}if (FIniLink.RootSection <> '') and (DataSource <> nil) and (DataSource.DataSet <> nil) then
-        Section := FIniLink.RootSection + DataSetSectionName(DataSource.DataSet)
-      else
-        Section := '';
+      Section := FIniLink.RootSection + GetDefaultSection(Self) else
+{$ENDIF}
+    if (FIniLink.RootSection <> '') and (DataSource <> nil) and
+      (DataSource.DataSet <> nil) then
+      Section := FIniLink.RootSection + DataSetSectionName(DataSource.DataSet)
+    else Section := '';
     InternalRestoreLayout(FIniLink.IniObject, Section);
   end;
 end;
-
-{$IFDEF RX_D4} // Polaris
-procedure TRxDBGrid.CalcSizingState(X, Y: Integer; var State: TGridState;
-  var Index: LongInt; var SizingPos, SizingOfs: Integer;
-  var FixedInfo: TGridDrawInfo);
-var
-  Coord: TGridCoord;
-begin
-  inherited CalcSizingState(X, Y, State, Index, SizingPos, SizingOfs, FixedInfo);
-  if (State = gsNormal) and (Y <= RowHeights[0]) then
-  begin
-    Coord := MouseCoord(X, Y);
-    CalcDrawInfo(FixedInfo);
-    if (CellRect(Coord.X, 0).Right - 5 < X) then
-    begin
-      State := gsColSizing;
-      Index := Coord.X;
-      SizingPos := X;
-      SizingOfs := X - CellRect(Coord.X, 0).Right;
-    end;
-    if (CellRect(Coord.X, 0).Left + 5 > X) then
-    begin
-      State := gsColSizing;
-      Index := Coord.X - 1;
-      SizingPos := X;
-      SizingOfs := X - CellRect(Coord.X, 0).Left;
-    end;
-    if Index <= Byte(dgIndicator in Options) - 1 then State := gsNormal;
-  end;
-  FSizingIndex := Index;
-  FSizingOfs := SizingOfs;
-end;
-{$ENDIF} // Polaris
 
 { TRxDBComboEdit }
 
@@ -2852,20 +2546,21 @@ var
   F: TField;
 begin
   with DBEdit do
-    if (MaxLength > 0) and (DataSource <> nil) and (DataSource.DataSet <> nil) then
+    if (MaxLength > 0) and (DataSource <> nil) and
+      (DataSource.DataSet <> nil) then
     begin
       F := DataSource.DataSet.FindField(DataField);
-      if Assigned(F) and (F.DataType = ftString) and (F.Size = MaxLength) then
-        MaxLength := 0;
+      if Assigned(F) and (F.DataType = ftString) and
+        (F.Size = MaxLength) then MaxLength := 0;
     end;
 end;
 
 constructor TRxDBComboEdit.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  {$IFNDEF VER80}
+{$IFDEF WIN32}
   ControlStyle := ControlStyle + [csReplicatable];
-  {$ENDIF}
+{$ENDIF}
   inherited ReadOnly := True;
   FDataLink := TFieldDataLink.Create;
   FDataLink.Control := Self;
@@ -2879,9 +2574,9 @@ destructor TRxDBComboEdit.Destroy;
 begin
   FDataLink.Free;
   FDataLink := nil;
-  {$IFNDEF VER80}
+{$IFDEF WIN32}
   FCanvas.Free;
-  {$ENDIF}
+{$ENDIF}
   inherited Destroy;
 end;
 
@@ -2910,7 +2605,8 @@ end;
 procedure TRxDBComboEdit.KeyPress(var Key: Char);
 begin
   inherited KeyPress(Key);
-  if CharInSet(Key, [#32..#255]) and (FDataLink.Field <> nil) and not FDataLink.Field.IsValidChar(Key) then
+  if (Key in [#32..#255]) and (FDataLink.Field <> nil) and
+    not FDataLink.Field.IsValidChar(Key) then
   begin
     Beep;
     Key := #0;
@@ -2940,8 +2636,7 @@ end;
 
 procedure TRxDBComboEdit.SetFocused(Value: Boolean);
 begin
-  if FFocused <> Value then
-  begin
+  if FFocused <> Value then begin
     FFocused := Value;
     if (Alignment <> taLeftJustify) and not IsMasked then Invalidate;
     FDataLink.Reset;
@@ -2961,13 +2656,13 @@ end;
 
 procedure TRxDBComboEdit.SetDataSource(Value: TDataSource);
 begin
-  {$IFDEF RX_D4}
+{$IFDEF RX_D4}
   if not (FDataLink.DataSourceFixed and (csLoading in ComponentState)) then
-    {$ENDIF}
+{$ENDIF}
     FDataLink.DataSource := Value;
-  {$IFNDEF VER80}
+{$IFDEF WIN32}
   if Value <> nil then Value.FreeNotification(Self);
-  {$ENDIF}
+{$ENDIF}
 end;
 
 function TRxDBComboEdit.GetDataField: string;
@@ -2998,35 +2693,28 @@ end;
 
 procedure TRxDBComboEdit.DataChange(Sender: TObject);
 begin
-  if FDataLink.Field <> nil then
-  begin
-    if Alignment <> FDataLink.Field.Alignment then
-    begin
-      EditText := ''; {forces update}
+  if FDataLink.Field <> nil then begin
+    if Alignment <> FDataLink.Field.Alignment then begin
+      EditText := '';  {forces update}
       Alignment := FDataLink.Field.Alignment;
     end;
     EditMask := FDataLink.Field.EditMask;
-    if not (csDesigning in ComponentState) then
-    begin
+    if not (csDesigning in ComponentState) then begin
       if (FDataLink.Field.DataType = ftString) and (MaxLength = 0) then
         MaxLength := FDataLink.Field.Size;
     end;
     if FFocused and FDataLink.CanModify then
       Text := FDataLink.Field.Text
-    else
-    begin
+    else begin
       EditText := FDataLink.Field.DisplayText;
       {if FDataLink.Editing then Modified := True;}
     end;
   end
-  else
-  begin
+  else begin
     Alignment := taLeftJustify;
     EditMask := '';
-    if csDesigning in ComponentState then
-      EditText := Name
-    else
-      EditText := '';
+    if csDesigning in ComponentState then EditText := Name
+    else EditText := '';
   end;
 end;
 
@@ -3057,10 +2745,10 @@ procedure TRxDBComboEdit.CMEnter(var Message: TCMEnter);
 begin
   SetFocused(True);
   inherited;
-  {$IFDEF RX_D3}
+{$IFDEF RX_D3}
   if SysLocale.FarEast and FDataLink.CanModify then
     inherited ReadOnly := False;
-  {$ENDIF}
+{$ENDIF}
 end;
 
 procedure TRxDBComboEdit.CMExit(var Message: TCMExit);
@@ -3077,7 +2765,7 @@ begin
   DoExit;
 end;
 
-{$IFNDEF VER80}
+{$IFDEF WIN32}
 procedure TRxDBComboEdit.WMPaint(var Message: TWMPaint);
 var
   S: string;
@@ -3090,8 +2778,7 @@ begin
       ecLowerCase: S := AnsiLowerCase(S);
     end;
   end
-  else
-    S := EditText;
+  else S := EditText;
   if not PaintComboEdit(Self, S, Alignment, True, FCanvas, Message) then
     inherited;
 end;
@@ -3126,11 +2813,10 @@ end;
 constructor TDBDateEdit.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  {$IFNDEF VER80}
+{$IFDEF WIN32}
   ControlStyle := ControlStyle + [csReplicatable];
-  {$ENDIF}
+{$ENDIF}
   inherited ReadOnly := True;
-  FInReset := False; // Polaris
   FDataLink := TFieldDataLink.Create;
   FDataLink.Control := Self;
   FDataLink.OnDataChange := DataChange;
@@ -3145,9 +2831,9 @@ destructor TDBDateEdit.Destroy;
 begin
   FDataLink.Free;
   FDataLink := nil;
-  {$IFNDEF VER80}
+{$IFDEF WIN32}
   FCanvas.Free;
-  {$ENDIF}
+{$ENDIF}
   inherited Destroy;
 end;
 
@@ -3177,15 +2863,9 @@ end;
 
 procedure TDBDateEdit.KeyPress(var Key: Char);
 begin
-{
-  if (Key = #27) then begin
-    Reset;
-    Key := #0;
-  end;
-}
   inherited KeyPress(Key);
-  if CharInSet(Key, [#32..#255]) and (FDataLink.Field <> nil) and
-    not CharInSet(Key, ['0'..'9']) and (Key <> {$IFDEF RX_D15}FormatSettings.{$ENDIF}DateSeparator) then
+  if (Key in [#32..#255]) and (FDataLink.Field <> nil) and
+    not (Key in ['0'..'9']) and (Key <> DateSeparator) then
   begin
     Beep;
     Key := #0;
@@ -3207,42 +2887,9 @@ end;
 
 procedure TDBDateEdit.Reset;
 begin
-  FInReset := True; // Polaris
   FDataLink.Reset;
   SelectAll;
-  FInReset := False; // Polaris
 end;
-
-// Polaris begin
-
-function TDBDateEdit.IsValidDate(Value: TDateTime): Boolean;
-begin
-  Result := FDateAutoBetween;
-  if not Result then
-    if (not FInReset) and FDataLink.Editing then
-    try
-      if (Value <> NullDate) then
-      begin
-        if ((MinDate <> NullDate) and (MaxDate <> NullDate) and ((Value < MinDate) or (Value > MaxDate))) then
-          raise Exception.CreateFmt(RxLoadStr(SDateOutOfRange), [FormatDateTime(GetDateFormat, Value), FormatDateTime(GetDateFormat, MinDate), FormatDateTime(GetDateFormat, MaxDate)])
-        else if ((MinDate <> NullDate) and (Value < MinDate)) then
-          raise Exception.CreateFmt(RxLoadStr(SDateOutOfMin), [FormatDateTime(GetDateFormat, Value), FormatDateTime(GetDateFormat, MinDate)])
-        else if ((MaxDate <> NullDate) and (Value > MaxDate)) then
-          raise Exception.CreateFmt(RxLoadStr(SDateOutOfMax), [FormatDateTime(GetDateFormat, Value), FormatDateTime(GetDateFormat, MaxDate)]);
-      end;
-      Result := True;
-    except
-      Reset;
-      raise;
-    end;
-end;
-
-procedure TDBDateEdit.SetDate(Value: TDateTime);
-begin
-  IsValidDate(Value);
-  inherited SetDate(Value);
-end;
-// Polaris end
 
 procedure TDBDateEdit.Change;
 begin
@@ -3257,13 +2904,13 @@ end;
 
 procedure TDBDateEdit.SetDataSource(Value: TDataSource);
 begin
-  {$IFDEF RX_D4}
+{$IFDEF RX_D4}
   if not (FDataLink.DataSourceFixed and (csLoading in ComponentState)) then
-    {$ENDIF}
+{$ENDIF}
     FDataLink.DataSource := Value;
-  {$IFNDEF VER80}
+{$IFDEF WIN32}
   if Value <> nil then Value.FreeNotification(Self);
-  {$ENDIF}
+{$ENDIF}
 end;
 
 function TDBDateEdit.GetDataField: string;
@@ -3300,29 +2947,19 @@ end;
 
 procedure TDBDateEdit.DataChange(Sender: TObject);
 begin
-  if FDataLink.Field <> nil then
-  begin
+  if FDataLink.Field <> nil then begin
     EditMask := GetDateMask;
-// Polaris
-    inherited SetDate(FDataLink.Field.AsDateTime);
-//    Self.Date := FDataLink.Field.AsDateTime;
-//    SetDate(FDataLink.Field.AsDateTime);
-// Polaris
+    Self.Date := FDataLink.Field.AsDateTime;
   end
-  else
-  begin
-    if csDesigning in ComponentState then
-    begin
+  else begin
+    if csDesigning in ComponentState then begin
       EditMask := '';
       EditText := Name;
     end
-    else
-    begin
+    else begin
       EditMask := GetDateMask;
-      if DefaultToday then
-        Date := SysUtils.Date
-      else
-        Date := NullDate;
+      if DefaultToday then Date := SysUtils.Date
+      else Date := NullDate;
     end;
   end;
 end;
@@ -3342,15 +2979,11 @@ begin
   ValidateEdit;
   D := Self.Date;
   if D <> NullDate then
-  begin
-    if Int(FDataLink.Field.AsDateTime) <> D then
-      FDataLink.Field.AsDateTime := D + Frac(FDataLink.Field.AsDateTime)
-  end
-  else
-    FDataLink.Field.Clear;
+    FDataLink.Field.AsDateTime := D + Frac(FDataLink.Field.AsDateTime)
+  else FDataLink.Field.Clear;
 end;
 
-{$IFNDEF VER80}
+{$IFDEF WIN32}
 procedure TDBDateEdit.CMGetDataLink(var Message: TMessage);
 begin
   Message.Result := Integer(FDataLink);
@@ -3360,30 +2993,24 @@ procedure TDBDateEdit.WMPaint(var Message: TWMPaint);
 var
   S: string;
 begin
-  if (csPaintCopy in ControlState) and (FDataLink.Field <> nil) then
-  begin
-    if FDataLink.Field.IsNull then
-    begin
+  if (csPaintCopy in ControlState) and (FDataLink.Field <> nil) then begin
+    if FDataLink.Field.IsNull then begin
       S := GetDateFormat;
-      S := ReplaceStr(ReplaceStr(ReplaceStr(ReplaceStr(S, '/', {$IFDEF RX_D15}FormatSettings.{$ENDIF}DateSeparator),
+      S := ReplaceStr(ReplaceStr(ReplaceStr(ReplaceStr(S, '/', DateSeparator),
         'Y', ' '), 'M', ' '), 'D', ' ');
     end
     else
       S := FormatDateTime(GetDateFormat, FDataLink.Field.AsDateTime);
-  end
-  else
-    S := EditText;
+  end else S := EditText;
   if not PaintComboEdit(Self, S, Alignment, True, FCanvas, Message) then
     inherited;
 end;
 
 procedure TDBDateEdit.AcceptValue(const Value: Variant);
 begin
-  if VarIsNull(Value) or VarIsEmpty(Value) then
-    FDataLink.Field.Clear
-  else
-    FDataLink.Field.AsDateTime :=
-      VarToDateTime(Value) + Frac(FDataLink.Field.AsDateTime);
+  if VarIsNull(Value) or VarIsEmpty(Value) then FDataLink.Field.Clear
+  else FDataLink.Field.AsDateTime :=
+    VarToDateTime(Value) + Frac(FDataLink.Field.AsDateTime);
   DoChange;
 end;
 {$ENDIF}
@@ -3447,53 +3074,13 @@ end;
 
 { TRxDBCalcEdit }
 
-//Polaris
-
-procedure TRxDBCalcEdit.Loaded;
-begin
-  inherited Loaded;
-  FLEmptyIsNull := True;
-end;
-
-procedure TRxDBCalcEdit.SetEmptyIsNull(Value: Boolean);
-begin
-  if Value <> FEmptyIsNull then
-  begin
-    FEmptyIsNull := Value;
-    if csLoading in ComponentState then FLEmptyIsNull := False;
-  end;
-end;
-
-function TRxDBCalcEdit.GetZeroEmpty: Boolean;
-begin
-  Result := inherited ZeroEmpty;
-end;
-
-procedure TRxDBCalcEdit.SetZeroEmpty(Value: Boolean);
-begin
-  inherited ZeroEmpty := Value;
-  if FLEmptyIsNull then
-    SetEmptyIsNull(ZeroEmpty)
-end;
-
-function TRxDBCalcEdit.StoreEmptyIsNull: Boolean;
-begin
-  Result := FEmptyIsNull <> ZeroEmpty;
-end;
-
-//Polaris
-
 constructor TRxDBCalcEdit.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
-  {$IFNDEF VER80}
+{$IFDEF WIN32}
   ControlStyle := ControlStyle + [csReplicatable];
-  {$ENDIF}
+{$ENDIF}
   inherited ReadOnly := True;
-//Polaris
-  FEmptyIsNull := ZeroEmpty;
-  FLEmptyIsNull := True;
-//Polaris
   FDataLink := TFieldDataLink.Create;
   FDataLink.Control := Self;
   FDataLink.OnDataChange := DataChange;
@@ -3563,45 +3150,31 @@ begin
   Result := FDataLink.Edit;
 end;
 
-{$IFNDEF VER80}
+{$IFDEF WIN32}
 function TRxDBCalcEdit.GetDisplayText: string;
 var
   E: Extended;
 begin
-  if (csPaintCopy in ControlState) and (FDatalink.Field <> nil) then
-  begin
-    if FDataLink.Field.IsNull then
-      E := 0.0
+  if (csPaintCopy in ControlState) and (FDatalink.Field <> nil) then begin
+    if FDataLink.Field.IsNull then E := 0.0
     else if FDataLink.Field.DataType in [ftSmallint, ftInteger, ftWord] then
       E := FDataLink.Field.AsInteger
     else if FDataLink.Field.DataType = ftBoolean then
       E := Ord(FDataLink.Field.AsBoolean)
-        {$IFDEF RX_D4}
+{$IFDEF RX_D4}
     else if FDataLink.Field is TLargeintField then
       E := TLargeintField(FDataLink.Field).AsLargeInt
-        {$ENDIF}
-    else
-      E := FDataLink.Field.AsFloat;
-    if FDataLink.Field.IsNull then
-      Result := ''
-    else
-      Result := FormatDisplayText(E);
+{$ENDIF}
+    else E := FDataLink.Field.AsFloat;
+    if FDataLink.Field.IsNull then Result := ''
+    else Result := FormatDisplayText(E);
   end
-  else
-  begin
-    if (FDataLink.Field = nil) then
-    begin
-      if (csDesigning in ComponentState) then
-        Result := Format('(%s)', [Name])
-      else
-        Result := '';
+  else begin
+    if (FDataLink.Field = nil) then begin
+      if (csDesigning in ComponentState) then Result := Format('(%s)', [Name])
+      else Result := '';
     end
-    else //Polaris Result := inherited GetDisplayText;
-{//Polaris} if FDataLink.Field.IsNull then
-        Result := ''
-      else
-        Result := inherited GetDisplayText;
-//Polaris
+    else Result := inherited GetDisplayText;
   end;
 end;
 {$ENDIF}
@@ -3618,24 +3191,6 @@ begin
   inherited Change;
 end;
 
-//Polaris
-
-procedure TRxDBCalcEdit.DataChanged;
-begin
-  inherited;
-  if Assigned(FDataLink) and Assigned(FDataLink.Field) and
-    DecimalPlaceRound then
-  begin
-    EditText := DisplayText;
-    try
-      if (EditText <> '') then
-        if (StrToFloat(EditText) = 0) and ZeroEmpty then EditText := '';
-    except
-    end;
-  end;
-end;
-//Polaris
-
 function TRxDBCalcEdit.GetDataSource: TDataSource;
 begin
   Result := FDataLink.DataSource;
@@ -3643,15 +3198,14 @@ end;
 
 procedure TRxDBCalcEdit.SetDataSource(Value: TDataSource);
 begin
-  if FDataLink.DataSource <> Value then
-  begin
-    {$IFDEF RX_D4}
+  if FDataLink.DataSource <> Value then begin
+{$IFDEF RX_D4}
     if not (FDataLink.DataSourceFixed and (csLoading in ComponentState)) then
-      {$ENDIF}
+{$ENDIF}
       FDataLink.DataSource := Value;
-    {$IFNDEF VER80}
+{$IFDEF WIN32}
     if Value <> nil then Value.FreeNotification(Self);
-    {$ENDIF}
+{$ENDIF}
     UpdateFieldParams;
   end;
 end;
@@ -3663,8 +3217,7 @@ end;
 
 procedure TRxDBCalcEdit.SetDataField(const Value: string);
 begin
-  if FDataLink.FieldName <> Value then
-  begin
+  if FDataLink.FieldName <> Value then begin
     FDataLink.FieldName := Value;
     UpdateFieldParams;
   end;
@@ -3672,61 +3225,51 @@ end;
 
 procedure TRxDBCalcEdit.SetDefaultParams(Value: Boolean);
 begin
-  if DefaultParams <> Value then
-  begin
+  if DefaultParams <> Value then begin
     FDefaultParams := Value;
     if FDefaultParams then UpdateFieldParams;
   end;
 end;
 
 procedure TRxDBCalcEdit.UpdateFieldParams;
-
 begin
-  if FDatalink.Field <> nil then
-  begin
-    if FDatalink.Field is TNumericField then
-    begin
+  if FDatalink.Field <> nil then begin
+    if FDatalink.Field is TNumericField then begin
       if TNumericField(FDatalink.Field).DisplayFormat <> '' then
         DisplayFormat := TNumericField(FDatalink.Field).DisplayFormat;
       Alignment := TNumericField(FDatalink.Field).Alignment;
     end;
-    {$IFDEF RX_D4}
-    if FDatalink.Field is TLargeintField then
-    begin
+{$IFDEF RX_D4}
+    if FDatalink.Field is TLargeintField then begin
       MaxValue := TLargeintField(FDatalink.Field).MaxValue;
       MinValue := TLargeintField(FDatalink.Field).MinValue;
       DecimalPlaces := 0;
       if DisplayFormat = '' then DisplayFormat := ',#';
+    end else
+{$ENDIF}
+    if FDatalink.Field is TIntegerField then begin
+      MaxValue := TIntegerField(FDatalink.Field).MaxValue;
+      MinValue := TIntegerField(FDatalink.Field).MinValue;
+      DecimalPlaces := 0;
+      if DisplayFormat = '' then DisplayFormat := ',#';
     end
-    else
-      {$ENDIF}if FDatalink.Field is TIntegerField then
-      begin
-        MaxValue := TIntegerField(FDatalink.Field).MaxValue;
-        MinValue := TIntegerField(FDatalink.Field).MinValue;
-        DecimalPlaces := 0;
-        if DisplayFormat = '' then DisplayFormat := ',#';
-      end
-        {$IFNDEF VER80}
-      else if FDatalink.Field is TBCDField then
-      begin
-        MaxValue := TBCDField(FDatalink.Field).MaxValue;
-        MinValue := TBCDField(FDatalink.Field).MinValue;
-      end
-        {$ENDIF}
-      else if FDatalink.Field is TFloatField then
-      begin
-        MaxValue := TFloatField(FDatalink.Field).MaxValue;
-        MinValue := TFloatField(FDatalink.Field).MinValue;
-//Polaris      DecimalPlaces := TFloatField(FDatalink.Field).Precision;
-        DecimalPlaces := Min(DecimalPlaces, TFloatField(FDatalink.Field).Precision);
-      end
-      else if FDatalink.Field is TBooleanField then
-      begin
-        MinValue := 0;
-        MaxValue := 1;
-        DecimalPlaces := 0;
-        if DisplayFormat = '' then DisplayFormat := ',#';
-      end;
+{$IFDEF WIN32}
+    else if FDatalink.Field is TBCDField then begin
+      MaxValue := TBCDField(FDatalink.Field).MaxValue;
+      MinValue := TBCDField(FDatalink.Field).MinValue;
+    end
+{$ENDIF}
+    else if FDatalink.Field is TFloatField then begin
+      MaxValue := TFloatField(FDatalink.Field).MaxValue;
+      MinValue := TFloatField(FDatalink.Field).MinValue;
+      DecimalPlaces := TFloatField(FDatalink.Field).Precision;
+    end
+    else if FDatalink.Field is TBooleanField then begin
+      MinValue := 0;
+      MaxValue := 1;
+      DecimalPlaces := 0;
+      if DisplayFormat = '' then DisplayFormat := ',#';
+    end;
   end;
   UpdatePopup;
 end;
@@ -3749,10 +3292,8 @@ end;
 procedure TRxDBCalcEdit.DataChange(Sender: TObject);
 begin
   if FDefaultParams then UpdateFieldParams;
-  if FDataLink.Field <> nil then
-  begin
-    if FDataLink.Field.IsNull then
-    begin
+  if FDataLink.Field <> nil then begin
+    if FDataLink.Field.IsNull then begin
       Self.Value := 0.0;
       EditText := '';
     end
@@ -3760,23 +3301,19 @@ begin
       Self.AsInteger := FDataLink.Field.AsInteger
     else if FDataLink.Field.DataType = ftBoolean then
       Self.AsInteger := Ord(FDataLink.Field.AsBoolean)
-        {$IFDEF RX_D4}
+{$IFDEF RX_D4}
     else if FDataLink.Field is TLargeintField then
       Self.Value := TLargeintField(FDataLink.Field).AsLargeInt
-        {$ENDIF}
-    else
-      Self.Value := FDataLink.Field.AsFloat;
+{$ENDIF}
+    else Self.Value := FDataLink.Field.AsFloat;
     DataChanged;
   end
-  else
-  begin
-    if csDesigning in ComponentState then
-    begin
+  else begin
+    if csDesigning in ComponentState then begin
       Self.Value := 0;
       EditText := Format('(%s)', [Name]);
     end
-    else
-      Self.Value := 0;
+    else Self.Value := 0;
   end;
 end;
 
@@ -3788,19 +3325,15 @@ end;
 procedure TRxDBCalcEdit.UpdateFieldData(Sender: TObject);
 begin
   inherited UpdateData;
-//Polaris  if (Value = 0) and ZeroEmpty then FDataLink.Field.Clear
-  if (Trim(Text) = EmptyStr) and FEmptyIsNull then
-    FDataLink.Field.Clear
+  if (Value = 0) and ZeroEmpty then FDataLink.Field.Clear
   else if FDataLink.Field.DataType in [ftSmallint, ftInteger, ftWord] then
     FDataLink.Field.AsInteger := Self.AsInteger
   else if FDataLink.Field.DataType = ftBoolean then
     FDataLink.Field.AsBoolean := Boolean(Self.AsInteger)
-  else
-    FDataLink.Field.AsFloat := Self.Value;
+  else FDataLink.Field.AsFloat := Self.Value;
 end;
 
-{$IFNDEF VER80}
-
+{$IFDEF WIN32}
 procedure TRxDBCalcEdit.CMGetDataLink(var Message: TMessage);
 begin
   Message.Result := Integer(FDataLink);
@@ -3808,10 +3341,8 @@ end;
 
 procedure TRxDBCalcEdit.AcceptValue(const Value: Variant);
 begin
-  if VarIsNull(Value) or VarIsEmpty(Value) then
-    FDataLink.Field.Clear
-  else
-    FDataLink.Field.Value := CheckValue(Value, False);
+  if VarIsNull(Value) or VarIsEmpty(Value) then FDataLink.Field.Clear
+  else FDataLink.Field.Value := Value;
   DoChange;
 end;
 {$ENDIF}
@@ -3828,28 +3359,10 @@ begin
   inherited;
 end;
 
-// Polaris
-(*
 procedure TRxDBCalcEdit.CMEnter(var Message: TCMEnter);
 begin
-  try
-    if (FDatalink <> Nil) and (FDatalink.Field <> Nil) and
-       (FDatalink.Field.DataSet.State in [dsEdit,dsInsert]) and
-       not FDatalink.Field.IsNull and
-       DecimalPlaceRound and (DecimalPlaces > 0)
-      then
-      begin
-        // А здесь отсекаем лишние цифры мантиссы
-        FDatalink.Field.AsFloat := CheckValue( Value, false );
-        FDatalink.UpdateRecord;
-        // -- типа отсекли --
-      end;
-  finally
-    inherited;
-  end;
+  inherited;
 end;
-*)
-// Polaris
 
 procedure TRxDBCalcEdit.CMExit(var Message: TCMExit);
 begin
@@ -3865,7 +3378,6 @@ begin
 end;
 
 {$IFDEF RX_D4}
-
 function TRxDBCalcEdit.UseRightToLeftAlignment: Boolean;
 begin
   Result := DBUseRightToLeftAlignment(Self, Field);
@@ -3952,16 +3464,12 @@ begin
   inherited Create(AOwner);
   ShadowSize := 0;
   Layout := tlCenter;
-  ControlStyle := ControlStyle - [csSetCaption{$IFNDEF VER80},
-  csReplicatable{$ENDIF}];
+  ControlStyle := ControlStyle - [csSetCaption {$IFDEF WIN32},
+    csReplicatable {$ENDIF}];
   FRecordCount := -1;
   FRecordNo := -1;
   ShowAccelChar := False;
-  {$IFDEF RX_D4} // Polaris
   FDataSetName := EmptyStr;
-  {$ELSE}
-  FDataSetName := NullStr;
-  {$ENDIF}
   FDataLink := TStatusDataLink.Create(Self);
   FStyle := lsState;
   GlyphAlign := glGlyphLeft;
@@ -3977,9 +3485,7 @@ destructor TDBStatusLabel.Destroy;
 begin
   FDataLink.Free;
   FDataLink := nil;
-  {$IFNDEF RX_D4} // Polaris
-  DisposeStr(FDataSetName);
-  {$ENDIF}
+  //DisposeStr(FDataSetName);
   TStringList(FCaptions).OnChange := nil;
   FCaptions.Free;
   FCaptions := nil;
@@ -4001,8 +3507,7 @@ begin
   if (FStyle = lsState) and (FDatalink <> nil) and
     (GetDatasetState in [dsEdit, dsInsert]) then
     Result := FEditColor
-  else
-    Result := inherited GetDefaultFontColor;
+  else Result := inherited GetDefaultFontColor;
 end;
 
 function TDBStatusLabel.GetLabelCaption: string;
@@ -4012,44 +3517,32 @@ begin
     Result := Format('(%s)', [Name])
   else if ((FDatalink = nil) or (DataSource = nil)) then
     Result := ''
-  else
-  begin
+  else begin
     case FStyle of
       lsState:
-        if FShowOptions in [doCaption, doBoth] then
-        begin
-          if DataSetName = '' then
-            Result := GetCaption(DataSource.State)
-          else
-            Result := Format('%s: %s', [DataSetName, GetCaption(DataSource.State)]);
+        if FShowOptions in [doCaption, doBoth] then begin
+          if DataSetName = '' then Result := GetCaption(DataSource.State)
+          else Result := Format('%s: %s', [DataSetName, GetCaption(DataSource.State)]);
         end
-        else { doGlyph }
-          Result := '';
+        else { doGlyph } Result := '';
       lsRecordNo:
-        if FDataLink.Active then
-        begin
-          if FRecordNo >= 0 then
-          begin
+        if FDataLink.Active then begin
+          if FRecordNo >= 0 then begin
             if FRecordCount >= 0 then
               Result := Format('%d:%d', [FRecordNo, FRecordCount])
-            else
-              Result := IntToStr(FRecordNo);
+            else Result := IntToStr(FRecordNo);
           end
-          else
-          begin
+          else begin
             if FRecordCount >= 0 then
               Result := Format('( %d )', [FRecordCount])
-            else
-              Result := '';
+            else Result := '';
           end;
         end
-        else
-          Result := '';
+        else Result := '';
       lsRecordSize:
         if FDatalink.Active then
           Result := IntToStr(FDatalink.DataSet.RecordSize)
-        else
-          Result := '';
+        else Result := '';
     end;
   end;
 end;
@@ -4058,8 +3551,7 @@ function TDBStatusLabel.GetDatasetState: TDataSetState;
 begin
   if DataSource <> nil then
     Result := DataSource.State
-  else
-    Result := dsInactive;
+  else Result := dsInactive;
 end;
 
 procedure TDBStatusLabel.SetName(const Value: TComponentName);
@@ -4075,38 +3567,34 @@ end;
 
 function TDBStatusLabel.GetStatusKind(State: TDataSetState): TDBStatusKind;
 begin
-  {$IFNDEF VER80}
-  if not (State in [Low(TDBStatusKind)..High(TDBStatusKind)]) then
-  begin
+{$IFDEF WIN32}
+  if not (State in [Low(TDBStatusKind)..High(TDBStatusKind)]) then begin
     case State of
       dsFilter: Result := dsSetKey;
-      {$IFDEF RX_D3}
+{$IFDEF RX_D3}
       dsNewValue, dsOldValue, dsCurValue: Result := dsEdit;
-      {$ELSE}
+{$ELSE}
       dsUpdateNew, dsUpdateOld: Result := dsEdit;
-      {$ENDIF}
-    else
-      Result := TDBStatusKind(State);
+{$ENDIF}
+      else Result := TDBStatusKind(State);
     end;
   end
   else
-    {$ENDIF}
+{$ENDIF WIN32}
     Result := TDBStatusKind(State);
 end;
 
 function TDBStatusLabel.GetCaption(State: TDataSetState): string;
 const
-  StrIds: array[TDBStatusKind] of Integer = (SInactiveData, SBrowseData,
+  StrIds: array[TDBStatusKind] of Word = (SInactiveData, SBrowseData,
     SEditData, SInsertData, SSetKeyData, SCalcFieldsData);
 var
   Kind: TDBStatusKind;
 begin
   Kind := GetStatusKind(State);
   if (FCaptions <> nil) and (Ord(Kind) < FCaptions.Count) and
-    (FCaptions[Ord(Kind)] <> '') then
-    Result := FCaptions[Ord(Kind)]
-  else
-    Result := RxLoadStr(StrIds[Kind]);
+    (FCaptions[Ord(Kind)] <> '') then Result := FCaptions[Ord(Kind)]
+  else Result := LoadStr(StrIds[Kind]);
 end;
 
 procedure TDBStatusLabel.Paint;
@@ -4124,8 +3612,7 @@ begin
     case Layout of
       tlTop: GlyphOrigin.Y := 0;
       tlCenter: GlyphOrigin.Y := (ClientHeight - FCell.Height) div 2;
-    else { tlBottom }
-      GlyphOrigin.Y := ClientHeight - FCell.Height;
+      else { tlBottom } GlyphOrigin.Y := ClientHeight - FCell.Height;
     end;
     DrawBitmapTransparent(Canvas, GlyphOrigin.X, GlyphOrigin.Y,
       FCell, FGlyph.TransparentColor);
@@ -4148,12 +3635,12 @@ procedure TDBStatusLabel.UpdateData;
 
   function IsSequenced: Boolean;
   begin
-    {$IFDEF RX_D3}
+{$IFDEF RX_D3}
     Result := FDatalink.DataSet.IsSequenced;
-    {$ELSE}
+{$ELSE}
     Result := not ((FDatalink.DataSet is TDBDataSet) and
       TDBDataSet(FDatalink.DataSet).Database.IsSQLBased);
-    {$ENDIF}
+{$ENDIF}
   end;
 
 begin
@@ -4164,30 +3651,26 @@ begin
     if Assigned(FOnGetRecordCount) then
       FOnGetRecordCount(Self, FDataLink.DataSet, FRecordCount)
     else if (FCalcCount or IsSequenced) then
-      {$IFDEF RX_D3}
+{$IFDEF RX_D3}
       FRecordCount := FDataLink.DataSet.RecordCount;
-    {$ELSE}
+{$ELSE}
       FRecordCount := DataSetRecordCount(FDataLink.DataSet)
-        {$ENDIF}
+{$ENDIF}
   end;
   UpdateStatus;
 end;
 
 procedure TDBStatusLabel.UpdateStatus;
 begin
-  if DataSource <> nil then
-  begin
+  if DataSource <> nil then begin
     case FStyle of
       lsState:
-        if FShowOptions in [doGlyph, doBoth] then
-        begin
-          if GlyphAlign = glGlyphLeft then
-          begin
+        if FShowOptions in [doGlyph, doBoth] then begin
+          if GlyphAlign = glGlyphLeft then begin
             RightMargin := 0;
             LeftMargin := (FGlyph.Width div GlyphColumns) + GlyphSpacing * 2;
           end
-          else {glGlyphRight}
-          begin
+          else {glGlyphRight} begin
             LeftMargin := 0;
             RightMargin := (FGlyph.Width div GlyphColumns) + GlyphSpacing * 2;
           end;
@@ -4195,8 +3678,7 @@ begin
           AssignBitmapCell(FGlyph, FCell, GlyphColumns, 1,
             Ord(GetStatusKind(DataSource.State)));
         end
-        else { doCaption }
-        begin
+        else { doCaption } begin
           FCell.Free;
           FCell := nil;
           LeftMargin := 0;
@@ -4209,18 +3691,16 @@ begin
           LeftMargin := 0;
           RightMargin := 0;
           FRecordNo := -1;
-          if FDataLink.Active then
-          begin
+          if FDataLink.Active then begin
             if Assigned(FOnGetRecNo) then
-              FOnGetRecNo(Self, FDataLink.DataSet, FRecordNo)
-            else
+              FOnGetRecNo(Self, FDataLink.DataSet, FRecordNo) else
             try
-              {$IFDEF RX_D3}
+{$IFDEF RX_D3}
               with FDatalink.DataSet do
                 if not IsEmpty then FRecordNo := RecNo;
-              {$ELSE}
+{$ELSE}
               FRecordNo := DataSetRecNo(FDatalink.DataSet);
-              {$ENDIF}
+{$ENDIF}
             except
             end;
           end;
@@ -4234,8 +3714,7 @@ begin
         end;
     end;
   end
-  else
-  begin
+  else begin
     FCell.Free;
     FCell := nil;
   end;
@@ -4253,28 +3732,17 @@ end;
 
 function TDBStatusLabel.GetDataSetName: string;
 begin
-  {$IFDEF RX_D4} // Polaris
   Result := FDataSetName;
-  {$ELSE}
-  Result := FDataSetName^;
-  {$ENDIF}
-  if not (csDesigning in ComponentState) then
-  begin
-    if Assigned(FOnGetDataName) then
-      Result := FOnGetDataName(Self)
+  if not (csDesigning in ComponentState) then begin
+    if Assigned(FOnGetDataName) then Result := FOnGetDataName(Self)
     else if (Result = '') and (DataSource <> nil) and
-      (DataSource.DataSet <> nil) then
-      Result := DataSource.DataSet.Name;
+      (DataSource.DataSet <> nil) then Result := DataSource.DataSet.Name;
   end;
 end;
 
 procedure TDBStatusLabel.SetDataSetName(Value: string);
 begin
-  {$IFDEF RX_D4} // Polaris
   FDataSetName := Value;
-  {$ELSE}
-  AssignStr(FDataSetName, Value);
-  {$ENDIF}
   Invalidate;
 end;
 
@@ -4285,20 +3753,19 @@ end;
 
 procedure TDBStatusLabel.SetDataSource(Value: TDataSource);
 begin
-  {$IFDEF RX_D4}
+{$IFDEF RX_D4}
   if not (FDataLink.DataSourceFixed and (csLoading in ComponentState)) then
-    {$ENDIF}
+{$ENDIF}
     FDataLink.DataSource := Value;
-  {$IFNDEF VER80}
+{$IFDEF WIN32}
   if Value <> nil then Value.FreeNotification(Self);
-  {$ENDIF}
+{$ENDIF}
   if not (csLoading in ComponentState) then UpdateData;
 end;
 
 procedure TDBStatusLabel.SetEditColor(Value: TColor);
 begin
-  if FEditColor <> Value then
-  begin
+  if FEditColor <> Value then begin
     FEditColor := Value;
     if Style = lsState then Invalidate;
   end;
@@ -4306,8 +3773,7 @@ end;
 
 procedure TDBStatusLabel.SetGlyphAlign(Value: TGlyphAlign);
 begin
-  if FGlyphAlign <> Value then
-  begin
+  if FGlyphAlign <> Value then begin
     FGlyphAlign := Value;
     UpdateStatus;
   end;
@@ -4315,8 +3781,7 @@ end;
 
 procedure TDBStatusLabel.SetShowOptions(Value: TDBLabelOptions);
 begin
-  if FShowOptions <> Value then
-  begin
+  if FShowOptions <> Value then begin
     FShowOptions := Value;
     UpdateStatus;
   end;
@@ -4324,8 +3789,7 @@ end;
 
 procedure TDBStatusLabel.SetCalcCount(Value: Boolean);
 begin
-  if FCalcCount <> Value then
-  begin
+  if FCalcCount <> Value then begin
     FCalcCount := Value;
     if not (csLoading in ComponentState) then UpdateData;
   end;
@@ -4333,14 +3797,13 @@ end;
 
 procedure TDBStatusLabel.SetStyle(Value: TDBLabelStyle);
 begin
-  if FStyle <> Value then
-  begin
+  if FStyle <> Value then begin
     FStyle := Value;
     if not (csLoading in ComponentState) then UpdateData;
   end;
 end;
 
-{$IFNDEF VER80}
+{$IFDEF WIN32}
 initialization
 finalization
   DestroyLocals;

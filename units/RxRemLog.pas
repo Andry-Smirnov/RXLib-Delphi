@@ -2,9 +2,10 @@
 {                                                       }
 {         Delphi VCL Extensions (RX)                    }
 {                                                       }
-{         Copyright (c) 1998 Master-Bank                }
+{         Copyright (c) 2001,2002 SGB Software          }
+{         Copyright (c) 1997, 1998 Fedor Koshevnikov,   }
+{                        Igor Pavluk and Serge Korolev  }
 {                                                       }
-{ Patched by Polaris Software                           }
 {*******************************************************}
 
 unit RxRemLog;
@@ -71,9 +72,7 @@ implementation
 {$IFDEF RX_D3}
 {$IFDEF RX_MIDAS}
 
-uses
-  IniFiles, Registry,
-  RxAppUtils, RxVclUtils {$IFDEF RX_D4}, MConnect {$ENDIF}; // Polaris
+uses IniFiles, Registry, AppUtils, VclUtils {$IFDEF RX_D4}, MConnect {$ENDIF};
 
 const
   keyLoginSection  = 'Remote Login';

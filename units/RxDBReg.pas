@@ -2,23 +2,12 @@
 {                                                       }
 {         Delphi VCL Extensions (RX)                    }
 {                                                       }
-{         Copyright (c) 1995, 1996 AO ROSNO             }
-{         Copyright (c) 1997, 1998 Master-Bank          }
+{         Copyright (c) 2001,2002 SGB Software          }
+{         Copyright (c) 1997, 1998 Fedor Koshevnikov,   }
+{                        Igor Pavluk and Serge Korolev  }
 {                                                       }
-{ Revision and component added by JB.                   }
 {*******************************************************}
 
-{ Note:
-  - in Delphi 5.0 you must add DCLRX5 to the requires page of the
-    package you install this components into.
-  - in Delphi 4.0 you must add DCLRX4 to the requires page of the
-    package you install this components into.
-  - in Delphi 3.0 you must add DCLRXCTL to the requires page of the
-    package you install this components into.
-  - in C++Builder 4.0 you must add DCLRX4 to the requires page of the
-    package you install this components into.
-  - in C++Builder 3.0 you must add DCLRXCTL to the requires page of the
-    package you install this components into. }
 
 unit RxDBReg;
 
@@ -27,9 +16,7 @@ unit RxDBReg;
 
 interface
 
-uses
-  Classes, SysUtils, DB, RxHintProp, ColnEdit,
-  {$IFDEF RX_D6}DesignIntf, DesignEditors{$ELSE}DsgnIntf{$ENDIF}; // Polaris
+uses Classes, RTLConsts, DesignIntf, DesignEditors, VCLEditors, SysUtils, DB;
 
 { Register data aware custom controls and components }
 
@@ -37,13 +24,16 @@ procedure Register;
 
 implementation
 
-{$R *.dcr}
+{$IFDEF WIN32}
+ {$R *.D32}
+{$ELSE}
+ {$R *.D16}
+{$ENDIF}
 
-uses
-  TypInfo, RXResConst, RXDBCtrl, RXLookup, RxLogin, RXDBComb, RxVCLUtils,
-  {$IFNDEF RX_D3}DBTables, {$ENDIF}{$IFDEF DCS}RxSelDSFrm, {$ENDIF}
-  {$IFDEF RX_D3}RxMemDS, {$ENDIF}{$IFNDEF VER80}RxDBRichEd, {$ENDIF}
-  Consts, LibHelp, RxDsgn, RxDBCurrEdit, RxRecordGrid;
+uses TypInfo, RXLConst, RXDBCtrl, RXLookup, RxLogin, RXDBComb, VCLUtils,
+  {$IFNDEF RX_D3} DBTables, {$ENDIF} {$IFDEF DCS} SelDSFrm, {$ENDIF} 
+  {$IFDEF RX_D3} RxMemDS, {$ENDIF} {$IFDEF WIN32} DBRichEd, {$ENDIF} 
+  Consts, LibHelp, RxDsgn;
 
 { TRxFieldProperty }
 { For TRxDBLookupList, TRxDBLookupCombo components }
@@ -97,133 +87,42 @@ end;
 {$ENDIF RX_D3}
 {$ENDIF DCS}
 
-{$IFDEF RX_D4}
-
-{ TDBStringProperty }
-
-type
-  TDBStringProperty = class(TStringProperty)
-  public
-    function GetAttributes: TPropertyAttributes; override;
-    procedure GetValueList(List: TStrings); virtual; abstract;
-    procedure GetValues(Proc: TGetStrProc); override;
-  end;
-
-function TDBStringProperty.GetAttributes: TPropertyAttributes;
-begin
-  Result := [paValueList, paSortList, paMultiSelect];
-end;
-
-procedure TDBStringProperty.GetValues(Proc: TGetStrProc);
-var
-  I: Integer;
-  Values: TStringList;
-begin
-  Values := TStringList.Create;
-  try
-    GetValueList(Values);
-    for I := 0 to Values.Count - 1 do
-      Proc(Values[I]);
-  finally
-    Values.Free;
-  end;
-end;
-
-{ TRxDBRecordGrid }
-
-type
-  TRxRecFieldNameProperty = class(TDBStringProperty)
-    procedure GetValueList(List: TStrings); override;
-  end;
-
-  TRowsEditor = class(TComponentEditor)
-  public
-    procedure ExecuteVerb(Index: Integer); override;
-    function GetVerb(Index: Integer): string; override;
-    function GetVerbCount: Integer; override;
-  end;
-
-{ TRxDBRecordGrid }
-
-procedure TRowsEditor.ExecuteVerb(Index: Integer);
-begin
-  case Index of
-    0: ShowCollectionEditorClass(Designer, TCollectionEditor, Component,
-        TRxDBRecordGrid(Component).Rows, 'Columns');
-  end
-end;
-
-function TRowsEditor.GetVerb(Index: Integer): string;
-begin
-  case Index of
-    0: Result := 'Rows Editor';
-  end;
-end;
-
-function TRowsEditor.GetVerbCount: Integer;
-begin
-  Result := 1;
-end;
-
-procedure TRxRecFieldNameProperty.GetValueList(List: TStrings);
-var
-  RecordGrid: TRxDBRecordGrid;
-begin
-  if (GetComponent(0) is TRow) then
-  begin
-    RecordGrid := TRow(GetComponent(0)).GetGrid;
-    if (RecordGrid <> nil) and (RecordGrid.DataLink <> nil)
-      and (RecordGrid.DataLink.Dataset <> nil) then
-      RecordGrid.DataLink.Dataset.GetFieldNames(List);
-  end;
-end;
-{$ENDIF}
-
 { Designer registration }
 
 procedure Register;
-const
-  srRXDBAware = 'RX DBAware';
-  srRXTools = 'RX Tools';
 begin
 
-  {$IFDEF RX_D4}
+{$IFDEF RX_D4}
   { Database Components are excluded from the STD SKU }
   if GDAL = LongWord(-16) then Exit;
-  {$ENDIF}
+{$ENDIF}
 
 { Data aware components and controls }
-  RegisterComponents(srRXDBAware, [
-    {$IFDEF RX_D3}TRxMemoryData, TRxMemoryDataEx, {$ENDIF}
-    TRxDBGrid, TRxDBLookupList, TRxDBLookupCombo, TRxLookupEdit, TDBDateEdit, TRxDBLookupEditEx, TDBCurrencyEdit,
-      TRxDBCalcEdit, TRxDBComboEdit, {$IFNDEF VER80}TRxDBRichEdit, {$ENDIF}
-    TDBStatusLabel, TRxLoginDialog,
-      TRxDBComboBox{$IFDEF RX_D4}, TRxDBRecordGrid{$ENDIF}]);
-  //RegisterComponents(srRXTools, [TRxLoginDialog]);
-  {$IFDEF RX_D3}
-  RegisterNonActiveX([TRxMemoryData, TRxDBGrid, TDBDateEdit,
+  RegisterComponents(LoadStr(srRXDBAware), [
+    {$IFDEF RX_D3} TRxMemoryData, {$ENDIF}
+    TRxDBGrid, TRxDBLookupList, TRxDBLookupCombo, TRxLookupEdit, TDBDateEdit, 
+    TRxDBCalcEdit, TRxDBComboEdit, {$IFDEF WIN32} TRxDBRichEdit, {$ENDIF}
+    TDBStatusLabel, TRxDBComboBox]);
+  RegisterComponents(LoadStr(srRXTools), [TRxLoginDialog]);
+{$IFDEF RX_D3}
+  RegisterNonActiveX([TRxMemoryData, TRxDBGrid, TDBDateEdit, 
     TDBStatusLabel, TRxDBComboBox, TRxDBLookupList,
-      TRxDBLookupCombo, TRxLookupEdit, TRxDBComboEdit, TRxDBCalcEdit,
-      TRxDBRichEdit, TCustomDBComboBox, TRxLookupControl, TRxLoginDialog],
-      axrComponentOnly);
-  {$ENDIF RX_D3}
+    TRxDBLookupCombo, TRxLookupEdit, TRxDBComboEdit, TRxDBCalcEdit, 
+    TRxDBRichEdit, TCustomDBComboBox, TRxLookupControl, TRxLoginDialog], 
+    axrComponentOnly);
+{$ENDIF RX_D3}
 { Property and component editors for data aware components }
   RegisterPropertyEditor(TypeInfo(string), TRxLookupControl, 'LookupField',
     TRxFieldProperty);
   RegisterPropertyEditor(TypeInfo(string), TRxLookupEdit, 'LookupField',
     TRxFieldProperty);
-  {$IFDEF RX_D3}
+{$IFDEF RX_D3}
   RegisterPropertyEditor(TypeInfo(Integer), TRxDBGrid, 'RowsHeight', nil);
-  {$IFDEF DCS}
+{$IFDEF DCS}
   RegisterComponentEditor(TRxMemoryData, TMemoryDataEditor);
-  {$ENDIF DCS}
-  {$ENDIF RX_D3}
-  {$IFDEF RX_D4}
-{ TRxDBRecordGrid }
-  RegisterPropertyEditor(TypeInfo(string), TRow, 'FieldName',
-    TRxRecFieldNameProperty);
-  RegisterComponentEditor(TRxDBRecordGrid, TRowsEditor);
-  {$ENDIF}
+{$ENDIF DCS}
+{$ENDIF RX_D3}
+
 end;
 
 end.

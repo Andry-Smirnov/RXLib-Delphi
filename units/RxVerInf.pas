@@ -2,27 +2,24 @@
 {                                                       }
 {         Delphi VCL Extensions (RX)                    }
 {                                                       }
-{         Copyright (c) 1995, 1996 AO ROSNO             }
-{         Copyright (c) 1999, 2000 Alexey Popov         }
+{         Copyright (c) 2001,2002 SGB Software          }
+{         Copyright (c) 1997, 1998 Fedor Koshevnikov,   }
+{                        Igor Pavluk and Serge Korolev  }
 {                                                       }
 {*******************************************************}
 
-unit RxVerInf;
 
-{ Working with VERSIONINFO resourse type }
+unit RxVerInf;
 
 {$I RX.INC}
 
 {$IFDEF RX_D3}
-{$IFNDEF Ver150} //by J.B.
-{$WEAKPACKAGEUNIT}
-{$ENDIF}
+  {$WEAKPACKAGEUNIT}
 {$ENDIF}
 
 interface
 
-uses
-  {$IFNDEF VER80}Windows{$ELSE}Ver{$ENDIF}, SysUtils, RxStrUtils;
+uses Windows;
 
 type
   TVersionLanguage = (vlArabic, vlBulgarian, vlCatalan, vlTraditionalChinese,
@@ -40,15 +37,15 @@ type
     vcsEasternEuropean, vcsCyrillic, vcsMultilingual, vcsGreek, vcsTurkish,
     vcsHebrew, vcsArabic, vcsUnknown);
 
-  {$IFDEF VER80}
+{$IFNDEF WIN32}
   PVSFixedFileInfo = Pvs_FixedFileInfo;
-  DWORD = LongInt;
-  {$ENDIF}
+  DWORD = Longint;
+{$ENDIF}
 
   TLongVersion = record
     case Integer of
-      0: (All: array[1..4] of Word);
-      1: (MS, LS: LongInt);
+    0: (All: array[1..4] of Word);
+    1: (MS, LS: LongInt);
   end;
 
 { TVersionInfo }
@@ -72,7 +69,7 @@ type
     function GetCompanyName: string;
     function GetFileDescription: string;
     function GetFileVersion: string;
-    function GetVersionNum: LongInt;
+    function GetVersionNum: Longint;
     function GetInternalName: string;
     function GetLegalCopyright: string;
     function GetLegalTrademarks: string;
@@ -96,7 +93,7 @@ type
     property Translation: Pointer read GetTranslation;
     property VersionLanguage: TVersionLanguage read GetVersionLanguage;
     property VersionCharSet: TVersionCharSet read GetVersionCharSet;
-    property VersionNum: LongInt read GetVersionNum;
+    property VersionNum: Longint read GetVersionNum;
     property Comments: string read GetComments;
     property CompanyName: string read GetCompanyName;
     property FileDescription: string read GetFileDescription;
@@ -113,43 +110,25 @@ type
     property VerFileDate: TDateTime read GetVerFileDate;
   end;
 
-function LongVersionToString(const Version: TLongVersion): string; {$IFDEF RX_D9}inline; {$ENDIF}
-function StringToLongVersion(const Str: string): TLongVersion; {$IFDEF RX_D9}inline; {$ENDIF}
-function AppFileName: string; {$IFDEF RX_D9}inline; {$ENDIF}
-function AppVerInfo: TVersionInfo; {$IFDEF RX_D9}inline; {$ENDIF}
+function LongVersionToString(const Version: TLongVersion): string;
+function StringToLongVersion(const Str: string): TLongVersion;
+function AppFileName: string;
+function AppVerInfo: TVersionInfo;
 
 { Installation utility routine }
 
-function OkToWriteModule(ModuleName: string; NewVer: LongInt): Boolean; {$IFDEF RX_D9}inline; {$ENDIF}
-
-{ File version compare functions }
-
-function GetFileVersion(const FileName: string; var HighVer, LowVer: DWORD): Boolean; {$IFDEF RX_D9}inline; {$ENDIF}
-function GetFileVersionStr(const FileName: string; var Ver: string): Boolean; {$IFDEF RX_D9}inline; {$ENDIF}
-
-function IsTargetNewer(const FileSource, FileTarget: string): Boolean; {$IFDEF RX_D9}inline; {$ENDIF}
-function IsTargetNewer2(FileSourceDate: TDateTime; const FileSourceVer: string;
-  const FileTarget: string): Boolean; {$IFDEF RX_D9}inline; {$ENDIF}
-
-function IsSourceNewer(const FileSource, FileTarget: string): Boolean; {$IFDEF RX_D9}inline; {$ENDIF}
-function IsSourceNewer2(FileSourceDate: TDateTime; const FileSourceVer: string;
-  const FileTarget: string): Boolean; {$IFDEF RX_D9}inline; {$ENDIF}
-
-function IsEqualVersions(const FileSource, FileTarget: string): Boolean; {$IFDEF RX_D9}inline; {$ENDIF}
-function IsEqualVersions2(FileSourceDate: TDateTime; const FileSourceVer: string;
-  const FileTarget: string): Boolean; {$IFDEF RX_D9}inline; {$ENDIF}
+function OkToWriteModule(ModuleName: string; NewVer: Longint): Boolean;
 
 implementation
 
-uses
-{$IFNDEF VER80}
-  RxFileUtil, RxDateUtil;
+{$IFDEF WIN32}
+uses SysUtils, FileUtil, DateUtil;
 {$ELSE}
-  WinTypes, WinProcs, RxFileUtil, RxDateUtil, RxVclUtils;
+uses WinTypes, WinProcs, SysUtils, FileUtil, DateUtil, VclUtils;
 {$ENDIF}
 
-function MemAlloc(Size: LongInt): Pointer;
-{$IFNDEF VER80}
+function MemAlloc(Size: Longint): Pointer;
+{$IFDEF WIN32}
 begin
   GetMem(Result, Size);
 end;
@@ -157,15 +136,13 @@ end;
 var
   Handle: THandle;
 begin
-  if Size < 65535 then
-    GetMem(Result, Size)
-  else
-  begin
+  if Size < 65535 then GetMem(Result, Size)
+  else begin
     Handle := GlobalAlloc(HeapAllocFlags, Size);
     Result := GlobalLock(Handle);
   end;
 end;
-{$ENDIF}
+{$ENDIF WIN32}
 
 const
   LanguageValues: array[TVersionLanguage] of Word = ($0401, $0402, $0403,
@@ -200,13 +177,13 @@ begin
   FValid := False;
   FSize := GetFileVersionInfoSize(FFileName, FHandle);
   if FSize > 0 then
-  try
-    FBuffer := MemAlloc(FSize);
-    FValid := GetFileVersionInfo(FFileName, FHandle, FSize, FBuffer);
-  except
-    FValid := False;
-    raise;
-  end;
+    try
+      FBuffer := MemAlloc(FSize);
+      FValid := GetFileVersionInfo(FFileName, FHandle, FSize, FBuffer);
+    except
+      FValid := False;
+      raise;
+    end;
 end;
 
 function TVersionInfo.GetFileName: string;
@@ -225,17 +202,15 @@ end;
 
 function TVersionInfo.GetTranslation: Pointer;
 var
-  {$IFNDEF VER80}
+{$IFDEF WIN32}
   Len: UINT;
-  {$ELSE}
+{$ELSE}
   Len: Cardinal;
-  {$ENDIF}
+{$ENDIF}
 begin
   Result := nil;
-  if Valid then
-    VerQueryValue(FBuffer, '\VarFileInfo\Translation', Result, Len)
-  else
-    Result := nil;
+  if Valid then VerQueryValue(FBuffer, '\VarFileInfo\Translation', Result, Len)
+  else Result := nil;
 end;
 
 function TVersionInfo.GetTranslationString: string;
@@ -245,7 +220,7 @@ begin
   Result := '';
   P := GetTranslation;
   if P <> nil then
-    Result := IntToHex(MakeLong(HiWord(LongInt(P^)), LoWord(LongInt(P^))), 8);
+    Result := IntToHex(MakeLong(HiWord(Longint(P^)), LoWord(Longint(P^))), 8);
 end;
 
 function TVersionInfo.GetVersionLanguage: TVersionLanguage;
@@ -254,7 +229,7 @@ var
 begin
   P := GetTranslation;
   for Result := vlArabic to vlUnknown do
-    if LoWord(LongInt(P^)) = LanguageValues[Result] then Break;
+    if LoWord(Longint(P^)) = LanguageValues[Result] then Break;
 end;
 
 function TVersionInfo.GetVersionCharSet: TVersionCharSet;
@@ -263,22 +238,20 @@ var
 begin
   P := GetTranslation;
   for Result := vcsASCII to vcsUnknown do
-    if HiWord(LongInt(P^)) = CharacterSetValues[Result] then Break;
+    if HiWord(Longint(P^)) = CharacterSetValues[Result] then Break;
 end;
 
 function TVersionInfo.GetFixedFileInfo: PVSFixedFileInfo;
 var
-  {$IFNDEF VER80}
+{$IFDEF WIN32}
   Len: UINT;
-  {$ELSE}
+{$ELSE}
   Len: Cardinal;
-  {$ENDIF}
+{$ENDIF}
 begin
   Result := nil;
-  if Valid then
-    VerQueryValue(FBuffer, '\', Pointer(Result), Len)
-  else
-    Result := nil;
+  if Valid then VerQueryValue(FBuffer, '\', Pointer(Result), Len)
+  else Result := nil;
 end;
 
 function TVersionInfo.GetProductLongVersion: TLongVersion;
@@ -293,27 +266,24 @@ begin
   Result.LS := FixedFileInfo^.dwFileVersionLS;
 end;
 
-function TVersionInfo.GetVersionNum: LongInt;
+function TVersionInfo.GetVersionNum: Longint;
 begin
-  if Valid then
-    Result := FixedFileInfo^.dwFileVersionMS
-  else
-    Result := 0;
+  if Valid then Result := FixedFileInfo^.dwFileVersionMS
+  else Result := 0;
 end;
 
 function TVersionInfo.GetVerValue(const VerName: string): string;
 var
   szName: array[0..255] of Char;
   Value: Pointer;
-  {$IFNDEF VER80}
+{$IFDEF WIN32}
   Len: UINT;
-  {$ELSE}
+{$ELSE}
   Len: Cardinal;
-  {$ENDIF}
+{$ENDIF}
 begin
   Result := '';
-  if Valid then
-  begin
+  if Valid then begin
     StrPCopy(szName, '\StringFileInfo\' + GetTranslationString + '\' + VerName);
     if VerQueryValue(FBuffer, szName, Value, Len) then
       Result := StrPas(PChar(Value));
@@ -388,8 +358,7 @@ function TVersionInfo.GetVerFileDate: TDateTime;
 begin
   if FileExists(FileName) then
     Result := FileDateTime(FileName)
-  else
-    Result := NullDate;
+  else Result := NullDate;
 end;
 
 { Long version string routines }
@@ -407,21 +376,16 @@ var
   I: Word;
 begin
   Tmp := Str;
-  for I := 1 to 4 do
-  begin
+  for I := 1 to 4 do begin
     Sep := Pos('.', Tmp);
     if Sep = 0 then Sep := Pos(',', Tmp);
-    if Sep = 0 then
-      Fragment := Tmp
-    else
-    begin
+    if Sep = 0 then Fragment := Tmp
+    else begin
       Fragment := Copy(Tmp, 1, Sep - 1);
       Tmp := Copy(Tmp, Sep + 1, MaxInt);
     end;
-    if Fragment = '' then
-      Result.All[I] := 0
-    else
-      Result.All[I] := StrToInt(Fragment);
+    if Fragment = '' then Result.All[I] := 0
+    else Result.All[I] := StrToInt(Fragment);
   end;
   I := Result.All[1];
   Result.All[1] := Result.All[2];
@@ -433,15 +397,13 @@ end;
 
 function AppFileName: string;
 var
-  FileName: array[0..MAX_PATH] of Char;
+  FileName: array[0..255] of Char;
 begin
-  if IsLibrary then
-  begin
-    GetModuleFileName(HInstance, FileName, {$IFDEF UNICODE}Length(FileName){$ELSE}SizeOf(FileName) - 1{$ENDIF});
+  if IsLibrary then begin
+    GetModuleFileName(HInstance, FileName, SizeOf(FileName) - 1);
     Result := StrPas(FileName);
   end
-  else
-    Result := ParamStr(0);
+  else Result := ParamStr(0);
 end;
 
 function AppVerInfo: TVersionInfo;
@@ -451,13 +413,12 @@ end;
 
 { Installation utility routines }
 
-function OkToWriteModule(ModuleName: string; NewVer: LongInt): Boolean;
+function OkToWriteModule(ModuleName: string; NewVer: Longint): Boolean;
 { Return True if it's ok to overwrite ModuleName with NewVer }
 begin
   {Assume we should overwrite}
   OkToWriteModule := True;
-  with TVersionInfo.Create(ModuleName) do
-  begin
+  with TVersionInfo.Create(ModuleName) do begin
     try
       if Valid then {Should we overwrite?}
         OkToWriteModule := NewVer > VersionNum;
@@ -465,214 +426,6 @@ begin
       Free;
     end;
   end;
-end;
-
-{ version functions }
-
-function GetFileVersion(const FileName: string; var HighVer, LowVer: DWORD): Boolean;
-var
-  size, data: DWORD;
-  buffer: Pointer;
-  FileInfo: PVSFixedFileInfo;
-begin
-  Result := False;
-  size := GetFileVersionInfoSize(PChar(FileName), data);
-  if size = 0 then Exit;
-  GetMem(buffer, size + 1);
-  try
-    GetFileVersionInfo(PChar(FileName), 0, size, buffer);
-    if not VerQueryValue(buffer, '\', Pointer(FileInfo), data) then Exit;
-    HighVer := FileInfo^.dwFileVersionMS;
-    LowVer := FileInfo^.dwFileVersionLS;
-    Result := True;
-  finally
-    FreeMem(buffer);
-  end;
-end;
-
-function GetFileVersionStr(const FileName: string; var Ver: string): Boolean;
-var
-  hv, lv: DWORD;
-begin
-  Ver := '';
-  Result := GetFileVersion(FileName, hv, lv);
-  if Result then
-    Ver := Format('%d.%d.%d.%d', [HiWord(hv), LoWord(hv), HiWord(lv), LoWord(lv)]);
-end;
-
-function IsTargetNewer(const FileSource, FileTarget: string): Boolean;
-var
-  hs, ls, ht, lt: DWORD;
-  {$IFDEF RX_D10}
-  FileTargetFileDateTime: TDateTime;
-  FileSourceFileDateTime: TDateTime;
-  {$ENDIF}
-begin
-  Result := False;
-  if not FileExists(FileTarget) then Exit;
-  if GetFileVersion(FileSource, hs, ls) and GetFileVersion(FileTarget, ht, lt) then
-  begin
-    if (ht > hs) or ((ht = hs) and (lt > ls)) then Result := True;
-  end
-  else
-    {$IFNDEF RX_D10}if FileDateToDateTime(FileAge(FileTarget)) > FileDateToDateTime(FileAge(FileSource)) then
-      Result := True;
-  {$ELSE}if FileAge(FileTarget, FileTargetFileDateTime) and FileAge(FileSource, FileSourceFileDateTime) then
-      Result := FileTargetFileDateTime > FileSourceFileDateTime;
-  {$ENDIF}
-end;
-
-function IsTargetNewer2(FileSourceDate: TDateTime; const FileSourceVer: string;
-  const FileTarget: string): Boolean;
-var
-  hs, ls, ht, lt: DWORD;
-  CheckDate: Boolean;
-  {$IFDEF RX_D10}
-  FileTargetFileDateTime: TDateTime;
-  {$ENDIF}
-begin
-  Result := False;
-  if not FileExists(FileTarget) then Exit;
-  CheckDate := True;
-  if FileSourceVer <> '' then
-  begin
-    hs := (StrToIntDef(ExtractWord(1, FileSourceVer, ['.']), 0) shl 16) +
-      StrToIntDef(ExtractWord(2, FileSourceVer, ['.']), 0);
-    ls := (StrToIntDef(ExtractWord(3, FileSourceVer, ['.']), 0) shl 16) +
-      StrToIntDef(ExtractWord(4, FileSourceVer, ['.']), 0);
-    if GetFileVersion(FileTarget, ht, lt) then
-    begin
-      if (ht > hs) or ((ht = hs) and (lt > ls)) then Result := True;
-      CheckDate := False;
-    end;
-  end;
-  if CheckDate then
-    {$IFNDEF RX_D10}
-    if FileDateToDateTime(FileAge(FileTarget)) > FileSourceDate then
-      Result := True;
-  {$ELSE}
-    if FileAge(FileTarget, FileTargetFileDateTime) then
-      Result := FileTargetFileDateTime > FileSourceDate;
-  {$ENDIF}
-end;
-
-function IsSourceNewer(const FileSource, FileTarget: string): Boolean;
-var
-  hs, ls, ht, lt: DWORD;
-  {$IFDEF RX_D10}
-  FileTargetFileDateTime: TDateTime;
-  FileSourceFileDateTime: TDateTime;
-  {$ENDIF}
-begin
-  Result := True;
-  if not FileExists(FileTarget) then Exit;
-  if GetFileVersion(FileSource, hs, ls) and GetFileVersion(FileTarget, ht, lt) then
-  begin
-    if (ht > hs) or ((ht = hs) and (lt >= ls)) then Result := False;
-  end
-  else
-    {$IFNDEF RX_D10}if FileDateToDateTime(FileAge(FileTarget)) >= FileDateToDateTime(FileAge(FileSource)) then
-      Result := False;
-  {$ELSE}if FileAge(FileTarget, FileTargetFileDateTime) and FileAge(FileSource, FileSourceFileDateTime) then
-      if FileTargetFileDateTime >= FileSourceFileDateTime then
-        Result := False;
-  {$ENDIF}
-end;
-
-function IsSourceNewer2(FileSourceDate: TDateTime; const FileSourceVer: string;
-  const FileTarget: string): Boolean;
-var
-  hs, ls, ht, lt: DWORD;
-  CheckDate: Boolean;
-  {$IFDEF RX_D10}
-  FileTargetFileDateTime: TDateTime;
-  {$ENDIF}
-begin
-  Result := True;
-  if not FileExists(FileTarget) then Exit;
-  CheckDate := True;
-  if FileSourceVer <> '' then
-  begin
-    hs := (StrToIntDef(ExtractWord(1, FileSourceVer, ['.']), 0) shl 16) +
-      StrToIntDef(ExtractWord(2, FileSourceVer, ['.']), 0);
-    ls := (StrToIntDef(ExtractWord(3, FileSourceVer, ['.']), 0) shl 16) +
-      StrToIntDef(ExtractWord(4, FileSourceVer, ['.']), 0);
-    if GetFileVersion(FileTarget, ht, lt) then
-    begin
-      if (ht > hs) or ((ht = hs) and (lt >= ls)) then Result := False;
-      CheckDate := False;
-    end;
-  end;
-  if CheckDate then
-    {$IFNDEF RX_D10}
-    if FileDateToDateTime(FileAge(FileTarget)) >= FileSourceDate then
-      Result := False;
-  {$ELSE}
-    if FileAge(FileTarget, FileTargetFileDateTime) then
-      if FileTargetFileDateTime >= FileSourceDate then
-        Result := False;
-  {$ENDIF}
-end;
-
-function IsEqualVersions(const FileSource, FileTarget: string): Boolean;
-var
-  hs, ls, ht, lt: DWORD;
-  {$IFDEF RX_D10}
-  FileTargetFileDateTime: TDateTime;
-  FileSourceFileDateTime: TDateTime;
-  {$ENDIF}
-begin
-  Result := False;
-  if not FileExists(FileTarget) then Exit;
-  if GetFileVersion(FileSource, hs, ls) and GetFileVersion(FileTarget, ht, lt) then
-  begin
-    if (ht = hs) and (lt = ls) then Result := True;
-  end
-  else
-    {$IFNDEF RX_D10}
-    if FileDateToDateTime(FileAge(FileTarget)) = FileDateToDateTime(FileAge(FileSource)) then
-      Result := True;
-    {$ELSE}
-    if FileAge(FileTarget, FileTargetFileDateTime) and FileAge(FileSource, FileSourceFileDateTime) then
-      if FileTargetFileDateTime = FileSourceFileDateTime then
-        Result := True;
-    {$ENDIF}
-end;
-
-function IsEqualVersions2(FileSourceDate: TDateTime; const FileSourceVer: string;
-  const FileTarget: string): Boolean;
-var
-  hs, ls, ht, lt: DWORD;
-  CheckDate: Boolean;
-  {$IFDEF RX_D10}
-  FileTargetFileDateTime: TDateTime;
-  {$ENDIF}
-begin
-  Result := False;
-  if not FileExists(FileTarget) then Exit;
-  CheckDate := True;
-  if FileSourceVer <> '' then
-  begin
-    hs := (StrToIntDef(ExtractWord(1, FileSourceVer, ['.']), 0) shl 16) +
-      StrToIntDef(ExtractWord(2, FileSourceVer, ['.']), 0);
-    ls := (StrToIntDef(ExtractWord(3, FileSourceVer, ['.']), 0) shl 16) +
-      StrToIntDef(ExtractWord(4, FileSourceVer, ['.']), 0);
-    if GetFileVersion(FileTarget, ht, lt) then
-    begin
-      if (ht = hs) and (lt = ls) then
-        Result := True;
-      CheckDate := False;
-    end;
-  end;
-  if CheckDate then
-    {$IFNDEF RX_D10}
-    if FileDateToDateTime(FileAge(FileTarget)) = FileSourceDate then
-      Result := True;
-    {$ELSE}
-    if FileAge(FileTarget, FileTargetFileDateTime) then
-      if FileTargetFileDateTime = FileSourceDate then
-        Result := True;
-    {$ENDIF}
 end;
 
 end.

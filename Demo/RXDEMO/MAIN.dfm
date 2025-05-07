@@ -1,14 +1,14 @@
 object MainForm: TMainForm
   Left = 216
   Top = 101
-  Width = 432
-  Height = 201
+  Width = 440
+  Height = 243
   Caption = 'RX Library Demo Program'
   Color = clAppWorkSpace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
-  Font.Name = 'Tahoma'
+  Font.Name = 'MS Sans Serif'
   Font.Style = []
   FormStyle = fsMDIForm
   Icon.Data = {
@@ -46,8 +46,8 @@ object MainForm: TMainForm
   TextHeight = 13
   object StatusPanel: TPanel
     Left = 0
-    Top = 127
-    Width = 424
+    Top = 177
+    Width = 432
     Height = 20
     Align = alBottom
     Caption = 'StatusPanel'
@@ -55,7 +55,7 @@ object MainForm: TMainForm
     object MessagePanel: TPanel
       Left = 1
       Top = 1
-      Width = 252
+      Width = 260
       Height = 18
       Align = alClient
       Alignment = taLeftJustify
@@ -64,7 +64,7 @@ object MainForm: TMainForm
       TabOrder = 0
     end
     object Panel1: TPanel
-      Left = 253
+      Left = 261
       Top = 1
       Width = 6
       Height = 18
@@ -74,7 +74,7 @@ object MainForm: TMainForm
       TabOrder = 1
     end
     object ProgressPanel: TPanel
-      Left = 259
+      Left = 267
       Top = 1
       Width = 164
       Height = 18
@@ -102,12 +102,12 @@ object MainForm: TMainForm
   object Toolbar: TSpeedBar
     Left = 0
     Top = 0
-    Width = 424
+    Width = 432
     Height = 56
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clBtnText
     Font.Height = -11
-    Font.Name = 'Tahoma'
+    Font.Name = 'MS Sans Serif'
     Font.Style = []
     Options = [sbAllowDrag, sbAllowResize, sbFlatBtns, sbGrayedBtns, sbTransparentBtns]
     BtnOffsetHorz = 8

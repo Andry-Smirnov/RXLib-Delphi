@@ -1,12 +1,13 @@
 {*******************************************************}
 {                                                       }
-{     Delphi VCL Extensions (RX)                        }
+{         Delphi VCL Extensions (RX)                    }
 {                                                       }
-{     Copyright (c) 1997 Master-Bank                    }
-{     Copyright (c) 1998 Ritting Information Systems    }
+{         Copyright (c) 2001,2002 SGB Software          }
+{         Copyright (c) 1997, 1998 Fedor Koshevnikov,   }
+{                        Igor Pavluk and Serge Korolev  }
 {                                                       }
-{ Patched by Polaris Software                           }
 {*******************************************************}
+
 
 unit RxGrdCpt;
 
@@ -14,13 +15,10 @@ unit RxGrdCpt;
 
 interface
 
-{$IFNDEF VER80}
+{$IFDEF WIN32}
 
-uses
-  Windows, Messages, Classes, Graphics, Controls, Forms, Dialogs, Menus, 
-  {$IFDEF RX_D6}Types,{$ENDIF}
-  {$IFDEF RX_D16}System.UITypes,{$ENDIF}
-  RxHook, RxVclUtils, RxMaxMin;
+uses Windows, Messages, Classes, Graphics, Controls, Forms, Dialogs, Menus,
+  RxHook, VclUtils;
 
 type
   THideDirection = (hdLeftToRight, hdRightToLeft);
@@ -179,13 +177,13 @@ type
 function GradientFormCaption(AForm: TCustomForm;
   AStartColor: TColor): TRxGradientCaption;
 
-{$ENDIF}
+{$ENDIF WIN32}
 
 implementation
 
-{$IFNDEF VER80}
+{$IFDEF WIN32}
 
-uses SysUtils, {$IFDEF RX_D5}RxAppUtils{$ELSE}AppUtils{$ENDIF};  // Polaris
+uses SysUtils, AppUtils;
 
 function GradientFormCaption(AForm: TCustomForm;
   AStartColor: TColor): TRxGradientCaption;
@@ -510,7 +508,7 @@ begin
           Handle := CreateFontIndirect(NCMetrics.lfCaptionFont);
       end
       else begin
-        Name := {$IFDEF RX_D6}'Tahoma'{$ELSE}'MS Sans Serif'{$ENDIF};
+        Name := 'MS Sans Serif';
         Size := 8;
         Style := [fsBold];
       end;
@@ -836,24 +834,18 @@ var
     Text: string;
     Flags: Longint;
   begin
-    if Length(S) > 0 then
-    begin
+    if Length(S) > 0 then begin
       Text := MinimizeText(S, Image.Canvas, R.Right - R.Left);
-      if GlueNext and (Text = S) then
-      begin
-        if (Image.Canvas.TextWidth(Text + '.') >= R.Right - R.Left) then
-        begin
+      if GlueNext and (Text = S) then begin
+        if (Image.Canvas.TextWidth(Text + '.') >= R.Right - R.Left) then begin
           if GluePrev then Text := Points
           else Text := Text + Points;
         end;
       end;
-      if (Text <> Points) or GluePrev then
-      begin
-        if (Text = Points) and GluePrev then
-        begin
+      if (Text <> Points) or GluePrev then begin
+        if (Text = Points) and GluePrev then begin
           SetCaptionFont(-1);
-          if PrevIndex > 0 then
-          begin
+          if PrevIndex > 0 then begin
             if FWindowActive then
               Image.Canvas.Font.Color := Captions[PrevIndex].Font.Color
             else
@@ -1090,6 +1082,6 @@ begin
   end;
 end;
 
-{$ENDIF}
+{$ENDIF WIN32}
 
 end.

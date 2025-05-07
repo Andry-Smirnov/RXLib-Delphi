@@ -14,7 +14,7 @@ unit EditPict;
 interface
 
 uses WinTypes, WinProcs, Classes, Graphics, Forms, Controls, Buttons, Dialogs,
-  StdCtrls, ExtCtrls, RxPlacemnt, DBCtrls, DB, Menus
+  StdCtrls, ExtCtrls, Placemnt, DBCtrls, DB, Menus
   {$IFDEF RX_D3}, ExtDlgs, ComCtrls {$ENDIF};
 
 type

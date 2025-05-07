@@ -10,7 +10,7 @@ object AboutForm: TAboutForm
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
-  Font.Name = 'Tahoma'
+  Font.Name = 'MS Sans Serif'
   Font.Style = []
   OldCreateOrder = True
   Position = poScreenCenter
@@ -145,8 +145,11 @@ object AboutForm: TAboutForm
       DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD
       DDDDDDDDDDDDDDDD0000}
     GlyphLayout = glGlyphTop
-    Interval = 10
     Lines.Strings = (
+      ''
+      ''
+      ''
+      ''
       'Delphi VCL Extensions'
       '(RX) Library'
       ''
@@ -156,7 +159,8 @@ object AboutForm: TAboutForm
       'Igor V.Pavluk'
       'Serge V.Korolev'
       ''
-      #169' 1995, 1998')
+      #169' 1995,1998'
+      '')
     Align = alClient
     BevelOuter = bvNone
     Font.Charset = DEFAULT_CHARSET
@@ -164,34 +168,32 @@ object AboutForm: TAboutForm
     Font.Height = -13
     Font.Name = 'Times New Roman'
     Font.Style = [fsBold]
-    ParentColor = True
     ParentFont = False
     TabOrder = 0
-    OnPaintClient = SecretPanel1PaintClient
     OnDblClick = SecretPanel1DblClick
     object Label2: TLabel
       Left = 13
       Top = 63
-      Width = 184
+      Width = 182
       Height = 13
       Caption = ' Copyright '#169' AO ROSNO 1995, 1996  '
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
-      Font.Name = 'Tahoma'
+      Font.Name = 'MS Sans Serif'
       Font.Style = []
       ParentFont = False
     end
     object Label1: TLabel
       Left = 13
       Top = 47
-      Width = 112
+      Width = 65
       Height = 13
-      Caption = ' Version 2.75 unofficial '
+      Caption = ' Version 2.50 '
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
-      Font.Name = 'Tahoma'
+      Font.Name = 'MS Sans Serif'
       Font.Style = []
       ParentFont = False
     end
@@ -214,11 +216,11 @@ object AboutForm: TAboutForm
       Hint = 'RX Library Web Site|'
       Alignment = taCenter
       AutoSize = False
-      Caption = 'Delphi VCL Extensions (RX) Library Demo'
+      Caption = 'Delphi VCL Extensions Library (RX) Demo'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
-      Font.Name = 'Tahoma'
+      Font.Name = 'MS Sans Serif'
       Font.Style = [fsBold]
       ParentFont = False
       ParentShowHint = False
@@ -232,13 +234,13 @@ object AboutForm: TAboutForm
     object Label3: TLabel
       Left = 13
       Top = 79
-      Width = 190
+      Width = 185
       Height = 13
       Caption = ' Copyright '#169' Master-Bank 1997, 1998  '
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
-      Font.Name = 'Tahoma'
+      Font.Name = 'MS Sans Serif'
       Font.Style = []
       ParentFont = False
     end
@@ -260,7 +262,7 @@ object AboutForm: TAboutForm
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
-      Font.Name = 'Tahoma'
+      Font.Name = 'MS Sans Serif'
       Font.Style = []
       ParentFont = False
     end
@@ -271,11 +273,11 @@ object AboutForm: TAboutForm
       Height = 13
       Alignment = taCenter
       AutoSize = False
-      Caption = 'Web: http://www.rxlib.com'
+      Caption = 'Web: http://rx.demo.ru'
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
-      Font.Name = 'Tahoma'
+      Font.Name = 'MS Sans Serif'
       Font.Style = []
       ParentFont = False
     end
@@ -290,7 +292,7 @@ object AboutForm: TAboutForm
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
-      Font.Name = 'Tahoma'
+      Font.Name = 'MS Sans Serif'
       Font.Style = []
       ParentFont = False
       WordWrap = True
@@ -306,7 +308,7 @@ object AboutForm: TAboutForm
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
-      Font.Name = 'Tahoma'
+      Font.Name = 'MS Sans Serif'
       Font.Style = []
       ModalResult = 1
       ParentFont = False

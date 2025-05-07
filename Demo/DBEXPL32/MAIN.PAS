@@ -9,14 +9,12 @@
 
 unit Main;
 
-{$I RX.INC}
-
 interface
 
 uses Windows, SysUtils, Classes, Graphics, Forms, Controls, Menus,
-  StdCtrls, Dialogs, Buttons, Messages, ExtCtrls, RxDbPrgrss, RxPlacemnt,
-  DB, DBTables, DBCtrls, RxSpeedBar, RXDBCtrl, RxDBSecur, RXShell, RxAppEvent,
-  RxMRUList, ComCtrls, RXCtrls;
+  StdCtrls, Dialogs, Buttons, Messages, ExtCtrls, DbPrgrss, Placemnt,
+  DB, DBTables, DBCtrls, SpeedBar, RXDBCtrl, DBSecur, RXShell, AppEvent,
+  MRUList, ComCtrls, RXCtrls;
 
 type
   TDBExplorerMainForm = class(TForm)
@@ -166,11 +164,6 @@ type
     procedure PrintDataClick(Sender: TObject);
   private
     { Private declarations }
-{$IFDEF RX_D4}
-    FPrevClientProc: TFarProc;
-    FClientInstance: TFarProc;
-    procedure ClientWndProc(var Message: TMessage);
-{$ENDIF RX_D4}
     procedure CreateMDIChild(const AName: string);
     procedure DatabaseLogin(Database: TDatabase; LoginParams: TStrings);
   protected
@@ -180,7 +173,6 @@ type
     procedure ApplyOptions;
     procedure UpdateMenus;
     procedure SetSQLTrace(Value: Boolean);
-    procedure ShowEdge;
   end;
 
 var
@@ -190,9 +182,9 @@ implementation
 
 {$R *.DFM}
 
-uses DBInpReq, DBCbRest, SQLMon, Bde, RxVCLUtils, ChildWin, OpenDlg,
-  RxAppUtils, RxDBUtils, IniFiles, RxLoginDlg, RenDlg, About, Options, OptDlg,
-  RxBdeUtils, BdeProp, UserHelp, RxHints;
+uses DBInpReq, DBCbRest, SQLMon, Bde, VCLUtils, ChildWin, OpenDlg, 
+  AppUtils, DBUtils, IniFiles, LoginDlg, RenDlg, About, Options, OptDlg,
+  BdeUtils, BdeProp, UserHelp, RxHints;
 
 const
   SEmptyWarning = 'Table %s will be emptied. All data will be lost. Continue?';
@@ -201,45 +193,14 @@ const
 
 { TMainForm }
 
-procedure TDBExplorerMainForm.ShowEdge;
-begin
-  ShowMDIClientEdge(ClientHandle, True);
-end;
-
 procedure TDBExplorerMainForm.CreateWnd;
 begin
   inherited CreateWnd;
-  ShowEdge;
-{$IFDEF RX_D4}
-  if ClientHandle <> 0 then begin
-    FClientInstance := MakeObjectInstance(ClientWndProc);
-    FPrevClientProc := Pointer(GetWindowLong(ClientHandle, GWL_WNDPROC));
-    SetWindowLong(ClientHandle, GWL_WNDPROC, Longint(FClientInstance));
+  if (ClientHandle <> 0) and NewStyleControls then begin
+    SetWindowLong(ClientHandle, GWL_EXSTYLE, WS_EX_CLIENTEDGE or
+      GetWindowLong(ClientHandle, GWL_EXSTYLE));
   end;
-{$ENDIF}
 end;
-
-{$IFDEF RX_D4} {!! Do not hide MDI client edge }
-procedure TDBExplorerMainForm.ClientWndProc(var Message: TMessage);
-  procedure Default;
-  begin
-    with Message do
-      Result := CallWindowProc(FPrevClientProc, ClientHandle, Msg, wParam, lParam);
-  end;
-begin
-  if (Message.Msg = $3F) and (FormStyle = fsMDIForm) then begin
-    SetDesigning(True);
-    FormStyle := fsNormal;
-    try
-      Default;
-    finally
-      FormStyle := fsMDIForm;
-      SetDesigning(False);
-    end;
-  end
-  else Default;
-end;
-{$ENDIF}
 
 procedure TDBExplorerMainForm.ApplyOptions;
 var

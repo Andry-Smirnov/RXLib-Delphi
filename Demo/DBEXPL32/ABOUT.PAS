@@ -2,12 +2,12 @@
 {                                                       }
 {     Delphi VCL Extensions (RX) demo program           }
 {                                                       }
-{     Copyright (c) 1997, 1998 Master-Bank              }
+{     Copyright (c) 1997 Master-Bank                    }
 {                                                       }
 {*******************************************************}
 
 unit About;
-
+{$J+}
 interface
 
 uses
@@ -42,7 +42,7 @@ const
 
 implementation
 
-uses RxVerInf, RxConst, RxVclUtils;
+uses RXVERINF, RxConst, VclUtils;
 
 {$R *.DFM}
 
@@ -58,21 +58,21 @@ end;
 
 procedure TAboutDlg.FormCreate(Sender: TObject);
 const
-{$IFNDEF VER80}
+{$IFDEF WIN32}
   sFreeMem = 'Physical memory:        %s K';
 {$ELSE}
   sFreeMem = 'Available memory:       %s K';
 {$ENDIF}
 var
   Mem: Longint;
-{$IFNDEF VER80}
+{$IFDEF WIN32}
   MemStatus: TMemoryStatus;
 {$ENDIF}
 begin
   Image1.Cursor := crHand;
   VersionLabel.Caption := Format(VersionLabel.Caption, [SDbxVersion]);
   WinVer.Caption := GetWindowsVersion;
-{$IFNDEF VER80}
+{$IFDEF WIN32}
   MemStatus.dwLength := SizeOf(TMemoryStatus);
   GlobalMemoryStatus(MemStatus);
   Mem := MemStatus.dwTotalPhys;
@@ -88,21 +88,18 @@ begin
   SecretPanel.Active := not SecretPanel.Active;
 end;
 
-const
-  DefVersion = '1.6';
-
 initialization
-{$IFNDEF VER80}
+{$IFDEF WIN32}
   with TVersionInfo.Create(Application.ExeName) do
   try
     if Valid then
       SDbxVersion := Format('%d.%d', [FileLongVersion.All[2],
         FileLongVersion.All[1]])
-    else SDbxVersion := DefVersion;
+    else SDbxVersion := '1.0';
   finally
     Free;
   end;
 {$ELSE}
-  SDbxVersion := DefVersion;
+  SDbxVersion := '1.6';
 {$ENDIF}
 end.

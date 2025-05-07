@@ -2,23 +2,22 @@
 {                                                       }
 {         Delphi VCL Extensions (RX)                    }
 {                                                       }
-{         Copyright (c) 1995 AO ROSNO                   }
-{         Copyright (c) 1997, 1998 Master-Bank          }
+{         Copyright (c) 2001,2002 SGB Software          }
+{         Copyright (c) 1997, 1998 Fedor Koshevnikov,   }
+{                        Igor Pavluk and Serge Korolev  }
 {                                                       }
-{ Patched by Polaris Software                           }
 {*******************************************************}
 
-unit RxDice;
+
+unit RXDice;
 
 interface
 
 {$I RX.INC}
 
-uses
-  SysUtils, {$IFNDEF VER80}Windows, {$ELSE}WinTypes, WinProcs, {$ENDIF}
+uses SysUtils, {$IFDEF WIN32} Windows, {$ELSE} WinTypes, WinProcs, {$ENDIF}
   Classes, Graphics, Messages, Controls, Forms, StdCtrls, ExtCtrls, Menus,
-  {$IFDEF RX_D16}System.UITypes, {$ENDIF}
-  RxTimer, RxVCLUtils;
+  RxTimer, VCLUtils;
 
 type
   TRxDiceValue = 1..6;
@@ -37,16 +36,13 @@ type
     FRotate: Boolean;
     FShowFocus: Boolean;
     FTimer: TRxTimer;
-    FTickCount: LongInt;
+    FTickCount: Longint;
     FValue: TRxDiceValue;
     FOnStart: TNotifyEvent;
     FOnStop: TNotifyEvent;
     procedure CMFocusChanged(var Message: TCMFocusChanged); message CM_FOCUSCHANGED;
     procedure WMSize(var Message: TWMSize); message WM_SIZE;
     procedure CreateBitmap;
-    {$IFNDEF RX_D6} // Polaris
-    procedure SetAutoSize(Value: Boolean);
-    {$ENDIF}
     procedure SetInterval(Value: Cardinal);
     procedure SetRotate(Value: Boolean);
     procedure SetShowFocus(Value: Boolean);
@@ -54,9 +50,7 @@ type
     procedure TimerExpired(Sender: TObject);
   protected
     { Protected declarations }
-    {$IFDEF RX_D6} // Polaris
     procedure SetAutoSize(Value: Boolean); override;
-    {$ENDIF}
     function GetPalette: HPALETTE; override;
     procedure AdjustSize; {$IFDEF RX_D4} override; {$ENDIF}
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState;
@@ -87,11 +81,11 @@ type
     property Rotate: Boolean read FRotate write SetRotate;
     property ShowFocus: Boolean read FShowFocus write SetShowFocus;
     property ShowHint;
-    {$IFDEF RX_D4}
+{$IFDEF RX_D4}
     property Anchors;
     property Constraints;
     property DragKind;
-    {$ENDIF}
+{$ENDIF}
     property TabOrder;
     property TabStop;
     property Value: TRxDiceValue read FValue write SetValue default 1;
@@ -109,31 +103,32 @@ type
     property OnDragOver;
     property OnDragDrop;
     property OnEndDrag;
-    {$IFNDEF VER80}
+{$IFDEF WIN32}
     property OnStartDrag;
-    {$ENDIF}
-    {$IFDEF RX_D5}
+{$ENDIF}
+{$IFDEF RX_D5}
     property OnContextPopup;
-    {$ENDIF}
+{$ENDIF}
     property OnChange: TNotifyEvent read FOnChange write FOnChange;
     property OnStart: TNotifyEvent read FOnStart write FOnStart;
     property OnStop: TNotifyEvent read FOnStop write FOnStop;
-    {$IFDEF RX_D4}
+{$IFDEF RX_D4}
     property OnEndDock;
     property OnStartDock;
-    {$ENDIF}
-    {$IFDEF RX_D9}
-    property OnMouseActivate;
-    {$ENDIF}
+{$ENDIF}
   end;
 
 implementation
 
-{$R *.RES}
+{$IFDEF WIN32}
+ {$R *.R32}
+{$ELSE}
+ {$R *.R16}
+{$ENDIF}
 
 const
-  ResName: array[TRxDiceValue] of PChar =
-  ('DICE1', 'DICE2', 'DICE3', 'DICE4', 'DICE5', 'DICE6');
+  ResName: array [TRxDiceValue] of PChar =
+   ('DICE1', 'DICE2', 'DICE3', 'DICE4', 'DICE5', 'DICE6');
 
 { TRxDice }
 
@@ -160,10 +155,8 @@ end;
 
 function TRxDice.GetPalette: HPALETTE;
 begin
-  if FBitmap <> nil then
-    Result := FBitmap.Palette
-  else
-    Result := 0;
+  if FBitmap <> nil then Result := FBitmap.Palette
+  else Result := 0;
 end;
 
 procedure TRxDice.RandomValue;
@@ -171,12 +164,9 @@ var
   Val: Byte;
 begin
   Val := Random(6) + 1;
-  if Val = Byte(FValue) then
-  begin
-    if Val = 1 then
-      Inc(Val)
-    else
-      Dec(Val);
+  if Val = Byte(FValue) then begin
+    if Val = 1 then Inc(Val)
+    else Dec(Val);
   end;
   SetValue(TRxDiceValue(Val));
 end;
@@ -195,10 +185,8 @@ procedure TRxDice.CMFocusChanged(var Message: TCMFocusChanged);
 var
   Active: Boolean;
 begin
-  with Message do
-    Active := (Sender = Self);
-  if Active <> FActive then
-  begin
+  with Message do Active := (Sender = Self);
+  if Active <> FActive then begin
     FActive := Active;
     if FShowFocus then Invalidate;
   end;
@@ -208,9 +196,9 @@ end;
 procedure TRxDice.WMSize(var Message: TWMSize);
 begin
   inherited;
-  {$IFNDEF RX_D4}
+{$IFNDEF RX_D4}
   AdjustSize;
-  {$ENDIF}
+{$ENDIF}
 end;
 
 procedure TRxDice.CreateBitmap;
@@ -223,13 +211,11 @@ procedure TRxDice.AdjustSize;
 var
   MinSide: Integer;
 begin
-  if not (csReading in ComponentState) then
-  begin
+  if not (csReading in ComponentState) then begin
     if AutoSize and Assigned(FBitmap) and (FBitmap.Width > 0) and
       (FBitmap.Height > 0) then
-      SetBounds(Left, Top, FBitmap.Width + 2, FBitmap.Height + 2)
-    else
-    begin
+        SetBounds(Left, Top, FBitmap.Width + 2, FBitmap.Height + 2)
+    else begin
       { Adjust aspect ratio if control size changed }
       MinSide := Width;
       if Height < Width then MinSide := Height;
@@ -283,27 +269,27 @@ end;
 procedure TRxDice.TimerExpired(Sender: TObject);
 var
   ParentForm: TCustomForm;
-  Now: LongInt;
+  Now: Longint;
 begin
   RandomValue;
-  if not FRotate then
-  begin
+  if not FRotate then begin
     FTimer.Free;
     FTimer := nil;
-    if (csDesigning in ComponentState) then
-    begin
+    if (csDesigning in ComponentState) then begin
       ParentForm := GetParentForm(Self);
       if ParentForm <> nil then ParentForm.Designer.Modified;
     end;
     DoStop;
   end
-  else
-    if AutoStopInterval > 0 then
-    begin
-      Now := GetTickCount;
-      if (Now - FTickCount >= {$IFDEF RX_D4}Integer{$ENDIF}(AutoStopInterval)) or (Now < FTickCount) then
-        Rotate := False;
-    end;
+  else if AutoStopInterval > 0 then begin
+    Now := GetTickCount;
+{$IFDEF RX_D4}
+    if (Now - FTickCount >= Integer(AutoStopInterval))
+{$ELSE}
+    if (Now - FTickCount >= AutoStopInterval)
+{$ENDIF}
+      or (Now < FTickCount) then Rotate := False;
+  end;
 end;
 
 procedure TRxDice.Change;
@@ -313,8 +299,7 @@ end;
 
 procedure TRxDice.SetValue(Value: TRxDiceValue);
 begin
-  if FValue <> Value then
-  begin
+  if FValue <> Value then begin
     FValue := Value;
     CreateBitmap;
     Invalidate;
@@ -324,18 +309,15 @@ end;
 
 procedure TRxDice.SetAutoSize(Value: Boolean);
 begin
-  if Value <> FAutoSize then
-  begin
-    FAutoSize := Value;
-    AdjustSize;
-    Invalidate;
-  end;
+  inherited SetAutoSize(Value);
+  FAutoSize := Value;
+  AdjustSize;
+  Invalidate;
 end;
 
 procedure TRxDice.SetInterval(Value: Cardinal);
 begin
-  if FInterval <> Value then
-  begin
+  if FInterval <> Value then begin
     FInterval := Value;
     if FTimer <> nil then FTimer.Interval := FInterval;
   end;
@@ -343,14 +325,11 @@ end;
 
 procedure TRxDice.SetRotate(Value: Boolean);
 begin
-  if FRotate <> Value then
-  begin
-    if Value then
-    begin
+  if FRotate <> Value then begin
+    if Value then begin
       if FTimer = nil then FTimer := TRxTimer.Create(Self);
       try
-        with FTimer do
-        begin
+        with FTimer do begin
           OnTimer := TimerExpired;
           Interval := FInterval;
           Enabled := True;
@@ -364,18 +343,13 @@ begin
         raise;
       end;
     end
-    else
-    begin
-      if Assigned(FTimer) then FTimer.Enabled := False;
-      FRotate := Value;
-    end;
+    else FRotate := Value;
   end;
 end;
 
 procedure TRxDice.SetShowFocus(Value: Boolean);
 begin
-  if FShowFocus <> Value then
-  begin
+  if FShowFocus <> Value then begin
     FShowFocus := Value;
     if not (csDesigning in ComponentState) then Invalidate;
   end;

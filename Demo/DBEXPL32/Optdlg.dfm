@@ -5,13 +5,11 @@ object OptionsDialog: TOptionsDialog
   Caption = 'DB Explorer Options'
   ClientHeight = 312
   ClientWidth = 345
-  Color = clBtnFace
-  Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   Font.Style = []
-  OldCreateOrder = True
+  Position = poDefaultPosOnly
   OnCreate = FormCreate
   OnShow = FormShow
   PixelsPerInch = 96
@@ -52,7 +50,6 @@ object OptionsDialog: TOptionsDialog
     Top = 4
     Width = 335
     Height = 270
-    TabFont.Charset = DEFAULT_CHARSET
     TabFont.Color = clBtnText
     TabFont.Height = -11
     TabFont.Name = 'MS Sans Serif'
@@ -303,7 +300,7 @@ object OptionsDialog: TOptionsDialog
           AutoSize = False
           DecimalPlaces = 0
           DisplayFormat = '0'
-          MaxValue = 200.000000000000000000
+          MaxValue = 200
           TabOrder = 0
           OnChange = OptionsChanged
         end
@@ -321,7 +318,6 @@ object OptionsDialog: TOptionsDialog
           Top = 53
           Width = 206
           Height = 49
-          Font.Charset = DEFAULT_CHARSET
           Font.Color = clWindowText
           Font.Height = -11
           Font.Name = 'Courier'
@@ -340,9 +336,12 @@ object OptionsDialog: TOptionsDialog
           Width = 15
           Height = 21
           Associate = MaxHistoryEdit
+          Min = 0
           Max = 200
+          Position = 0
           TabOrder = 3
           Thousands = False
+          Wrap = False
           OnChanging = UpDownChanging
         end
       end
@@ -552,10 +551,10 @@ object OptionsDialog: TOptionsDialog
         AutoSize = False
         DecimalPlaces = 0
         DisplayFormat = ',0.##'
-        MaxValue = 2147483647.000000000000000000
-        MinValue = 32.000000000000000000
+        MaxValue = 2147483647
+        MinValue = 32
         TabOrder = 1
-        Value = 256.000000000000000000
+        Value = 256
         OnChange = OptionsChanged
       end
     end
@@ -669,7 +668,6 @@ object OptionsDialog: TOptionsDialog
           Width = 277
           Height = 17
           Caption = 'Show restructure and batch operations warnings '
-          Checked = True
           State = cbChecked
           TabOrder = 0
           OnClick = OptionsChanged
@@ -678,7 +676,6 @@ object OptionsDialog: TOptionsDialog
     end
   end
   object FormStorage: TFormStorage
-    StoredValues = <>
     Left = 212
     Top = 6
   end
@@ -694,12 +691,13 @@ object OptionsDialog: TOptionsDialog
     Top = 6
   end
   object FontDialog: TFontDialog
-    Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -11
     Font.Name = 'Courier'
     Font.Pitch = fpFixed
     Font.Style = []
+    MinFontSize = 0
+    MaxFontSize = 0
     Options = [fdFixedPitchOnly]
     Left = 240
     Top = 6

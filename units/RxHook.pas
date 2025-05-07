@@ -2,9 +2,10 @@
 {                                                       }
 {         Delphi VCL Extensions (RX)                    }
 {                                                       }
-{         Copyright (c) 1997 Master-Bank                }
+{         Copyright (c) 2001,2002 SGB Software          }
+{         Copyright (c) 1997, 1998 Fedor Koshevnikov,   }
+{                        Igor Pavluk and Serge Korolev  }
 {                                                       }
-{ Patched by Polaris Software                           }
 {*******************************************************}
 
 unit RxHook;
@@ -14,8 +15,7 @@ unit RxHook;
 
 interface
 
-uses {$IFNDEF VER80} Windows, {$ELSE} WinTypes, WinProcs, {$ENDIF}
-  {$IFDEF RX_D6}Types,{$ENDIF}
+uses {$IFDEF WIN32} Windows, {$ELSE} WinTypes, WinProcs, {$ENDIF}
   Messages, SysUtils, Classes, Controls, Forms, RxConst;
 
 type
@@ -130,7 +130,7 @@ constructor TControlHook.Create;
 begin
   inherited Create;
   FList := TList.Create;
-  FNewWndProc := {$IFDEF RX_D6}Classes.{$ENDIF}MakeObjectInstance(HookWndProc);  // Polaris
+  FNewWndProc := Classes.MakeObjectInstance(HookWndProc);
   FPrevWndProc := nil;
   FControl := nil;
 end;
@@ -143,7 +143,7 @@ begin
   while FList.Count > 0 do RemoveHook(TRxWindowHook(FList.Last));
   FControl := nil;
   FList.Free;
-  {$IFDEF RX_D6}Classes.{$ENDIF}FreeObjectInstance(FNewWndProc);  // Polaris
+  Classes.FreeObjectInstance(FNewWndProc);
   FNewWndProc := nil;
   inherited Destroy;
 end;
@@ -172,8 +172,7 @@ var
 begin
   if (FList.Count > 0) and Assigned(FControl) and
     not (FDestroying or (csDestroying in FControl.ComponentState)) then
-    for I := FList.Count - 1 downto 0 do
-    begin
+    for I := FList.Count - 1 downto 0 do begin
       try
         if Order = hoBeforeMsg then
           TRxWindowHook(FList[I]).DoBeforeMessage(Msg, Handled)
@@ -195,8 +194,7 @@ begin
   begin
     FControl.HandleNeeded;
     P := Pointer(GetWindowLong(FControl.Handle, GWL_WNDPROC));
-    if (P <> FNewWndProc) then
-    begin
+    if (P <> FNewWndProc) then begin
       FPrevWndProc := P;
       SetWindowLong(FControl.Handle, GWL_WNDPROC, LongInt(FNewWndProc));
     end;
@@ -218,11 +216,9 @@ var
   Handled: Boolean;
 begin
   Handled := False;
-  if Assigned(FControl) then
-  begin
+  if Assigned(FControl) then begin
     if (AMsg.Msg <> WM_QUIT) then NotifyHooks(hoBeforeMsg, AMsg, Handled);
-    with AMsg do
-    begin
+    with AMsg do begin
       if (not Handled) or (Msg = WM_DESTROY) then
         try
           if Assigned(FPrevWndProc) then
@@ -234,8 +230,7 @@ begin
         finally
           NotifyHooks(hoAfterMsg, AMsg, Handled);
         end;
-      if Msg = WM_DESTROY then
-      begin
+      if Msg = WM_DESTROY then begin
         UnhookControl;
         if Assigned(HookList) and not (FDestroying or
           (csDestroying in FControl.ComponentState)) then
@@ -247,8 +242,7 @@ end;
 
 procedure TControlHook.SetWinControl(Value: TWinControl);
 begin
-  if Value <> FControl then
-  begin
+  if Value <> FControl then begin
     UnhookControl;
     FControl := Value;
     if FList.Count > 0 then HookControl;
@@ -260,13 +254,13 @@ end;
 constructor THookList.Create;
 begin
   inherited Create;
-  FHandle := {$IFDEF RX_D6}Classes.{$ENDIF}AllocateHWnd(WndProc);  // Polaris
+  FHandle := Classes.AllocateHWnd(WndProc);
 end;
 
 destructor THookList.Destroy;
 begin
   while Count > 0 do TControlHook(Last).Free;
-  {$IFDEF RX_D6}Classes.{$ENDIF}DeallocateHWnd(FHandle);  // Polaris
+  Classes.DeallocateHWnd(FHandle);
   inherited Destroy;
 end;
 
@@ -275,16 +269,13 @@ var
   Hook: TControlHook;
 begin
   try
-    with Msg do
-    begin
-      if Msg = CM_RECREATEWINDOW then
-      begin
+    with Msg do begin
+      if Msg = CM_RECREATEWINDOW then begin
         Hook := TControlHook(LParam);
         if (Hook <> nil) and (IndexOf(Hook) >= 0) then
           Hook.HookControl;
       end
-      else if Msg = CM_DESTROYHOOK then
-      begin
+      else if Msg = CM_DESTROYHOOK then begin
         Hook := TControlHook(LParam);
         if Assigned(Hook) and (IndexOf(Hook) >= 0) and
           (Hook.FList.Count = 0) then Hook.Free;
@@ -302,8 +293,7 @@ var
 begin
   if Assigned(AControl) then
     for I := 0 to Count - 1 do
-      if (TControlHook(Items[I]).WinControl = AControl) then
-      begin
+      if (TControlHook(Items[I]).WinControl = AControl) then begin
         Result := TControlHook(Items[I]);
         Exit;
       end;
@@ -313,8 +303,7 @@ end;
 function THookList.GetControlHook(AControl: TWinControl): TControlHook;
 begin
   Result := FindControlHook(AControl);
-  if Result = nil then
-  begin
+  if Result = nil then begin
     Result := TControlHook.Create;
     try
       Add(Result);
@@ -351,7 +340,7 @@ function TRxWindowHook.GetHookHandle: HWnd;
 begin
   if Assigned(HookList) then Result := HookList.Handle
   else
-{$IFNDEF VER80}
+{$IFDEF WIN32}
     Result := INVALID_HANDLE_VALUE;
 {$ELSE}
     Result := 0;
@@ -401,7 +390,7 @@ begin
 end;
 
 procedure TRxWindowHook.DefineProperties(Filer: TFiler);
-{$IFNDEF VER80}
+{$IFDEF WIN32}
   function DoWrite: Boolean;
   begin
     if Assigned(Filer.Ancestor) then
@@ -412,7 +401,7 @@ procedure TRxWindowHook.DefineProperties(Filer: TFiler);
 begin
   inherited DefineProperties(Filer);
   Filer.DefineProperty('IsForm', ReadForm, WriteForm,
-    {$IFNDEF VER80} DoWrite {$ELSE} IsForm {$ENDIF});
+    {$IFDEF WIN32} DoWrite {$ELSE} IsForm {$ENDIF});
 end;
 
 function TRxWindowHook.GetWinControl: TWinControl;
@@ -436,9 +425,8 @@ begin
   inherited Notification(AComponent, Operation);
   if (AComponent = WinControl) and (Operation = opRemove) then
     WinControl := nil
-  else
-    if (Operation = opRemove) and ((Owner = AComponent) or (Owner = nil)) then
-      WinControl := nil;
+  else if (Operation = opRemove) and ((Owner = AComponent) or
+    (Owner = nil)) then WinControl := nil;
 end;
 
 procedure TRxWindowHook.SetWinControl(Value: TWinControl);
@@ -446,12 +434,11 @@ var
   SaveActive: Boolean;
   Hook: TControlHook;
 begin
-  if Value <> WinControl then
-  begin
+  if Value <> WinControl then begin
     SaveActive := FActive;
     Hook := TControlHook(DoUnhookControl);
     FControl := Value;
-{$IFNDEF VER80}
+{$IFDEF WIN32}
     if Value <> nil then Value.FreeNotification(Self);
 {$ENDIF}
     if Assigned(Hook) and (Hook.FList.Count = 0) and Assigned(HookList) then
@@ -477,13 +464,13 @@ end;
 
 function SetVirtualMethodAddress(AClass: TClass; AIndex: Integer;
   NewAddress: Pointer): Pointer;
-{$IFNDEF VER80}
+{$IFDEF WIN32}
 const
   PageSize = SizeOf(Pointer);
 {$ENDIF}
 var
   Table: PPointer;
-{$IFNDEF VER80}
+{$IFDEF WIN32}
   SaveFlag: DWORD;
 {$ELSE}
   Block: Pointer;
@@ -492,7 +479,7 @@ begin
   Table := PPointer(AClass);
   Inc(Table, AIndex - 1);
   Result := Table^;
-{$IFNDEF VER80}
+{$IFDEF WIN32}
   if VirtualProtect(Table, PageSize, PAGE_EXECUTE_READWRITE, @SaveFlag) then
   try
     Table^ := NewAddress;
@@ -520,7 +507,7 @@ end;
 
 initialization
   HookList := nil;
-{$IFNDEF VER80}
+{$IFDEF WIN32}
 finalization
   DropHookList;
 {$ELSE}

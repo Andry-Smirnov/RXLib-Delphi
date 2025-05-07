@@ -4,8 +4,6 @@ object TraceSQL: TTraceSQL
   Width = 412
   Height = 262
   Caption = 'SQL Monitor'
-  Color = clBtnFace
-  Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
@@ -36,7 +34,6 @@ object TraceSQL: TTraceSQL
     0000000000000000000000000000000000000000000000000000000000000000
     0000000000000000000000000000000000000000000000000000000000000000
     000000000000000000000000000000000000000000000000000080000001}
-  OldCreateOrder = True
   Position = poDefault
   Visible = True
   OnClose = FormClose
@@ -46,11 +43,11 @@ object TraceSQL: TTraceSQL
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
-  object TraceBox: TRxDrawGrid
+  object TraceBox: TrxDrawGrid
     Left = 0
     Top = 0
     Width = 404
-    Height = 166
+    Height = 173
     Align = alClient
     ColCount = 3
     DefaultRowHeight = 16
@@ -66,20 +63,19 @@ object TraceSQL: TTraceSQL
       75
       285)
   end
-  object Splitter: TRxSplitter
+  object Splitter: TrxSplitter
     Left = 0
-    Top = 166
+    Top = 173
     Width = 404
     Height = 3
     ControlFirst = TraceBox
     ControlSecond = ViewPanel
     Align = alBottom
-    TopLeftLimit = 10
-    BottomRightLimit = 10
+    LimitOffset = 10
   end
   object ViewPanel: TMemo
     Left = 0
-    Top = 169
+    Top = 176
     Width = 404
     Height = 59
     Align = alBottom
@@ -92,12 +88,12 @@ object TraceSQL: TTraceSQL
       'ViewPanel.Height'
       'SaveLogDialog.InitialDir'
       'SaveLogDialog.FileName')
-    StoredValues = <>
     Left = 8
     Top = 160
   end
   object SaveLogDialog: TSaveDialog
     DefaultExt = 'txt'
+    FileEditStyle = fsEdit
     Filter = 'Text Files (*.txt)|*.txt|All Files (*.*)|*.*'
     Options = [ofOverwritePrompt, ofHideReadOnly, ofNoChangeDir]
     Title = 'Save Trace Log As'
@@ -110,21 +106,26 @@ object TraceSQL: TTraceSQL
     Top = 160
     object miPopupCopy: TMenuItem
       Caption = '&Copy'
+      ShortCut = 0
       OnClick = miPopupCopyClick
     end
     object miPopupClear: TMenuItem
       Caption = 'C&lear Log'
+      ShortCut = 0
       OnClick = miPopupClearClick
     end
     object miPopupSelectAll: TMenuItem
       Caption = 'Select &All'
+      ShortCut = 0
       OnClick = miPopupSelectAllClick
     end
     object N1: TMenuItem
       Caption = '-'
+      ShortCut = 0
     end
     object miSaveLog: TMenuItem
       Caption = '&Save Log...'
+      ShortCut = 0
       OnClick = miSaveLogClick
     end
   end

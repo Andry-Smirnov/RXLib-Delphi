@@ -14,9 +14,9 @@ procedure VerAboutBox;
 
 implementation
 
-uses {$IFNDEF VER80} Windows, {$ELSE} WinTypes, WinProcs, {$ENDIF}
+uses {$IFDEF WIN32} Windows, {$ELSE} WinTypes, WinProcs, {$ENDIF}
   SysUtils, Messages, Consts, Forms, Dialogs, ExtCtrls, StdCtrls, Buttons,
-  RxVCLUtils, RxVerInf, RxConst, RxDateUtil;
+  VCLUtils, RxVerInf, RxConst, DateUtil;
 
 {$IFDEF RX_D3}
 resourcestring
@@ -26,13 +26,13 @@ const
   sYear = '%s © %d';
   sFreeMemory = '%s KB';
   sAbout = 'About';
-{$IFNDEF VER80}
+{$IFDEF WIN32}
   sFreeMemoryLabel = 'Physical memory:';
   sFreeResourcesLabel = 'Memory in use:';
 {$ELSE}
   sFreeMemoryLabel = 'Free memory:';
   sFreeResourcesLabel = 'Free system resources:';
-{$ENDIF}
+{$ENDIF WIN32}
   sVersion = 'Version %d.%.2d';
   sFileVer = 'Version %s';
   sExeFile = 'Executable file %s';
@@ -152,7 +152,7 @@ begin
   Caption := sAbout;
 
   with Font do begin
-{$IFDEF VER80}
+{$IFNDEF WIN32}
     Color := clWindowText;
     Size := 8;
     Name := 'MS Sans Serif';
@@ -307,12 +307,12 @@ begin
 end;
 
 procedure TAboutDialog.UpdateMemoryInfo;
-{$IFNDEF VER80}
+{$IFDEF WIN32}
 var
   MemStatus: TMemoryStatus;
 {$ENDIF}
 begin
-{$IFNDEF VER80}
+{$IFDEF WIN32}
   MemStatus.dwLength := SizeOf(TMemoryStatus);
   GlobalMemoryStatus(MemStatus);
   FMemSize.Caption := Format(sFreeMemory, [FormatFloat(',0.##',
@@ -328,7 +328,7 @@ end;
 
 function TAboutDialog.GetWindowsVersion: string;
 begin
-  Result := RxVCLUtils.GetWindowsVersion;
+  Result := VclUtils.GetWindowsVersion;
 end;
 
 procedure TAboutDialog.SetAppData(const AppTitle: string; AIcon: TIcon);

@@ -8,14 +8,13 @@
 {*******************************************************}
 
 unit DBCbRest;
-{$I RX.inc}
 
 {$R-}
 
 interface
 
 uses Windows, SysUtils, Classes, Graphics, Forms, Controls, StdCtrls,
-  ExtCtrls,{$ifdef RX_D10}DBCommonTypes, {$endif} BDE, RXCtrls;
+  ExtCtrls, BDE, RXCtrls;
 
 type
   TRestructureDialog = class(TForm)
@@ -34,7 +33,7 @@ type
   private
     FCBDesc: RESTCbDesc;
     function SetCBDesc(var RestInfo: RESTCbDesc): Boolean;
-    function GetResult: cbRType;
+    function GetResult: CBRType;
   protected
     procedure CreateParams(var Params: TCreateParams); override;
   public
@@ -47,7 +46,7 @@ var
 
 implementation
 
-uses DB, DBTables, Consts, RxDBUtils, RxBdeUtils;
+uses DB, DBTables, Consts, DBUtils, BdeUtils;
 
 {$R *.DFM}
 {$WARNINGS OFF}

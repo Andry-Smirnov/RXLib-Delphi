@@ -2,7 +2,7 @@ program RxGIFAnm;
 
 uses
   Forms,
-  RxExcptDlg,
+  ExcptDlg,
   GifMain in 'GIFMAIN.PAS' {AnimatorForm},
   GifPrvw in 'GIFPRVW.PAS' {PreviewForm},
   GIFPal in 'GIFPal.pas' {PaletteForm},

@@ -2,13 +2,12 @@ unit Main;
 
 interface
 
-{$I ..\..\units\RX.INC}
+{$I RX.INC}
 
 uses
-  SysUtils, Windows, Messages, Classes, Graphics, Controls,
-  {$IFDEF RX_D6}Types,{$ENDIF}
-  Forms, Dialogs, Gauges, ExtCtrls, Menus, RxDbPrgrss, RxPlacemnt, RxSpeedbar,
-  RxAppEvent, RXSplit, RxAnimate, RXShell, RxMenus, RxPicClip;
+  SysUtils, WinTypes, WinProcs, Messages, Classes, Graphics, Controls,
+  Forms, Dialogs, Gauges, ExtCtrls, Menus, DbPrgrss, Placemnt, SpeedBar,
+  AppEvent, RXSplit, Animate, RXShell, RxMenus, PicClip;
 
 type
   TMainForm = class(TForm)
@@ -106,13 +105,17 @@ var
 
 implementation
 
-uses IniFiles, RxAppUtils, Buttons, Ctrls, DBAware, Tools, About, PageDemo,
-  RxSlider, RxVCLUtils, RxHints, RxGraph, {$IFNDEF VER80} RxGrdCpt, {$ENDIF}
+uses IniFiles, AppUtils, Buttons, Ctrls, DBAware, Tools, About, PageDemo,
+  RxSlider, VCLUtils, RxHints, RxGraph, {$IFDEF WIN32} RxGrdCpt, {$ENDIF}
   ShellAPI;
 
 {$R *.DFM}
 
-{$R BACKGRND.RES}
+{$IFDEF WIN32}
+  {$R BACKGRND.R32}
+{$ELSE}
+  {$R BACKGRND.R16}
+{$ENDIF}
 
 procedure TMainForm.UpdateToolbar;
 begin
@@ -133,7 +136,7 @@ begin
   Screen.OnActiveFormChange := ActiveFormChange;
   RegisterClasses([TControlsForm, TToolsForm, TDBAwareForm]);
   UpdateToolbar;
-{$IFNDEF VER80}
+{$IFDEF WIN32}
   RXDemo1.Default := True;
   GradientFormCaption(Self, clWindowText);
 {$ENDIF}
@@ -260,7 +263,7 @@ end;
 procedure TMainForm.FormPlacement1RestorePlacement(Sender: TObject);
 begin
   RestoreMDIChildren(Self, FormPlacement1.IniFile);
-{$IFDEF VER80}
+{$IFNDEF WIN32}
   AppTaskbarIcons(True);
   Application.BringToFront;
 {$ENDIF}
@@ -278,21 +281,21 @@ end;
 
 procedure TMainForm.AppActivate(Sender: TObject);
 begin
-{$IFDEF VER80}
+{$IFNDEF WIN32}
   if Screen.ActiveForm <> nil then Screen.ActiveForm.BringToFront;
 {$ENDIF}
 end;
 
 procedure TMainForm.AppRestore(Sender: TObject);
 begin
-{$IFNDEF VER80}
+{$IFDEF WIN32}
   if NewStyleControls then ShowWindow(Application.Handle, SW_SHOW);
 {$ENDIF}
 end;
 
 procedure TMainForm.AppMinimize(Sender: TObject);
 begin
-{$IFNDEF VER80}
+{$IFDEF WIN32}
   if NewStyleControls then ShowWindow(Application.Handle, SW_HIDE);
 {$ENDIF}
 end;

@@ -11,7 +11,7 @@ unit EditStr;
 interface
 
 uses WinTypes, WinProcs, Classes, Graphics, Forms, Controls, Buttons, Dialogs,
-  StdCtrls, ComCtrls, ExtCtrls, RxPlacemnt, DBCtrls, DB, RxDBRichEd, RxRichEd;
+  StdCtrls, ComCtrls, ExtCtrls, Placemnt, DBCtrls, DB, DBRichEd;
 
 type
   TStrEditDlg = class(TForm)

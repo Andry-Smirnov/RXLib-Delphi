@@ -6,16 +6,13 @@ object FilterDialog: TFilterDialog
   Caption = 'Filter'
   ClientHeight = 80
   ClientWidth = 258
-  Color = clBtnFace
-  Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   Font.Style = []
-  OldCreateOrder = True
+  PixelsPerInch = 96
   OnCreate = FormCreate
   OnShow = FormShow
-  PixelsPerInch = 96
   TextHeight = 13
   object Label1: TLabel
     Left = 8
@@ -71,7 +68,6 @@ object FilterDialog: TFilterDialog
     Options = []
     StoredProps.Strings = (
       'UpCaseBox.Checked')
-    StoredValues = <>
     Left = 216
     Top = 4
   end

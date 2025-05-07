@@ -2,10 +2,12 @@
 {                                                       }
 {         Delphi VCL Extensions (RX)                    }
 {                                                       }
-{         Copyright (c) 1997, 1998 Master-Bank          }
+{         Copyright (c) 2001,2002 SGB Software          }
+{         Copyright (c) 1997, 1998 Fedor Koshevnikov,   }
+{                        Igor Pavluk and Serge Korolev  }
 {                                                       }
-{ Patched by Polaris Software                           }
 {*******************************************************}
+
 
 unit RxResExp;
 
@@ -13,22 +15,16 @@ interface
 
 {$I RX.INC}
 
-{$IFDEF RX_D7}
-  // for ExptIntf     whats instead this unit?
-{$WARN UNIT_DEPRECATED OFF}
-{$ENDIF}
-
 {$IFNDEF RX_D3}
-ERROR! This unit is intended for Delphi 3.0 or higher only!
+  ERROR! This unit is intended for Delphi 3.0 or higher only!
   { Resource expert doesn't work properly in Delphi 2.0 and in
     C++Builder 1.0 and I don't know why. }
-  {$ENDIF}
+{$ENDIF}
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  IniFiles, ComCtrls, EditIntf, ExptIntf, ToolIntf, Menus, StdCtrls, RxPlacemnt
-  {$IFDEF RX_D6}, Types{$ENDIF}
-  {$IFDEF RX_D4}, ImgList{$ENDIF};
+  IniFiles, ComCtrls, EditIntf, ExptIntf, ToolIntf, Menus, StdCtrls, Placemnt
+  {,ImgList};
 
 type
   TRxProjectResExpert = class;
@@ -48,10 +44,10 @@ type
     constructor Create(AProjectResources: TRxProjectResExpert);
     procedure FileNotification(NotifyCode: TFileNotification;
       const FileName: string; var Cancel: Boolean); override;
-    {$IFDEF RX_D3}
+{$IFDEF RX_D3}
     procedure EventNotification(NotifyCode: TEventNotification;
       var Cancel: Boolean); override;
-    {$ENDIF}
+{$ENDIF}
   end;
 
   TProjectNotifier = class(TIModuleNotifier)
@@ -60,13 +56,8 @@ type
   public
     constructor Create(AProjectResources: TRxProjectResExpert);
     procedure Notify(NotifyCode: TNotifyCode); override;
-    {$IFDEF RX_D6} // Polaris
     procedure ComponentRenamed(const AComponent: TComponent;
       const OldName, NewName: string); override;
-    {$ELSE}
-    procedure ComponentRenamed(ComponentHandle: Pointer;
-      const OldName, NewName: string); override;
-    {$ENDIF}
   end;
 
   TResourceEntry = class(TObject)
@@ -115,10 +106,10 @@ type
     procedure UpdateProjectResInfo;
     procedure OpenProject(const FileName: string);
     procedure CloseProject;
-    {$IFNDEF RX_D4}
+{$IFNDEF RX_D4}
     procedure LoadDesktop(const FileName: string);
     procedure SaveDesktop(const FileName: string);
-    {$ENDIF}
+{$ENDIF}
     procedure ProjectResourcesClick(Sender: TIMenuItemIntf);
   public
     constructor Create;
@@ -214,11 +205,11 @@ procedure RegisterResourceExpert;
 
 implementation
 
-uses
-  Consts, RxVCLUtils, RxStrUtils, RxMaxMin, RxPictEdit;
+uses Consts, VCLUtils, rxStrUtils, MaxMin, PictEdit
+  {$IFDEF RX_D4}, ImgList {$ENDIF};
 
 {$R *.DFM}
-{$R *.RES}
+{$R *.R32}
 {$D-}
 
 {$I RXRESEXP.INC}
@@ -266,11 +257,11 @@ var
   DialogUnits: TPoint;
   ButtonTop, ButtonWidth, ButtonHeight: Integer;
 begin
-  {$IFDEF CBUILDER}
+{$IFDEF CBUILDER}
   inherited CreateNew(AOwner, 0);
-  {$ELSE}
+{$ELSE}
   inherited CreateNew(AOwner);
-  {$ENDIF}
+{$ENDIF}
   Canvas.Font := Self.Font;
   DialogUnits := GetAveCharSize(Canvas);
   BorderStyle := bsDialog;
@@ -278,16 +269,14 @@ begin
   ClientHeight := MulDiv(63, DialogUnits.Y, 8);
   Position := poScreenCenter;
   FPrompt := TLabel.Create(Self);
-  with FPrompt do
-  begin
+  with FPrompt do begin
     Parent := Self;
     AutoSize := True;
     Left := MulDiv(8, DialogUnits.X, 4);
     Top := MulDiv(8, DialogUnits.Y, 8);
   end;
   FEdit := TComboBox.Create(Self);
-  with FEdit do
-  begin
+  with FEdit do begin
     Parent := Self;
     Left := FPrompt.Left;
     Top := MulDiv(19, DialogUnits.Y, 8);
@@ -299,8 +288,7 @@ begin
   ButtonTop := MulDiv(41, DialogUnits.Y, 8);
   ButtonWidth := MulDiv(50, DialogUnits.X, 4);
   ButtonHeight := MulDiv(14, DialogUnits.Y, 8);
-  with TButton.Create(Self) do
-  begin
+  with TButton.Create(Self) do begin
     Parent := Self;
     Caption := SMsgDlgOK;
     ModalResult := mrNone;
@@ -309,8 +297,7 @@ begin
     SetBounds(MulDiv(38, DialogUnits.X, 4), ButtonTop, ButtonWidth,
       ButtonHeight);
   end;
-  with TButton.Create(Self) do
-  begin
+  with TButton.Create(Self) do begin
     Parent := Self;
     Caption := SMsgDlgCancel;
     ModalResult := mrCancel;
@@ -326,8 +313,7 @@ var
   Value: string;
 begin
   Apply := True;
-  if Assigned(FOnApply) then
-  begin
+  if Assigned(FOnApply) then begin
     Value := FEdit.Text;
     FOnApply(Self, Value, Apply);
     if FEdit.Text <> Value then FEdit.Text := Value;
@@ -337,8 +323,7 @@ end;
 
 function TInputBox.Execute: Boolean;
 begin
-  with FEdit do
-  begin
+  with FEdit do begin
     Text := FValue;
     SelectAll;
   end;
@@ -363,10 +348,8 @@ end;
 
 procedure TInputBox.SetStrings(Value: TStrings);
 begin
-  if Value = nil then
-    FEdit.Items.Clear
-  else
-    FEdit.Items.Assign(Value);
+  if Value = nil then FEdit.Items.Clear
+  else FEdit.Items.Assign(Value);
 end;
 
 { Utility routines }
@@ -375,7 +358,7 @@ end;
 const
   RT_ANICURSOR = MakeIntResource(21);
   RT_ANIICON = MakeIntResource(22);
-  {$ENDIF}
+{$ENDIF}
 const
   FIRST_CUSTOM_RESTYPE = 25;
 
@@ -389,17 +372,16 @@ begin
   Result := False;
   if (Length(Ident) = 0) then Exit;
   for I := 1 to Length(Ident) do
-    if not CharInSet(Ident[I], AlphaNumeric) then Exit;
+    if not (Ident[I] in AlphaNumeric) then Exit;
   Result := True;
 end;
 
 function IsValidResType(const Ident: string): Boolean;
 var
-  Val: LongInt;
+  Val: Longint;
 begin
   Result := IsValidIdent(Ident);
-  if Result then
-  begin
+  if Result then begin
     Val := StrToIntDef(Ident, FIRST_CUSTOM_RESTYPE);
     Result := (Val >= FIRST_CUSTOM_RESTYPE) and (Val <= High(Word));
   end;
@@ -407,8 +389,7 @@ end;
 
 procedure CreateForm(InstanceClass: TComponentClass; var Reference);
 begin
-  if TComponent(Reference) = nil then
-  begin
+  if TComponent(Reference) = nil then begin
     TComponent(Reference) := TComponent(InstanceClass.NewInstance);
     try
       TComponent(Reference).Create(Application);
@@ -420,17 +401,16 @@ begin
   end;
 end;
 
-function PadUp(Value: LongInt): LongInt;
+function PadUp(Value: Longint): Longint;
 begin
   Result := Value + (Value mod 4);
 end;
 
 function StrText(P: PChar): string;
 begin
-  if HiWord(LongInt(P)) = 0 then
-    Result := IntToStr(LoWord(LongInt(P)))
-  else
-    Result := StrPas(P);
+  if HiWord(Longint(P)) = 0 then
+    Result := IntToStr(LoWord(Longint(P)))
+  else Result := StrPas(P);
 end;
 
 function ResIdent(const Name: string): PChar;
@@ -439,10 +419,8 @@ var
   Code: Integer;
 begin
   Val(Name, Id, Code);
-  if Code = 0 then
-    Result := MakeIntResource(Id)
-  else
-    Result := PChar(AnsiUpperCase(Name));
+  if Code = 0 then Result := MakeIntResource(Id)
+  else Result := PChar(AnsiUpperCase(Name));
 end;
 
 function CheckResType(ResType: Integer): TResourceType;
@@ -456,8 +434,7 @@ begin
     Integer(RT_GROUP_ICON): Result := rtpGroupIcon;
     Integer(RT_VERSION): Result := rtpVersion;
     Integer(RT_ANICURSOR): Result := rtpAniCursor;
-  else
-    Result := rtpCustom; { user-defined resource type }
+    else Result := rtpCustom; { user-defined resource type }
   end;
   if (Result = rtpCustom) and (ResType > 0) and
     (ResType < FIRST_CUSTOM_RESTYPE) then
@@ -486,17 +463,15 @@ begin
     Integer(RT_VXD): Result := 'VXD';
     Integer(RT_ANICURSOR): Result := 'ANICURSOR';
     Integer(RT_ANIICON): Result := 'ANIICON';
-  else
-    Result := IntToStr(ResType);
+    else Result := IntToStr(ResType);
   end;
 end;
 
 function ResTypeName(ResType: PChar): string;
 begin
-  if HiWord(LongInt(ResType)) = 0 then
-    Result := ResourceTypeName(LoWord(LongInt(ResType)))
-  else
-    Result := StrPas(ResType);
+  if HiWord(Longint(ResType)) = 0 then
+    Result := ResourceTypeName(LoWord(Longint(ResType)))
+  else Result := StrPas(ResType);
 end;
 
 function FindNode(TreeView: TCustomTreeView; Node: TTreeNode;
@@ -517,13 +492,10 @@ function FindNode(TreeView: TCustomTreeView; Node: TTreeNode;
     else
     begin
       ChildNode := Node.GetFirstChild;
-      while ChildNode <> nil do
-      begin
+      while ChildNode <> nil do begin
         Result := SearchNodes(ChildNode);
-        if Result <> nil then
-          Break
-        else
-          ChildNode := Node.GetNextChild(ChildNode);
+        if Result <> nil then Break
+        else ChildNode := Node.GetNextChild(ChildNode);
       end;
     end;
   end;
@@ -539,9 +511,9 @@ const
     mfBarBreak, mfRadioItem];
 
 const
-  MOVEABLE = $0010;
-  PURE = $0020;
-  PRELOAD = $0040;
+  MOVEABLE    = $0010;
+  PURE        = $0020;
+  PRELOAD     = $0040;
   DISCARDABLE = $1000;
 
 const
@@ -561,16 +533,16 @@ type
   TIconDirectory = packed record
     case Integer of
       rc3_Cursor:
-      (cWidth: Word;
+        (cWidth: Word;
         cHeight: Word);
       rc3_Icon:
-      (Width: Byte;
+        (Width: Byte;
         Height: Byte;
         Colors: Byte;
         Reserved: Byte;
         Planes: Word;
         BitCount: Word;
-        BytesInRes: LongInt;
+        BytesInRes: Longint;
         NameOrdinal: Word);
   end;
 
@@ -590,8 +562,8 @@ type
     Colors: Word;
     Reserved1: Word; { xHotspot }
     Reserved2: Word; { yHotspot }
-    DIBSize: LongInt;
-    DIBOffset: LongInt;
+    DIBSize: Longint;
+    DIBOffset: Longint;
   end;
 
   PIconList = ^TIconList;
@@ -644,8 +616,7 @@ begin
   FNames := nil;
   if FList <> nil then FreeMem(FList);
   FList := nil;
-  while FData.Count > 0 do
-  begin
+  while FData.Count > 0 do begin
     if Pointer(FData[0]) <> nil then FreeMem(Pointer(FData[0]));
     FData.Delete(0);
   end;
@@ -670,18 +641,14 @@ begin
     Move(FHeader, Result^, SizeOf(FHeader));
     P := PDirectory(PChar(Result) + SizeOf(FHeader));
     List := PIconList(FList);
-    for I := 0 to FHeader.Count - 1 do
-    begin
+    for I := 0 to FHeader.Count - 1 do begin
       BI := PBitmapInfoHeader(Pointer(FData[I]));
-      with P^[I] do
-      begin
-        if FHeader.wType = rc3_Cursor then
-        begin
+      with P^[I] do begin
+        if FHeader.wType = rc3_Cursor then begin
           cWidth := List^[I].Width;
           cHeight := List^[I].Height * 2;
         end
-        else
-        begin
+        else begin
           Width := List^[I].Width;
           Height := List^[I].Height;
           Colors := List^[I].Colors;
@@ -714,10 +681,8 @@ begin
   Result := AllocMem(Size);
   try
     P := Result;
-    if FHeader.wType = rc3_Cursor then
-    begin
-      with PCursorHeader(Result)^ do
-      begin
+    if FHeader.wType = rc3_Cursor then begin
+      with PCursorHeader(Result)^ do begin
         xHotspot := Icon^.Reserved1;
         yHotspot := Icon^.Reserved2;
       end;
@@ -746,8 +711,7 @@ begin
   Move(Data^, FHeader, SizeOf(FHeader));
   if FList <> nil then FreeMem(FList);
   FList := AllocMem(SizeOf(TIconRec) * FHeader.Count);
-  while FData.Count > 0 do
-  begin
+  while FData.Count > 0 do begin
     if Pointer(FData[0]) <> nil then FreeMem(Pointer(FData[0]));
     FData.Delete(0);
   end;
@@ -755,17 +719,13 @@ begin
   List := PIconList(FList);
   if FNames <> nil then FreeMem(FNames);
   FNames := AllocMem(FHeader.Count * SizeOf(Word));
-  for I := 0 to FHeader.Count - 1 do
-  begin
-    with List^[I] do
-    begin
-      if FHeader.wType = rc3_Cursor then
-      begin
+  for I := 0 to FHeader.Count - 1 do begin
+    with List^[I] do begin
+      if FHeader.wType = rc3_Cursor then begin
         Width := P^[I].cWidth;
         Height := P^[I].cHeight div 2;
       end
-      else
-      begin
+      else begin
         Width := P^[I].Width;
         Height := P^[I].Height;
         Colors := P^[I].Colors;
@@ -790,10 +750,8 @@ begin
   if (Index < 0) or (Index >= FData.Count) then Exit;
   Rec := @(PIconList(FList)^[Index]);
   P := Data;
-  if FHeader.wType = rc3_Cursor then
-  begin
-    with Rec^ do
-    begin
+  if FHeader.wType = rc3_Cursor then begin
+    with Rec^ do begin
       Reserved1 := PCursorHeader(Data).xHotspot;
       Reserved2 := PCursorHeader(Data).yHotspot;
     end;
@@ -805,8 +763,7 @@ begin
   BI := PBitmapInfoHeader(Pointer(FData[Index]));
   case BI^.biBitCount of
     1, 4, 8: Rec^.Colors := (1 shl BI^.biBitCount) * BI^.biPlanes;
-  else
-    Rec^.Colors := BI^.biBitCount * BI^.biPlanes;
+    else Rec^.Colors := BI^.biBitCount * BI^.biPlanes;
   end;
 end;
 
@@ -817,16 +774,14 @@ var
 begin
   FHeader.Count := FData.Count;
   Stream.WriteBuffer(FHeader, SizeOf(FHeader));
-  for I := 0 to FHeader.Count - 1 do
-  begin
+  for I := 0 to FHeader.Count - 1 do begin
     PIconList(FList)^[I].DIBOffset := SizeOf(FHeader) + (SizeOf(TIconRec) *
       FHeader.Count);
     for J := 0 to I - 1 do
       Inc(PIconList(FList)^[I].DIBOffset, PIconList(FList)^[I - 1].DIBSize);
   end;
   Stream.WriteBuffer(FList^, SizeOf(TIconRec) * FHeader.Count);
-  for I := 0 to FHeader.Count - 1 do
-  begin
+  for I := 0 to FHeader.Count - 1 do begin
     Data := FData[I];
     Stream.WriteBuffer(Data^, PIconList(FList)^[I].DIBSize);
   end;
@@ -844,8 +799,7 @@ begin
   FList := AllocMem(SizeOf(TIconRec) * FHeader.Count);
   try
     Stream.ReadBuffer(FList^, SizeOf(TIconRec) * FHeader.Count);
-    for I := 0 to FHeader.Count - 1 do
-    begin
+    for I := 0 to FHeader.Count - 1 do begin
       Stream.Seek(PIconList(FList)^[I].DIBOffset, 0);
       Data := AllocMem(PIconList(FList)^[I].DIBSize);
       try
@@ -892,17 +846,16 @@ begin
         FProjectResources.OpenProject(FileName);
         EnableMenuItem(FProjectResources, True);
       end;
-    {$IFNDEF RX_D4}
+{$IFNDEF RX_D4}
     fnProjectDesktopLoad:
       FProjectResources.LoadDesktop(FileName);
     fnProjectDesktopSave:
       FProjectResources.SaveDesktop(FileName);
-    {$ENDIF}
-  end;
+{$ENDIF}
+  end;  
 end;
 
 {$IFDEF RX_D3}
-
 procedure TAddInNotifier.EventNotification(NotifyCode: TEventNotification;
   var Cancel: Boolean);
 begin
@@ -936,15 +889,8 @@ begin
   end;
 end;
 
-{$IFDEF RX_D6} // Polaris
-
 procedure TProjectNotifier.ComponentRenamed(const AComponent: TComponent;
   const OldName, NewName: string);
-{$ELSE}
-
-procedure TProjectNotifier.ComponentRenamed(ComponentHandle: Pointer;
-  const OldName, NewName: string);
-{$ENDIF}
 begin
   { Nothing to do here but needs to be overridden anyway }
 end;
@@ -959,15 +905,14 @@ begin
   FChildren := TList.Create;
   FHandle := AEntry.GetEntryHandle;
   P := AEntry.GetResourceType;
-  if HiWord(LongInt(P)) = 0 then
-  begin
-    FResType := CheckResType(LoWord(LongInt(P)));
-    FTypeId := LoWord(LongInt(P));
+  if HiWord(Longint(P)) = 0 then begin
+    FResType := CheckResType(LoWord(Longint(P)));
+    FTypeId := LoWord(Longint(P));
   end;
   FType := ResTypeName(P);
   P := AEntry.GetResourceName;
-  if HiWord(LongInt(P)) = 0 then
-    FNameId := LoWord(LongInt(P));
+  if HiWord(Longint(P)) = 0 then
+    FNameId := LoWord(Longint(P));
   FName := StrText(P);
   FSize := AEntry.GetDataSize;
 end;
@@ -980,18 +925,14 @@ end;
 
 function TResourceEntry.GetResourceName: PChar;
 begin
-  if FNameId > 0 then
-    Result := MakeIntResource(FNameId)
-  else
-    Result := PChar(FName);
+  if FNameId > 0 then Result := MakeIntResource(FNameId)
+  else Result := PChar(FName);
 end;
 
 function TResourceEntry.GetResourceType: PChar;
 begin
-  if FTypeId > 0 then
-    Result := MakeIntResource(FTypeId)
-  else
-    Result := PChar(FType);
+  if FTypeId > 0 then Result := MakeIntResource(FTypeId)
+  else Result := PChar(FType);
 end;
 
 function TResourceEntry.GetName: string;
@@ -1029,8 +970,7 @@ begin
   Entry := ResFile.FindEntry(GetResourceType, GetResourceName);
   try
     I := LookupIconIdFromDirectory(Entry.GetData, IsIcon);
-    if I > 0 then
-    begin
+    if I > 0 then begin
       if IsIcon then
         ChildEntry := ResFile.FindEntry(RT_ICON, PChar(I))
       else
@@ -1065,8 +1005,7 @@ begin
     finally
       Entry.Free;
     end;
-    for I := 0 to Data.FHeader.Count - 1 do
-    begin
+    for I := 0 to Data.FHeader.Count - 1 do begin
       P := MakeIntResource(Data.FNames^[I]);
       if FResType = rtpGroupIcon then
         Entry := ResFile.FindEntry(RT_ICON, P)
@@ -1090,8 +1029,7 @@ function TResourceEntry.GetBitmap(ResFile: TIResourceFile): TBitmap;
   begin
     case BitCount of
       1, 4, 8: Result := 1 shl BitCount;
-    else
-      Result := 0;
+      else Result := 0;
     end;
   end;
 
@@ -1115,21 +1053,18 @@ begin
       Header := PBitmapFileHeader(Mem.Memory);
       BI := PBitmapInfoHeader(PChar(Mem.Memory) + SizeOf(TBitmapFileHeader));
       { fill header }
-      with Header^ do
-      begin
-        if BI^.biSize = SizeOf(TBitmapInfoHeader) then
-        begin
+      with Header^ do begin
+        if BI^.biSize = SizeOf(TBitmapInfoHeader) then begin
           ClrUsed := BI^.biClrUsed;
           if ClrUsed = 0 then ClrUsed := GetDInColors(BI^.biBitCount);
-          bfOffBits := ClrUsed * SizeOf(TRGBQuad) +
+          bfOffBits :=  ClrUsed * SizeOf(TRGBQuad) +
             SizeOf(TBitmapInfoHeader) + SizeOf(TBitmapFileHeader);
         end
-        else
-        begin
+        else begin
           BC := PBitmapCoreHeader(PChar(Mem.Memory) +
             SizeOf(TBitmapFileHeader));
           ClrUsed := GetDInColors(BC^.bcBitCount);
-          bfOffBits := ClrUsed * SizeOf(TRGBTriple) +
+          bfOffBits :=  ClrUsed * SizeOf(TRGBTriple) +
             SizeOf(TBitmapCoreHeader) + SizeOf(TBitmapFileHeader);
         end;
         bfSize := bfOffBits + BI^.biSizeImage;
@@ -1193,20 +1128,17 @@ begin
   Entry := ResFile.FindEntry(GetResourceType, GetResourceName);
   try
     Val(NewName, Id, Code);
-    if Code = 0 then
-      P := MakeIntResource(Id)
-    else
-    begin
+    if Code = 0 then P := MakeIntResource(Id)
+    else begin
       if not IsValidIdent(NewName) then
         raise Exception.Create(Format(sInvalidName, [NewName]));
       AName := AnsiUpperCase(NewName);
       P := PChar(AName);
     end;
     Result := Entry.Change(Entry.GetResourceType, P);
-    if Result then
-    begin
+    if Result then begin
       P := Entry.GetResourceName;
-      if HiWord(LongInt(P)) = 0 then FNameId := LoWord(LongInt(P));
+      if HiWord(Longint(P)) = 0 then FNameId := LoWord(Longint(P));
       FName := StrText(P);
     end;
   finally
@@ -1225,8 +1157,7 @@ var
 begin
   inherited Create;
   FResourceList := TStringList.Create;
-  if Assigned(ToolServices) then
-  begin
+  if Assigned(ToolServices) then begin
     MainMenu := ToolServices.GetMainMenu;
     if MainMenu <> nil then
     try
@@ -1239,10 +1170,9 @@ begin
           ViewMenu := ProjSrcMenu.GetParent;
           if ViewMenu <> nil then
           try
-            if (MainMenu.FindMenuItem('ViewPrjResourceItem') = nil) then // Polaris
-              ProjectResourcesItem := ViewMenu.InsertItem(
-                ProjSrcMenu.GetIndex, GetMenuText, 'ViewPrjResourceItem',
-                '', 0, 0, 0, [mfVisible], ProjectResourcesClick);
+            ProjectResourcesItem := ViewMenu.InsertItem(
+              ProjSrcMenu.GetIndex, GetMenuText, 'ViewPrjResourceItem',
+              '', 0, 0, 0, [mfVisible], ProjectResourcesClick);
           finally
             ViewMenu.Free;
           end;
@@ -1256,11 +1186,11 @@ begin
       MainMenu.Free;
     end;
     AddInNotifier := TAddInNotifier.Create(Self);
-    {$IFDEF RX_D4}
+{$IFDEF RX_D4}
     ToolServices.AddNotifierEx(AddInNotifier);
-    {$ELSE}
+{$ELSE}
     ToolServices.AddNotifier(AddInNotifier);
-    {$ENDIF}
+{$ENDIF}
   end;
 end;
 
@@ -1339,8 +1269,7 @@ function TRxProjectResExpert.GetResFile: TIResourceFile;
 begin
   if ProjectModule.IsProjectModule then
     Result := ProjectModule.GetProjectResource
-  else
-    Result := nil;
+  else Result := nil;
 end;
 
 procedure TRxProjectResExpert.FindChildren(ResFile: TIResourceFile;
@@ -1354,20 +1283,16 @@ var
   ResEntry: TIResourceEntry;
 begin
   if Entry = nil then Exit;
-  if Entry.FResType in [rtpGroupCursor, rtpGroupIcon] then
-  begin
+  if Entry.FResType in [rtpGroupCursor, rtpGroupIcon] then begin
     ResEntry := ResFile.GetEntryFromHandle(Entry.FHandle);
     if ResEntry <> nil then
     try
       Data := ResEntry.GetData;
-      if Data <> nil then
-      begin
+      if Data <> nil then begin
         Header := PCursorOrIcon(Data);
         Directory := PDirectory(PChar(Data) + SizeOf(TCursorOrIcon));
-        for I := 0 to Header^.Count - 1 do
-        begin
-          for Idx := 0 to FResourceList.Count - 1 do
-          begin
+        for I := 0 to Header^.Count - 1 do begin
+          for Idx := 0 to FResourceList.Count - 1 do begin
             Child := TResourceEntry(FResourceList.Objects[Idx]);
             if (Child <> nil) and (Child.FParent = nil) and
               (((Entry.FResType = rtpGroupIcon) and (Child.FResType = rtpIcon)) or
@@ -1395,10 +1320,10 @@ var
   ResEntry: TIResourceEntry;
   TypeList: TStringList;
   ResourceFile: TIResourceFile;
-  {$IFDEF RX_V110}
+{$IFDEF RX_V110}
   EditInt: TIEditorInterface;
   IsNewProject: Boolean;
-  {$ENDIF}
+{$ENDIF}
 begin
   Cnt := -1;
   try
@@ -1408,22 +1333,19 @@ begin
   end;
   try
     if ResourceFile <> nil then
-      with ResourceFile do
-      begin
+      with ResourceFile do begin
         FResFileName := FileName;
-        {$IFDEF RX_V110}
+{$IFDEF RX_V110}
         EditInt := ProjectModule.GetEditorInterface;
         try
           IsNewProject := not FileExists(EditInt.FileName);
         finally
           EditInt.Free;
         end;
-        if IsNewProject or FileExists(FResFileName) then
-        begin
+        if IsNewProject or FileExists(FResFileName) then begin
           try
             Cnt := GetEntryCount;
-            if not FileExists(FResFileName) and (Cnt = 0) then
-            begin
+            if not FileExists(FResFileName) and (Cnt = 0) then begin
               Cnt := -1;
               FResFileName := '';
             end;
@@ -1434,19 +1356,16 @@ begin
           { Access violation error is occured when specified }
           { resource file doesn't exist }
         end
-        else
-        begin
+        else begin
           Cnt := -1;
           FResFileName := '';
         end;
-        {$ELSE}
+{$ELSE}
         Cnt := GetEntryCount;
-        {$ENDIF}
-        for I := 0 to Cnt - 1 do
-        begin
+{$ENDIF}
+        for I := 0 to Cnt - 1 do begin
           ResEntry := GetEntry(I);
-          if ResEntry <> nil then
-          begin
+          if ResEntry <> nil then begin
             try
               Entry := TResourceEntry.Create(ResEntry);
             finally
@@ -1455,16 +1374,14 @@ begin
             FResourceList.AddObject(Entry.GetName, Entry);
           end;
         end;
-        for I := 0 to FResourceList.Count - 1 do
-        begin
+        for I := 0 to FResourceList.Count - 1 do begin
           Entry := TResourceEntry(FResourceList.Objects[I]);
           FindChildren(ResourceFile, Entry);
         end;
       end;
     if (RxResourceEditor <> nil) and (ResourceFile <> nil) and (Cnt >= 0) then
     begin
-      with RxResourceEditor do
-      begin
+      with RxResourceEditor do begin
         StatusBar.Panels[0].Text := FResFileName;
         ResTree.Items.BeginUpdate;
         try
@@ -1475,14 +1392,12 @@ begin
             RootNode := ResTree.Items.Add(nil, ExtractFileName(FResFileName));
             RootNode.ImageIndex := 9; { Delphi Project }
             RootNode.SelectedIndex := RootNode.ImageIndex;
-            for I := 0 to FResourceList.Count - 1 do
-            begin
+            for I := 0 to FResourceList.Count - 1 do begin
               Entry := TResourceEntry(FResourceList.Objects[I]);
               if (Entry = nil) or (Entry.FParent <> nil) then
                 Continue; { ignore cursors and icons, use groups }
               Cnt := TypeList.IndexOf(Entry.GetTypeName);
-              if Cnt < 0 then
-              begin
+              if Cnt < 0 then begin
                 TypeNode := ResTree.Items.AddChildObject(RootNode,
                   Entry.GetTypeName, nil);
                 TypeNode.ImageIndex := 0; { Collapsed Folder }
@@ -1515,8 +1430,7 @@ var
   I: Integer;
 begin
   FResFileName := '';
-  if RxResourceEditor <> nil then
-  begin
+  if RxResourceEditor <> nil then begin
     RxResourceEditor.ResTree.Items.Clear;
     RxResourceEditor.StatusBar.Panels[0].Text := '';
   end;
@@ -1537,21 +1451,16 @@ begin
   try
     TreeState := TStringList.Create;
     try
-      if RxResourceEditor <> nil then
-      begin
-        if FSelection.ResType = '' then
-        begin
+      if RxResourceEditor <> nil then begin
+        if FSelection.ResType = '' then begin
           { save selection }
           Node := RxResourceEditor.ResTree.Selected;
-          if Node <> nil then
-          begin
-            if (Node.Data <> nil) then
-            begin
+          if Node <> nil then begin
+            if (Node.Data <> nil) then begin
               FSelection.ResName := TResourceEntry(Node.Data).GetName;
               FSelection.ResType := TResourceEntry(Node.Data).GetTypeName;
             end
-            else
-            begin
+            else begin
               FSelection.ResName := '';
               FSelection.ResType := Node.Text;
             end;
@@ -1559,12 +1468,9 @@ begin
         end;
         { save tree state }
         Node := RxResourceEditor.ResTree.Items.GetFirstNode;
-        if Node <> nil then
-          ChildNode := Node.GetFirstChild
-        else
-          ChildNode := nil;
-        while ChildNode <> nil do
-        begin
+        if Node <> nil then ChildNode := Node.GetFirstChild
+        else ChildNode := nil;
+        while ChildNode <> nil do begin
           TreeState.AddObject(ChildNode.Text, TObject(ChildNode.Expanded));
           ChildNode := Node.GetNextChild(ChildNode);
         end;
@@ -1580,15 +1486,12 @@ begin
       finally
         Dec(FLockCount);
       end;
-      if (RxResourceEditor <> nil) then
-      begin
+      if (RxResourceEditor <> nil) then begin
         { restore tree state }
         Node := RxResourceEditor.ResTree.Items.GetFirstNode;
-        if Node <> nil then
-        begin
+        if Node <> nil then begin
           ChildNode := Node.GetFirstChild;
-          while ChildNode <> nil do
-          begin
+          while ChildNode <> nil do begin
             I := TreeState.IndexOf(ChildNode.Text);
             if I >= 0 then
               ChildNode.Expanded := Boolean(TreeState.Objects[I]);
@@ -1599,8 +1502,7 @@ begin
         begin { restore selection }
           with FSelection do
             Node := FindNode(RxResourceEditor.ResTree, nil, ResName, ResType);
-          if Node <> nil then
-          begin
+          if Node <> nil then begin
             if Node.Parent <> nil then Node.Parent.Expanded := True;
             Node.Selected := True;
           end;
@@ -1608,8 +1510,7 @@ begin
       end;
     finally
       TreeState.Free;
-      with FSelection do
-      begin
+      with FSelection do begin
         ResName := '';
         ResType := '';
       end;
@@ -1624,8 +1525,7 @@ procedure TRxProjectResExpert.OpenProject(const FileName: string);
 begin
   CloseProject;
   ProjectModule := ToolServices.GetModuleInterface(FileName);
-  if ProjectModule <> nil then
-  begin
+  if ProjectModule <> nil then begin
     ProjectNotifier := TProjectNotifier.Create(Self);
     ProjectModule.AddNotifier(ProjectNotifier);
     try
@@ -1639,8 +1539,7 @@ end;
 
 procedure TRxProjectResExpert.CloseProject;
 begin
-  if ProjectModule <> nil then
-  begin
+  if ProjectModule <> nil then begin
     ClearProjectResInfo;
     ProjectModule.RemoveNotifier(ProjectNotifier);
     ProjectNotifier.Free;
@@ -1661,8 +1560,7 @@ begin
   try
     if DeskTop.ReadBool(sExpertName, sVisible, False) then
       ProjectResourcesClick(nil)
-    else if RxResourceEditor <> nil then
-      RxResourceEditor.Close;
+    else if RxResourceEditor <> nil then RxResourceEditor.Close;
   finally
     Desktop.Free;
   end;
@@ -1692,14 +1590,12 @@ var
 begin
   ResourceFile := GetResFile;
   try
-    if Assigned(ResourceFile) then
-    begin
+    if Assigned(ResourceFile) then begin
       Reopen := RxResourceEditor = nil;
       CreateForm(TRxResourceEditor, RxResourceEditor);
       RxResourceEditor.FExpert := Self;
       ProjectName := ToolServices.GetProjectName;
-      if Reopen or (FProjectName <> ProjectName) then
-      begin
+      if Reopen or (FProjectName <> ProjectName) then begin
         if ProjectName <> '' then OpenProject(ProjectName);
       end;
       RxResourceEditor.Show;
@@ -1713,8 +1609,7 @@ procedure TRxProjectResExpert.MarkModified;
 var
   EditorInterface: TIEditorInterface;
 begin
-  if ProjectModule <> nil then
-  begin
+  if ProjectModule <> nil then begin
     EditorInterface := ProjectModule.GetEditorInterface;
     try
       EditorInterface.MarkModified;
@@ -1746,13 +1641,11 @@ var
 
   procedure CheckItemName;
   begin
-    if (ResType = RT_ICON) or (ResType = RT_CURSOR) then
-    begin
+    if (ResType = RT_ICON) or (ResType = RT_CURSOR) then begin
       Result := IntToStr(N);
       Entry := ResFile.FindEntry(ResType, PChar(N));
     end
-    else
-    begin
+    else begin
       Result := Format(ResTypeName(ResType) + '_%d', [N]);
       Entry := ResFile.FindEntry(ResType, PChar(Result));
     end;
@@ -1762,8 +1655,7 @@ begin
   N := 1;
   Index := 0;
   CheckItemName;
-  while Entry <> nil do
-  begin
+  while Entry <> nil do begin
     Entry.Free;
     Inc(N);
     CheckItemName;
@@ -1780,13 +1672,10 @@ var
   ResourceFile: TIResourceFile;
 begin
   Result := False;
-  if ResFile = nil then
-    ResourceFile := GetResFile
-  else
-    ResourceFile := ResFile;
+  if ResFile = nil then ResourceFile := GetResFile
+  else ResourceFile := ResFile;
   try
-    if (ResourceFile <> nil) and (Entry <> nil) then
-    begin
+    if (ResourceFile <> nil) and (Entry <> nil) then begin
       BeginUpdate;
       try
         P := Entry.FHandle;
@@ -1794,8 +1683,7 @@ begin
         if Result then
         try
           { delete children }
-          for I := 0 to Entry.FChildren.Count - 1 do
-          begin
+          for I := 0 to Entry.FChildren.Count - 1 do begin
             Child := TResourceEntry(Entry.FChildren[I]);
             if Child <> nil then
               ResourceFile.DeleteEntry(Child.FHandle);
@@ -1823,37 +1711,30 @@ var
 begin
   BeginUpdate;
   try
-    if ResFile = nil then
-      ResourceFile := GetResFile
-    else
-      ResourceFile := ResFile;
+    if ResFile = nil then ResourceFile := GetResFile
+    else ResourceFile := ResFile;
     try
-      if ResName = nil then
-      begin
+      if ResName = nil then begin
         S := UniqueName(ResourceFile, ResType, I);
-        if I > 0 then
-          ResName := PChar(I)
-        else
-          ResName := PChar(S);
+        if I > 0 then ResName := PChar(I)
+        else ResName := PChar(S);
       end;
       if not IsValidIdent(StrText(ResName)) then
         raise Exception.Create(Format(sInvalidName, [StrText(ResName)]));
       CheckRename(ResourceFile, ResType, ResName);
-      {$IFNDEF RX_D3}
-      if ResourceFile.GetEntryCount > 0 then
-      begin
+{$IFNDEF RX_D3}
+      if ResourceFile.GetEntryCount > 0 then begin
         for I := 0 to ResourceFile.GetEntryCount - 1 do
           ResourceFile.GetEntry(I).Free;
       end;
-      {$ENDIF}
+{$ENDIF}
       Entry := ResourceFile.CreateEntry(ResType, ResName,
         MOVEABLE or DISCARDABLE, LANG_NEUTRAL, 0, 0, 0);
       if (Entry = nil) then
         raise Exception.Create(Format(sCannotRename, [StrText(ResName)]));
       with Entry do
       try
-        if SetToEntry then
-        begin
+        if SetToEntry then begin
           FSelection.ResName := StrText(GetResourceName);
           FSelection.ResType := ResTypeName(GetResourceType);
         end;
@@ -1886,25 +1767,17 @@ begin
   Data := TIconData.Create;
   try
     Data.LoadFromStream(Stream);
-    if IsIcon then
-      Data.FHeader.wType := rc3_Icon
-    else
-      Data.FHeader.wType := rc3_Cursor;
-    if Data.GetCount > 0 then
-    begin
+    if IsIcon then Data.FHeader.wType := rc3_Icon
+    else Data.FHeader.wType := rc3_Cursor;
+    if Data.GetCount > 0 then begin
       BeginUpdate;
       try
-        if ResFile = nil then
-          ResourceFile := GetResFile
-        else
-          ResourceFile := ResFile;
+        if ResFile = nil then ResourceFile := GetResFile
+        else ResourceFile := ResFile;
         try
-          if IsIcon then
-            ResType := RT_ICON
-          else
-            ResType := RT_CURSOR;
-          for I := 0 to Data.GetCount - 1 do
-          begin
+          if IsIcon then ResType := RT_ICON
+          else ResType := RT_CURSOR;
+          for I := 0 to Data.GetCount - 1 do begin
             ResData := Data.BuildResourceItem(I, ResSize);
             try
               UniqueName(ResourceFile, ResType, NameOrd);
@@ -1915,12 +1788,9 @@ begin
               FreeMem(ResData);
             end;
           end;
-          if IsIcon then
-            ResType := RT_GROUP_ICON
-          else
-            ResType := RT_GROUP_CURSOR;
-          if ResName = nil then
-          begin
+          if IsIcon then ResType := RT_GROUP_ICON
+          else ResType := RT_GROUP_CURSOR;
+          if ResName = nil then begin
             GroupName := UniqueName(ResourceFile, ResType, NameOrd);
             ResName := PChar(GroupName);
           end;
@@ -1953,8 +1823,7 @@ begin
   try
     ResFile := GetResFile;
     try
-      if not Entry.EnableRenameDelete { 'MAINICON' } then
-      begin
+      if not Entry.EnableRenameDelete { 'MAINICON' } then begin
         Stream.ReadBuffer(CI, SizeOf(CI));
         Stream.Seek(-SizeOf(CI), soFromCurrent);
         if (CI.Count < 1) or not (CI.wType in [rc3_Icon, rc3_Cursor]) then
@@ -2038,13 +1907,13 @@ procedure TRxResourceEditor.FormCreate(Sender: TObject);
 {$IFDEF RX_D4}
 var
   I: Integer;
-  {$ENDIF}
+{$ENDIF}
 begin
   TreeImages.ResourceLoad(rtBitmap, 'RXRESEXPIMG', clFuchsia);
-  {$IFDEF RX_D3}
+{$IFDEF RX_D3}
   ResTree.RightClickSelect := True;
-  {$ENDIF}
-  {$IFDEF RX_D4}
+{$ENDIF}
+{$IFDEF RX_D4}
   PopupMenu.Images := TreeImages;
   for I := 0 to PopupMenu.Items.Count - 1 do
     if PopupMenu.Items[I].Tag > 0 then
@@ -2052,9 +1921,8 @@ begin
   for I := 0 to NewItem.Count - 1 do
     if NewItem.Items[I].Tag > 0 then
       NewItem.Items[I].ImageIndex := NewItem.Items[I].Tag;
-  {$ENDIF RX_D4}
-  with Placement do
-  begin
+{$ENDIF RX_D4}
+  with Placement do begin
     IniFileName := ToolServices.GetBaseRegistryKey;
     IniSection := sExpertID;
   end;
@@ -2068,8 +1936,7 @@ end;
 procedure TRxResourceEditor.ResTreeExpanded(Sender: TObject;
   Node: TTreeNode);
 begin
-  if Node.ImageIndex = 0 then
-  begin
+  if Node.ImageIndex = 0 then begin
     Node.ImageIndex := 1;
     Node.SelectedIndex := Node.ImageIndex;
   end;
@@ -2078,8 +1945,7 @@ end;
 procedure TRxResourceEditor.ResTreeCollapsed(Sender: TObject;
   Node: TTreeNode);
 begin
-  if Node.ImageIndex = 1 then
-  begin
+  if Node.ImageIndex = 1 then begin
     Node.ImageIndex := 0;
     Node.SelectedIndex := Node.ImageIndex;
   end;
@@ -2090,10 +1956,8 @@ procedure TRxResourceEditor.ResTreeEditing(Sender: TObject;
 var
   Entry: TResourceEntry;
 begin
-  if (Node.Data = nil) then
-    AllowEdit := False
-  else
-  begin
+  if (Node.Data = nil) then AllowEdit := False
+  else begin
     Entry := TResourceEntry(Node.Data);
     AllowEdit := Entry.EnableRenameDelete;
   end;
@@ -2105,8 +1969,7 @@ var
   Entry: TResourceEntry;
   RF: TIResourceFile;
 begin
-  if (Node.Data <> nil) then
-  begin
+  if (Node.Data <> nil) then begin
     Entry := TResourceEntry(Node.Data);
     Inc(FExpert.FLockCount);
     try
@@ -2114,13 +1977,11 @@ begin
       try
         S := AnsiUpperCase(S);
         FExpert.CheckRename(RF, Entry.GetResourceType, ResIdent(S));
-        if Entry.Rename(RF, S) then
-        begin
+        if Entry.Rename(RF, S) then begin
           Node.Text := Entry.GetName;
           FExpert.MarkModified;
         end
-        else
-          Beep;
+        else Beep;
       finally
         RF.Free;
       end;
@@ -2137,8 +1998,7 @@ var
   Entry: TResourceEntry;
 begin
   Node := ResTree.Selected;
-  if (Node <> nil) and (Node.Data <> nil) then
-  begin
+  if (Node <> nil) and (Node.Data <> nil) then begin
     Entry := TResourceEntry(Node.Data);
     EditItem.Enabled := Entry.EnableEdit;
     RenameItem.Enabled := Entry.EnableRenameDelete;
@@ -2149,8 +2009,7 @@ begin
       rtpBitmap, rtpAniCursor, rtpRCData, rtpCustom];
     ResTree.Selected := Node;
   end
-  else
-  begin
+  else begin
     EditItem.Enabled := False;
     RenameItem.Enabled := False;
     DeleteItem.Enabled := False;
@@ -2176,22 +2035,19 @@ var
   Stream: TStream;
 begin
   Node := ResTree.Selected;
-  if Node <> nil then
-  begin
+  if Node <> nil then begin
     Entry := TResourceEntry(Node.Data);
-    if (Entry <> nil) and Entry.EnableEdit then
-    begin
+    if (Entry <> nil) and Entry.EnableEdit then begin
       case Entry.FResType of
         rtpGroupCursor,
-          rtpGroupIcon:
+        rtpGroupIcon:
           begin
             if Entry.FResType = rtpGroupCursor then
               OpenDlg.Filter := sCursorFilesFilter
             else
               OpenDlg.Filter := sIconFilesFilter + '|' + sCursorFilesFilter;
             OpenDlg.FileName := '';
-            if OpenDlg.Execute then
-            begin
+            if OpenDlg.Execute then begin
               Stream := TFileStream.Create(OpenDlg.FileName, fmOpenRead +
                 fmShareDenyNone);
               try
@@ -2211,8 +2067,7 @@ begin
               ResFile.Free;
             end;
             try
-              if EditGraphic(Graphic, nil, Entry.GetName) then
-              begin
+              if EditGraphic(Graphic, nil, Entry.GetName) then begin
                 if not Graphic.Empty then
                   FExpert.EditBitmapRes(Entry, TBitmap(Graphic))
                 else if Entry.EnableRenameDelete then
@@ -2223,16 +2078,15 @@ begin
             end;
           end;
         rtpAniCursor,
-          rtpRCData,
-          rtpCustom:
+        rtpRCData,
+        rtpCustom:
           begin
             if Entry.FResType = rtpAniCursor then
               OpenDlg.Filter := sAniCursorFilesFilter
             else
               OpenDlg.Filter := sAllFilesFilter;
             OpenDlg.FileName := '';
-            if OpenDlg.Execute then
-            begin
+            if OpenDlg.Execute then begin
               Stream := TMemoryStream.Create;
               try
                 TMemoryStream(Stream).LoadFromFile(OpenDlg.FileName);
@@ -2242,8 +2096,7 @@ begin
               end;
             end;
           end;
-      else
-        Exit;
+        else Exit;
       end;
     end;
   end;
@@ -2255,8 +2108,7 @@ var
   Entry: TResourceEntry;
 begin
   Node := ResTree.Selected;
-  if Node <> nil then
-  begin
+  if Node <> nil then begin
     Entry := TResourceEntry(Node.Data);
     if (Entry <> nil) and Entry.EnableRenameDelete then
       FExpert.DeleteEntry(nil, Entry);
@@ -2269,8 +2121,7 @@ var
 begin
   Bitmap := TBitmap.Create;
   try
-    if EditGraphic(Bitmap, TBitmap, sNewBitmap) then
-    begin
+    if EditGraphic(Bitmap, TBitmap, sNewBitmap) then begin
       if not Bitmap.Empty then
         FExpert.NewBitmapRes(nil, nil, Bitmap);
     end;
@@ -2285,8 +2136,7 @@ var
 begin
   OpenDlg.Filter := sIconFilesFilter + '|' + sCursorFilesFilter;
   OpenDlg.FileName := '';
-  if OpenDlg.Execute then
-  begin
+  if OpenDlg.Execute then begin
     Stream := TFileStream.Create(OpenDlg.FileName, fmOpenRead +
       fmShareDenyNone);
     try
@@ -2303,10 +2153,8 @@ var
 begin
   OpenDlg.Filter := sCursorFilesFilter + '|' + sAniCursorFilesFilter;
   OpenDlg.FileName := '';
-  if OpenDlg.Execute then
-  begin
-    if AnsiCompareText(ExtractFileExt(OpenDlg.FileName), '.ani') = 0 then
-    begin
+  if OpenDlg.Execute then begin
+    if AnsiCompareText(ExtractFileExt(OpenDlg.FileName), '.ani') = 0 then begin
       Stream := TMemoryStream.Create;
       try
         TMemoryStream(Stream).LoadFromFile(OpenDlg.FileName);
@@ -2315,8 +2163,7 @@ begin
         Stream.Free;
       end;
     end
-    else
-    begin
+    else begin
       Stream := TFileStream.Create(OpenDlg.FileName, fmOpenRead +
         fmShareDenyNone);
       try
@@ -2350,17 +2197,14 @@ begin
     Prompt := sResType;
     OnApply := CheckResourceType;
     with FExpert do
-      for I := 0 to FResourceList.Count - 1 do
-      begin
+      for I := 0 to FResourceList.Count - 1 do begin
         Entry := TResourceEntry(FResourceList.Objects[I]);
         if (Entry <> nil) and (Entry.FResType in [rtpCustom, rtpRCData]) then
           if Strings.IndexOf(ResTypeName(Entry.GetResourceType)) < 0 then
             Strings.Add(ResTypeName(Entry.GetResourceType));
       end;
-    if Execute then
-      Result := Value
-    else
-      Result := '';
+    if Execute then Result := Value
+    else Result := '';
   finally
     Free;
   end;
@@ -2377,16 +2221,12 @@ begin
   TypeName := AnsiUpperCase(GetResourceTypeName);
   if TypeName = '' then Exit;
   Val(TypeName, Id, Code);
-  if TypeName = ResTypeName(RT_RCDATA) then
-    P := RT_RCDATA
-  else if Code = 0 then
-    P := MakeIntResource(Id)
-  else
-    P := PChar(TypeName);
+  if TypeName = ResTypeName(RT_RCDATA) then P := RT_RCDATA
+  else if Code = 0 then P := MakeIntResource(Id)
+  else P := PChar(TypeName);
   OpenDlg.Filter := sAllFilesFilter;
   OpenDlg.FileName := '';
-  if OpenDlg.Execute then
-  begin
+  if OpenDlg.Execute then begin
     Mem := TMemoryStream.Create;
     try
       Mem.LoadFromFile(OpenDlg.FileName);
@@ -2412,13 +2252,10 @@ var
 begin
   { save resource }
   Node := ResTree.Selected;
-  if Node <> nil then
-  begin
+  if Node <> nil then begin
     Entry := TResourceEntry(Node.Data);
-    if (Entry <> nil) then
-    begin
-      with SaveDlg do
-      begin
+    if (Entry <> nil) then begin
+      with SaveDlg do begin
         case Entry.FResType of
           rtpGroupCursor:
             begin
@@ -2440,16 +2277,15 @@ begin
               Filter := sAniCursorFilesFilter + '|' + sAllFilesFilter;
               DefaultExt := 'ani';
             end;
-        else
-          begin
-            Filter := sAllFilesFilter;
-            DefaultExt := '';
-          end;
+          else
+            begin
+              Filter := sAllFilesFilter;
+              DefaultExt := '';
+            end;
         end;
         FileName := '';
       end;
-      if SaveDlg.Execute then
-      begin
+      if SaveDlg.Execute then begin
         ResFile := FExpert.GetResFile;
         try
           case Entry.FResType of
@@ -2463,20 +2299,18 @@ begin
                 end;
               end;
             rtpGroupCursor, rtpGroupIcon,
-              rtpAniCursor, rtpRCData, rtpCustom:
+            rtpAniCursor, rtpRCData, rtpCustom:
               begin
                 Stream := TFileStream.Create(SaveDlg.FileName, fmCreate);
                 try
                   if Entry.FResType in [rtpGroupCursor, rtpGroupIcon] then
                     Entry.GetIconData(ResFile, Stream)
-                  else
-                    Entry.GetData(ResFile, Stream);
+                  else Entry.GetData(ResFile, Stream);
                 finally
                   Stream.Free;
                 end;
               end;
-          else
-            Exit;
+            else Exit;
           end;
         finally
           ResFile.Free;
@@ -2489,8 +2323,7 @@ end;
 procedure TRxResourceEditor.ResTreeKeyPress(Sender: TObject;
   var Key: Char);
 begin
-  if (Key = Char(VK_RETURN)) then
-  begin
+  if (Key = Char(VK_RETURN)) then begin
     EditItemClick(Sender);
     Key := #0;
   end;
@@ -2508,11 +2341,9 @@ var
   S: string;
 begin
   S := '';
-  if Node <> nil then
-  begin
+  if Node <> nil then begin
     Entry := TResourceEntry(Node.Data);
-    if Entry <> nil then
-    begin
+    if Entry <> nil then begin
       if Entry.FResType in [rtpGroupCursor, rtpGroupIcon] then
         S := Format('%d image(s)  ', [Entry.FChildren.Count]);
       S := S + Format('%d byte(s)', [Entry.FSize]);
@@ -2527,8 +2358,7 @@ procedure TRxResourceEditor.StatusBarDrawPanel(StatusBar: TStatusBar;
 var
   Offset: Integer;
 begin
-  with StatusBar do
-  begin
+  with StatusBar do begin
     Offset := Max(0, (HeightOf(Rect) - Canvas.TextHeight('Wg')) div 2);
     WriteText(Canvas, Rect, Offset, Offset, MinimizeText(Panels[0].Text,
       Canvas, WidthOf(Rect) - Height), taLeftJustify, False);
@@ -2538,4 +2368,3 @@ end;
 initialization
   RxResourceEditor := nil;
 end.
-

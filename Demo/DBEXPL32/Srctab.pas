@@ -13,8 +13,8 @@ interface
 
 uses
   SysUtils, WinTypes, WinProcs, Messages, Classes, Graphics, Controls,
-  Forms, Dialogs, ExtCtrls, Grids, StdCtrls, Mask, RxToolEdit, RxPlacemnt, DB,
-  RxDBLists, DBTables, RXDBCtrl, RxMemTable, DBGrids, RxCurrEdit;
+  Forms, Dialogs, ExtCtrls, Grids, StdCtrls, Mask, ToolEdit, Placemnt, DB,
+  DBLists, DBTables, RXDBCtrl, MemTable, DBGrids, CurrEdit;
 
 type
   TSrcTableDlg = class(TForm)
@@ -70,7 +70,7 @@ function GetImportParams(const DstTable: TTable; var TabName: string;
 
 implementation
 
-uses RxVCLUtils;
+uses VCLUtils;
 
 {$R *.DFM}
 
